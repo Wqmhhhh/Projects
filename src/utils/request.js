@@ -8,7 +8,7 @@ const instance = axios.create({
   timeout: 10000, // 设置超时时间（毫秒）
   baseURL,
   // 设置请求头
-  headers: {}
+  headers: {},
 })
 
 // 导出实例
