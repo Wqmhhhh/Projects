@@ -5,7 +5,7 @@ import TabTop from './components/Tab-Top.vue'
 
 <template>
   <el-config-provider :locale="zhCn">
-    <TabTop></TabTop>
+    <TabTop class="tabtop"></TabTop>
     <router-view></router-view>
   </el-config-provider>
 </template>

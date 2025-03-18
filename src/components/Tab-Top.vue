@@ -63,10 +63,15 @@ const handleBlur = () => {
   box-sizing: border-box;
 }
 .tab {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
   width: 100%;
   height: 12vh;
   display: flex;
   background-color: rgb(25, 27, 38);
+  /* background-color: transparent; */
   padding: 1vh 2vw;
   justify-content: space-between;
   text-align: center;

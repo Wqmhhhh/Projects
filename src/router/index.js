@@ -21,12 +21,12 @@ const router = createRouter({
           component: () => import('@/views/friends/FriendsPage.vue'),
         },
         {
-          path: '/live',
-          component: () => import('@/views/my/MyPage.vue'),
-        },
-        {
           path: '/main/recommend',
           component: () => import('@/views/recommend/RecommendPage.vue'),
+        },
+        {
+          path: '/main/my',
+          component: () => import('@/views/my/MyPage.vue'),
         },
       ],
     },
