@@ -1,12 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-// import router from '@/router'
+import LoginPopUp from '@/components/Login-PopUp.vue'
+import { useRouter } from 'vue-router'
+
 const Tab = [
-  { id: 'select', name: '精选', icon: 'icon-jingxuanyoupin' },
-  { id: 'recommend', name: '推荐', icon: 'icon-sijiaoxing' },
-  { id: 'follow', name: '关注', icon: 'icon-wodeguanzhu' },
-  { id: 'friends', name: '朋友', icon: 'icon-friend' },
-  { id: 'my', name: '我的', icon: 'icon-wode' },
+  { path: '/main/recommend', name: '推荐', icon: 'icon-sijiaoxing' },
+  { path: '/main/follow', name: '关注', icon: 'icon-wodeguanzhu' },
+  { path: '/main/friends', name: '朋友', icon: 'icon-friend' },
+  { path: '/main/my', name: '我的', icon: 'icon-wode' },
 ]
 const TabFix = [
   {
@@ -27,7 +28,7 @@ const TabFix = [
 let isCollapse = ref(false)
 onMounted(() => {
   window.addEventListener('resize', () => {
-    if (window.innerWidth <= 1000) {
+    if (window.innerWidth <= 1100) {
       isCollapse.value = true
       document.querySelector('.author').style.display = 'none'
     } else {
@@ -36,6 +37,15 @@ onMounted(() => {
     }
   })
 })
+
+// router变化
+const router = useRouter()
+let activeIndex = ref('/main/recommend')
+router.push('/main/recommend')
+const handleTabClick = (path) => {
+  router.push(path)
+  activeIndex.value = path
+}
 </script>
 <template>
   <el-row class="tac">
@@ -43,14 +53,18 @@ onMounted(() => {
       <el-menu
         class="el-menu el-menu-tab"
         :collapse="isCollapse"
-        :default-active="$route.path"
-        router
+        :default-active="activeIndex"
       >
         <el-menu-item
           class="el-menu-item el-menu-item-tab"
+          :class="
+            ({ el_menu_tab_collapse: isCollapse },
+            { activeIndex: activeIndex === item.path })
+          "
           v-for="item in Tab"
-          :index="item.id"
-          :key="item.id"
+          :index="item.path"
+          :key="item.path"
+          @click="handleTabClick(item.path)"
         >
           <el-icon><i class="iconfont" :class="item.icon"></i></el-icon>
           <span>{{ item.name }}</span>
@@ -82,23 +96,23 @@ onMounted(() => {
       </div>
     </el-col>
   </el-row>
+  <LoginPopUp></LoginPopUp>
 </template>
 <style scoped>
 .tac {
-  position: relative;
-  top: 12vh;
   width: 100%;
   text-align: center;
   /* background-color: rgb(25, 27, 38); */
 }
 .el-col1,
-/* .el-col2, */
+.el-col2,
 .el-menu,
 .space {
   background-color: rgb(25, 27, 38);
 }
-.el-col2 {
-  height: auto;
+.el-col1 {
+  overflow: auto;
+  scrollbar-width: none;
 }
 .el-menu {
   width: 100%;
@@ -130,18 +144,33 @@ onMounted(() => {
 }
 
 /* Tab */
+/* 正常大小 */
 .el-menu-item-tab {
   text-align: center;
-  width: 70%;
+  width: 65%;
   height: 100%;
-  padding: 10%;
+  padding: 3% 10%;
   margin: 10% auto;
   border-radius: 3vh;
+  display: flex;
+  justify-content: space-between;
 }
-.el-menu-item-tab:hover,
-.el-menu-item-tab:focus {
-  background-color: #ffffff10;
+.el-menu-tab > .el-menu-item:hover {
+  background-color: #b4b4b410;
   color: #fff;
+}
+.el-menu-tab > .el-menu-item:focus,
+.el-menu-tab > .el-menu-item:active,
+.el-menu-tab > .activeIndex {
+  background-color: #ffffff27;
+  color: #fff;
+}
+/* 折叠后 */
+.el_menu_tab_collapse {
+  width: 55%;
+  padding: 5% 0;
+  display: block;
+  text-align: center;
 }
 
 /* space */
@@ -175,11 +204,9 @@ onMounted(() => {
 
 /* router-view */
 .router-view {
-  width: 100%;
-  height: 80%;
-  border-radius: 3vh;
+  width: 86%;
   position: fixed;
-  top: 12vh;
-  left: 12.3vw;
+  top: 10vh;
+  left: 12.5vw;
 }
 </style>

@@ -6,12 +6,8 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('@/views/main/MainContainer.vue'),
-      redirect: '/main/select',
+      redirect: '/main/recommend',
       children: [
-        {
-          path: '/main/select',
-          component: () => import('@/views/select/SelectPage.vue'),
-        },
         {
           path: '/main/follow',
           component: () => import('@/views/follow/FollowPage.vue'),
@@ -27,6 +23,25 @@ const router = createRouter({
         {
           path: '/main/my',
           component: () => import('@/views/my/MyPage.vue'),
+          redirect: '/main/my/works',
+          children: [
+            {
+              path: '/main/my/works',
+              component: () => import('@/views/my/components/worksPage.vue'),
+            },
+            {
+              path: '/main/my/like',
+              component: () => import('@/views/my/components/likePage.vue'),
+            },
+            {
+              path: '/main/my/collect',
+              component: () => import('@/views/my/components/collectPage.vue'),
+            },
+            {
+              path: '/main/my/history',
+              component: () => import('@/views/my/components/historyPage.vue'),
+            },
+          ],
         },
       ],
     },

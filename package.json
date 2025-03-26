@@ -11,12 +11,14 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
+    "@element-plus/icons-vue": "^2.3.0",
     "axios": "^1.8.3",
     "element-plus": "^2.9.6",
     "pinia": "^3.0.1",
+    "pinia-plugin-persistedstate": "^4.2.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vuex": "3"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

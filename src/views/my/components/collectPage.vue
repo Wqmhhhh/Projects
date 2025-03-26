@@ -1,5 +1,5 @@
 <template>
-  <div>friends</div>
+  <div>collect</div>
 </template>
 
 <script>
