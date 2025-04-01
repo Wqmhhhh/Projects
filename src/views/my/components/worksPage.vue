@@ -2,7 +2,7 @@
 import VideoBoxSmall from '@/components/VideoBox-small.vue'
 </script>
 <template>
-  <div>123</div>
+  <div>works</div>
   <VideoBoxSmall></VideoBoxSmall>
 </template>
 

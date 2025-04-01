@@ -105,7 +105,11 @@ const notLogin = ref(true)
                 <!-- TODO：改下拉框的样式 -->
                 <!-- TODO：鼠标悬浮在下拉框时下拉卡片显示 -->
                 <template #dropdown>
-                  <el-dropdown-menu class="notice-dropdown" trigger="click">
+                  <el-dropdown-menu
+                    class="notice-dropdown"
+                    trigger="click"
+                    teleported="true"
+                  >
                     <el-dropdown-item class="el-dropdown-item"
                       >全部消息</el-dropdown-item
                     >

@@ -57,10 +57,10 @@ const handleTabClick = (path) => {
       >
         <el-menu-item
           class="el-menu-item el-menu-item-tab"
-          :class="
-            ({ el_menu_tab_collapse: isCollapse },
-            { activeIndex: activeIndex === item.path })
-          "
+          :class="[
+            { el_menu_tab_collapse: isCollapse },
+            { activeIndex: activeIndex === item.path },
+          ]"
           v-for="item in Tab"
           :index="item.path"
           :key="item.path"
@@ -102,7 +102,6 @@ const handleTabClick = (path) => {
 .tac {
   width: 100%;
   text-align: center;
-  /* background-color: rgb(25, 27, 38); */
 }
 .el-col1,
 .el-col2,
@@ -168,7 +167,8 @@ const handleTabClick = (path) => {
 /* 折叠后 */
 .el_menu_tab_collapse {
   width: 55%;
-  padding: 5% 0;
+  height: 25vh;
+  line-height: 25vh;
   display: block;
   text-align: center;
 }
