@@ -281,7 +281,7 @@ const notLogin = ref(true)
   width: 6vw;
 }
 .tab-title {
-  font-size: 3vh;
+  font-size: 4vh;
   font-weight: bold;
   color: #fff;
 }

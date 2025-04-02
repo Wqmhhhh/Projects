@@ -73,13 +73,13 @@ const handleSpeed = (value) => {
 }
 
 // 全屏控制
-// const handleFullScreen = () => {
-//   if (document.fullscreenElement) {
-//     document.exitFullscreen() // 退出全屏
-//   } else {
-//     VideoRef.value.requestFullscreen() // 进入全屏
-//   }
-// }
+const handleFullScreen = () => {
+  if (document.fullscreenElement) {
+    document.exitFullscreen() // 退出全屏
+  } else {
+    VideoRef.value.requestFullscreen() // 进入全屏
+  }
+}
 
 // 视频上层图标
 const tagShow = ref(false)
@@ -161,7 +161,127 @@ const handleDoubleClick = () => {
   handleLike()
 }
 // 右侧抽屉
+const sideTab = [
+  {
+    name: 'TA 的作品',
+  },
+  {
+    name: '评论',
+  },
+]
+// 抽屉显示
 const DrawerShow = ref(false)
+const TabShow = ref(0)
+const handleTabClick = (index) => {
+  TabShow.value = index
+}
+// 评论数组
+const CommentArr = ref([
+  {
+    picSrc: '../assets/image.ico',
+    SendName: '乌漆抹黑嘿嘿嘿',
+    msg: '建议加入淡斑精华',
+    likeNum: 0,
+    ifLike: false,
+    time: '一天前',
+    reply: [
+      {
+        picSrc: '../assets/image.ico',
+        SendName: '乌漆抹黑嘿嘿嘿',
+        msg: '建议加入淡斑精华',
+        likeNum: 0,
+        ifLike: false,
+        time: '一天前',
+      },
+      {
+        picSrc: '../assets/image.ico',
+        SendName: '乌漆抹黑嘿嘿嘿',
+        msg: '建议加入淡斑精华',
+        likeNum: 0,
+        ifLike: false,
+        time: '一天前',
+      },
+      {
+        picSrc: '../assets/image.ico',
+        SendName: '乌漆抹黑嘿嘿嘿',
+        msg: '建议加入淡斑精华',
+        likeNum: 0,
+        ifLike: false,
+        time: '一天前',
+      },
+    ],
+  },
+])
+// 评论数量
+const CommentNum = ref(CommentArr.value.length)
+// 点击头像显示抽屉的 作品
+const handleClickPic = () => {
+  handleTabClick(0)
+  DrawerShow.value = true
+}
+// 点击评论显示抽屉的 评论
+const handleClickComment = () => {
+  if (TabShow.value === 0) {
+    handleTabClick(1)
+    DrawerShow.value = true
+  } else {
+    DrawerShow.value = !DrawerShow.value
+  }
+}
+// 点击评论喜欢
+const handleLikeComment = (e) => {
+  if (e.ifLike) {
+    e.ifLike = false
+    e.likeNum--
+  } else {
+    e.ifLike = true
+    e.likeNum++
+  }
+}
+
+// TODO:将store中的user信息同步进来
+const User = {
+  name: 'whhhh',
+  src: '../assets/image.ico',
+}
+const sendBoxText = ref('')
+// 点击评论发送
+const handleCommentSend = () => {
+  const newComment = {
+    picSrc: '../assets/image.ico',
+    SendName: User.name,
+    msg: sendBoxText.value,
+    likeNum: 0,
+    ifLike: false,
+    time: '刚刚',
+    reply: [],
+  }
+  if (curretReply.value) {
+    curretReply.value.reply.unshift(newComment)
+    curretReply.value = null
+  } else {
+    CommentArr.value.unshift(newComment)
+  }
+  sendBoxText.value = ''
+  CommentNum.value = ref(CommentArr.value.length)
+}
+// 回复评论
+const curretReply = ref(null)
+const handleReply = (item) => {
+  curretReply.value = item
+  sendBoxText.value = `@${item.SendName}：` + sendBoxText.value
+  document.querySelector('.sendBox input').focus()
+}
+
+// 删除评论
+const handleDeleteComment = (index, arr) => {
+  if (arr && arr.value) {
+    arr.value.splice(index, 1)
+  } else if (Array.isArray(arr)) {
+    arr.splice(index, 1)
+  }
+  CommentNum.value = ref(CommentArr.value.length)
+}
 </script>
 <template>
   <div class="video-container">
@@ -187,8 +307,130 @@ const DrawerShow = ref(false)
         ></video>
       </div>
 
+      <!-- 视频右侧抽屉 -->
+      <!-- TODO:抽屉背景和视频背景保持一致 -->
       <div class="drawer" :class="{ DrawerShow: DrawerShow }">
-        <div>123</div>
+        <!-- drawerTab -->
+        <div class="drawerTab">
+          <el-menu
+            mode="horizontal"
+            class="Tab el-menu-demo"
+            :default-active="TabShow"
+          >
+            <el-menu-item
+              v-for="(item, index) in sideTab"
+              :key="index"
+              :index="index"
+              class="el-menu-item"
+              @click="handleTabClick(index)"
+              :class="{ activeTab: index === TabShow }"
+            >
+              <span>{{ item.name }}</span>
+            </el-menu-item>
+          </el-menu>
+          <el-icon class="el-icon" @click="DrawerShow = !DrawerShow"
+            ><Close
+          /></el-icon>
+        </div>
+
+        <!-- TA的作品 -->
+        <div class="UperWorks" v-if="TabShow === 0"></div>
+
+        <!-- 评论 -->
+        <div class="comment" v-else>
+          <div class="commentNum">全部评论（{{ CommentNum }}）</div>
+
+          <!-- 评论详情 -->
+          <div class="commentContainer">
+            <div
+              class="commentBox"
+              v-for="(item, index) in CommentArr"
+              :key="index"
+            >
+              <div>
+                <img src="../assets/image.ico" alt="" />
+              </div>
+              <div>
+                <div class="sendName">
+                  <span>{{ item.SendName }}</span>
+                  <el-button
+                    class="el-button"
+                    @click="handleDeleteComment(item, CommentArr)"
+                    >删除</el-button
+                  >
+                </div>
+                <div class="CommentMsg">{{ item.msg }}</div>
+
+                <!-- 固定内容 -->
+                <div class="commentFix">
+                  <div>{{ item.time }}</div>
+                  <div class="reply" @click="handleReply(item)">
+                    <i class="iconfont icon-huifu"></i>
+                    <span>回复</span>
+                  </div>
+                  <div class="likeCommentBox">
+                    <i
+                      class="iconfont icon-aixin"
+                      :class="{ likeComment: item.ifLike }"
+                      @click="handleLikeComment(item)"
+                    ></i>
+                    <span>{{ item.likeNum }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 子评论 -->
+              <div
+                class="commentBox childComment"
+                v-for="(citem, cindex) in item.reply"
+                :key="cindex"
+              >
+                <div>
+                  <img src="../assets/image.ico" alt="" />
+                </div>
+                <div>
+                  <div class="sendName">
+                    <span>{{ citem.SendName }}</span>
+                    <el-button
+                      class="el-button"
+                      @click="handleDeleteComment(cindex, item.reply)"
+                      >删除</el-button
+                    >
+                  </div>
+                  <div class="CommentMsg">{{ citem.msg }}</div>
+
+                  <!-- 固定内容 -->
+                  <div class="commentFix">
+                    <div style="margin-right: 4vh">{{ citem.time }}</div>
+                    <div class="likeCommentBox">
+                      <i
+                        class="iconfont icon-aixin"
+                        :class="{ likeComment: citem.ifLike }"
+                        @click="handleLikeComment(citem)"
+                      ></i>
+                      <span>{{ citem.likeNum }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 发送评论对话框 -->
+          <div class="sendContainer">
+            <div class="sendBox">
+              <input
+                type="text"
+                placeholder="讲两句再走~"
+                v-model="sendBoxText"
+                @keyup.enter="handleCommentSend"
+              />
+              <el-button class="el-button" @click="handleCommentSend"
+                >biu~发送</el-button
+              >
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -212,7 +454,7 @@ const DrawerShow = ref(false)
       class="topContainerRight"
       :class="{ topContainerRightMove: DrawerShow }"
     >
-      <div class="UperPic">
+      <div class="UperPic" @click="handleClickPic">
         <img src="../assets/image.ico" alt="" />
       </div>
       <div @click="FollowUper = !FollowUper" class="FollowUper">
@@ -227,7 +469,7 @@ const DrawerShow = ref(false)
         <i class="iconfont icon-aixin" :class="{ likeUper: likeUper }"></i>
         <div>{{ likeUperNum }}</div>
       </div>
-      <div class="comment" @click="DrawerShow = !DrawerShow">
+      <div class="commentIcon" @click="handleClickComment">
         <i class="iconfont icon-pinglun"></i>
         <div>{{ commentNum }}</div>
       </div>
@@ -342,7 +584,9 @@ const DrawerShow = ref(false)
 .buttonsLeft,
 .buttonsRight,
 .inlinePlay,
-.topContainer {
+.topContainer,
+.sendBox,
+.commentFix {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -443,7 +687,8 @@ video {
   width: 80%;
   border-radius: 100vh;
 }
-.likeUper {
+.likeUper,
+.likeComment {
   color: rgb(254, 44, 85) !important;
 }
 .CollectUper {
@@ -457,16 +702,225 @@ video {
 .drawer {
   width: 30%;
   height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
   transition: all 0.5s;
-  background-color: #fff;
+  background-color: rgba(27, 26, 26, 0.331);
+  /* backdrop-filter: blur(3vh); */
   transform: translateX(100%);
   visibility: hidden;
   position: absolute;
+  border-top-right-radius: 4vh;
   left: 70%;
+  padding: 0 1vw;
+}
+
+/* drawerTab */
+.drawerTab {
+  width: 100%;
+  height: 13%;
+  background-color: transparent;
+}
+.drawerTab > .el-icon {
+  color: #ffffffa9;
+  font-size: 4vh;
+  position: absolute;
+  top: 4%;
+  left: 86%;
+}
+.drawerTab > .el-icon:hover {
+  color: #fff;
+  cursor: pointer;
 }
 .DrawerShow {
   visibility: visible;
   transform: translateX(0);
+}
+.Tab {
+  width: 80%;
+  height: 100%;
+  background-color: #ffffff00;
+  border: 0;
+}
+.Tab > .el-menu-item {
+  padding: 0 1vw;
+  font-size: 2.7vh;
+  color: #ffffffa9;
+  background-color: transparent;
+  user-select: none;
+}
+.Tab > .el-menu-item::after {
+  content: '';
+  width: 70%;
+  height: 100%;
+  position: absolute;
+  left: 15%;
+  background-color: transparent;
+}
+.Tab > .el-menu-item:hover::after {
+  border-bottom: 0.4vh solid #ffffff57;
+}
+.Tab > .el-menu-item:hover {
+  background-color: transparent;
+  color: #fff;
+}
+.Tab > .activeTab,
+.Tab > .el-menu-item:focus {
+  border-bottom: 0.5vh solid rgb(254, 44, 85);
+  color: #fff !important;
+  background-color: transparent;
+}
+.Tab > .activeTab::after {
+  border-bottom: transparent !important;
+}
+
+/* commentContainer */
+.comment {
+  height: 87%;
+  width: 100%;
+}
+.commentNum {
+  color: #ffffffa9;
+  padding: 2vh 1vw;
+  font-size: 2.5vh;
+  text-align: left;
+  background-color: transparent;
+}
+.commentContainer {
+  height: 77%;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  color: #eaeaea;
+  background-color: transparent;
+}
+.commentContainer::-webkit-scrollbar {
+  width: 1vh; /* 滚动条宽度 */
+  background-color: transparent; /* 滚动条背景颜色 */
+}
+
+/* 滚动条滑块样式 */
+.commentContainer::-webkit-scrollbar-thumb {
+  background-color: #888; /* 滑块颜色 */
+  border-radius: 4px; /* 滑块圆角 */
+}
+
+/* 滑块悬停时的样式 */
+.commentContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* 悬停时滑块颜色 */
+}
+
+/* 滚动条轨道样式 */
+.commentContainer::-webkit-scrollbar-track {
+  background-color: #f5f5f537; /* 轨道颜色 */
+  border-radius: 4px; /* 轨道圆角 */
+}
+
+/* 评论Box */
+.commentBox {
+  width: 100%;
+  height: auto;
+  text-align: left;
+  display: flex;
+  align-items: start;
+  flex-wrap: wrap;
+  margin: 2vh 0;
+  /* background-color: #ffffff82; */
+}
+.commentBox > div:first-child {
+  width: 13%;
+  margin-right: 2%;
+}
+.commentBox > div:nth-child(2) {
+  width: 83%;
+}
+.commentBox img {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  border-radius: 100vh;
+}
+.commentBox .sendName {
+  font-size: 2.2vh;
+  margin-bottom: 1vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ffffffe4;
+}
+.commentBox .sendName .el-button {
+  width: 20%;
+  margin-right: 5%;
+  font-size: 2vh;
+  background-color: #ffffff54;
+  color: #ffffffe2;
+  border: 0;
+}
+.commentBox .sendName .el-button:hover {
+  background-color: rgba(199, 197, 197, 0.719);
+}
+.CommentMsg {
+  width: 80%;
+  font-size: 2.4vh;
+  line-height: 4vh;
+  color: #fff;
+  word-wrap: break-word; /* 确保长单词可以换行 */
+  word-break: break-all; /* 确保内容可以在任意位置换行 */
+}
+.commentBox .commentFix {
+  justify-content: start;
+  margin-top: 1.5vh;
+  font-size: 2vh;
+  color: #ffffffe2;
+}
+.commentBox .reply {
+  font-size: 2vh;
+  margin: 0 2vw;
+}
+.commentBox .reply:hover {
+  cursor: pointer;
+  color: #fff;
+}
+.likeCommentBox:hover {
+  cursor: pointer;
+}
+
+/* 子评论框 */
+.childComment {
+  width: 90%;
+  margin-left: 10%;
+}
+
+/* 评论对话框 */
+.sendContainer {
+  height: 23%;
+  width: 100%;
+  background-color: transparent;
+}
+.sendBox {
+  margin: 0 auto;
+  background-color: rgb(51, 51, 51);
+  width: 90%;
+  border-radius: 2.5vh;
+  padding: 1vh 1vw;
+}
+.sendBox > input {
+  background-color: transparent;
+  font-size: 2.5vh;
+  outline: none;
+  border: 0;
+  color: #ffffffb4;
+}
+.sendBox > .el-button {
+  font-size: 2vh;
+  width: 25%;
+  border: 0;
+  color: #fff;
+  background-color: rgba(254, 44, 86, 0.616);
+}
+.sendBox > .el-button:hover {
+  background-color: rgb(254, 44, 85);
 }
 
 /* 进度条 */

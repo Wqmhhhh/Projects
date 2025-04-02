@@ -188,7 +188,6 @@ const handleTabClick = (path) => {
   bottom: 0;
   width: 12.5%;
   height: 10vh;
-  border-top: #ffffff44 solid 0.1vh;
 }
 .el-menu-item-fix {
   justify-content: space-around;
