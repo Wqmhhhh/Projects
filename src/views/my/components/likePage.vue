@@ -1,9 +1,36 @@
+<script setup>
+import VideoBoxSmall from '@/components/VideoBox-small.vue'
+</script>
 <template>
-  <div>like</div>
+  <div class="UperWorksVideosContainer">
+    <div class="UperWorksVideosBox">
+      <VideoBoxSmall></VideoBoxSmall>
+    </div>
+  </div>
 </template>
 
-<script>
-export default {}
-</script>
+<style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.UperWorksVideosContainer {
+  width: 100%;
+  height: 99%;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  align-content: start;
+  /* background-color: #ffffff38; */
+}
 
-<style></style>
+.UperWorksVideosBox {
+  width: 14%;
+  height: 50%;
+  border-radius: 2.5vh;
+  margin: 2vh 1vw;
+}
+</style>

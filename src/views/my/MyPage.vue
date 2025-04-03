@@ -83,7 +83,7 @@ const handleTabClick = (path) => {
       <el-menu
         mode="horizontal"
         class="Tab el-menu-demo"
-        :default-active="activeIndex"
+        :default-active="activeIndex.toString()"
         router
       >
         <el-menu-item

@@ -81,9 +81,13 @@ const handleFullScreen = () => {
   }
 }
 
-// 视频上层图标
+// 视频上层图标是否显示
 const tagShow = ref(false)
-const UperName = ref('@乌漆抹黑嘿嘿嘿')
+// 视频作者信息
+const Uper = ref({
+  UperName: '乌漆抹黑嘿嘿嘿',
+  UperFansNumber: '30.5万',
+})
 const VideoIntro = ref(
   `一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的`
 )
@@ -149,7 +153,7 @@ const handleSingleClick = () => {
   clickTimer.value = setTimeout(() => {
     handlePlayPause()
     clickTimer.value = null
-  }, 200)
+  }, 300)
 }
 const handleDoubleClick = () => {
   // 立即清除单击定时器
@@ -334,7 +338,32 @@ const handleDeleteComment = (index, arr) => {
         </div>
 
         <!-- TA的作品 -->
-        <div class="UperWorks" v-if="TabShow === 0"></div>
+        <div class="UperWorks" v-if="TabShow === 0">
+          <!-- 顶部作者信息 -->
+          <div class="UperWorksTop">
+            <div>
+              <div>@ {{ Uper.UperName }} ></div>
+              <div>{{ Uper.UperFansNumber }} 粉丝</div>
+            </div>
+            <div
+              class="UperWorksFollowButton"
+              @click="FollowUper = !FollowUper"
+            >
+              <el-button class="el-button DrawerNotfollow" v-if="!FollowUper"
+                >+ 关注</el-button
+              >
+              <el-button class="el-button Drawerfollow" v-else
+                >已关注</el-button
+              >
+            </div>
+          </div>
+
+          <!-- 底部视频列表 -->
+          <div class="UperWorksVideosContainer">
+            <div class="UperWorksVideosBox"></div>
+            <div class="UperWorksVideosBox"></div>
+          </div>
+        </div>
 
         <!-- 评论 -->
         <div class="comment" v-else>
@@ -436,7 +465,7 @@ const handleDeleteComment = (index, arr) => {
 
     <!-- 底部文字 -->
     <div class="topContainerBottom" v-show="!tagShow">
-      <div>{{ UperName }}</div>
+      <div>@{{ Uper.UperName }}</div>
       <div>
         <span>{{ VideoIntroShow }}</span>
 
@@ -586,7 +615,8 @@ const handleDeleteComment = (index, arr) => {
 .inlinePlay,
 .topContainer,
 .sendBox,
-.commentFix {
+.commentFix,
+.UperWorksTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -775,6 +805,67 @@ video {
   border-bottom: transparent !important;
 }
 
+/* TA的作品 */
+.UperWorks {
+  height: 87%;
+  width: 100%;
+  /* background-color: #fff; */
+}
+
+/* 顶部作者信息 */
+.UperWorksTop {
+  height: 20%;
+  color: #ffffffde;
+  text-align: left;
+  user-select: none;
+  /* background-color: #b41f1f20; */
+}
+.UperWorksTop > div:first-child > div:first-child {
+  font-size: 2.5vh;
+  line-height: 6vh;
+}
+.UperWorksTop > div:first-child > div:first-child:hover {
+  cursor: pointer;
+  color: #fff;
+}
+.UperWorksTop > div:first-child > div:last-child {
+  font-size: 2vh;
+}
+.UperWorksFollowButton {
+  width: 25%;
+  height: 35%;
+}
+.UperWorksFollowButton > .el-button {
+  width: 100%;
+  height: 100%;
+  font-size: 2.3vh;
+  border: 0;
+  color: #ffffffde;
+}
+.UperWorksFollowButton > .DrawerNotfollow {
+  background-color: rgb(254, 44, 85);
+}
+.UperWorksFollowButton > .Drawerfollow {
+  background-color: #ffffff3f;
+}
+
+/* 底部视频容器 */
+.UperWorksVideosContainer {
+  height: 77%;
+  overflow-y: scroll;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  align-content: start;
+}
+.UperWorksVideosBox {
+  width: 27%;
+  height: 35%;
+  background-color: #ffffff30;
+  border-radius: 2.5vh;
+  margin: 1vh 0.5vw;
+}
+
 /* commentContainer */
 .comment {
   height: 87%;
@@ -795,24 +886,30 @@ video {
   color: #eaeaea;
   background-color: transparent;
 }
-.commentContainer::-webkit-scrollbar {
+
+/* 滚动条样式 */
+.commentContainer::-webkit-scrollbar,
+.UperWorksVideosContainer::-webkit-scrollbar {
   width: 1vh; /* 滚动条宽度 */
   background-color: transparent; /* 滚动条背景颜色 */
 }
 
 /* 滚动条滑块样式 */
-.commentContainer::-webkit-scrollbar-thumb {
+.commentContainer::-webkit-scrollbar-thumb,
+.UperWorksVideosContainer::-webkit-scrollbar-thumb {
   background-color: #888; /* 滑块颜色 */
   border-radius: 4px; /* 滑块圆角 */
 }
 
 /* 滑块悬停时的样式 */
-.commentContainer::-webkit-scrollbar-thumb:hover {
+.commentContainer::-webkit-scrollbar-thumb:hover,
+.UperWorksVideosContainer::-webkit-scrollbar-thumb:hover {
   background-color: #555; /* 悬停时滑块颜色 */
 }
 
 /* 滚动条轨道样式 */
-.commentContainer::-webkit-scrollbar-track {
+.commentContainer::-webkit-scrollbar-track,
+.UperWorksVideosContainer::-webkit-scrollbar-track {
   background-color: #f5f5f537; /* 轨道颜色 */
   border-radius: 4px; /* 轨道圆角 */
 }
