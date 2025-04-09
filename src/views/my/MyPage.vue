@@ -2,16 +2,19 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const autoLogin = ref(false)
-const user = {
-  name: '乌漆抹黑嘿嘿嘿',
-  follow: 10,
-  fans: 6,
-  douyinId: '11111111111111111',
-}
+// store库
+import { useShowFlags, useUserStore } from '@/stores/index'
+import { storeToRefs } from 'pinia'
+
+const FlagsStore = useShowFlags()
+const UserStore = useUserStore()
+
+const { ifLogin, ifAutoLogin, ifEditShow } = storeToRefs(FlagsStore)
+const { user } = storeToRefs(UserStore)
+
 // TODO:编辑资料弹框
 const handleChangeUserInfor = () => {
-  console.log(1)
+  ifEditShow.value = true
 }
 
 // Tab栏
@@ -23,28 +26,23 @@ const myTab = [
     private: false,
   },
   {
+    path: '/main/my/private',
+    name: '私密',
+    num: 0,
+    private: true,
+  },
+  {
     path: '/main/my/like',
     name: '喜欢',
     num: 166,
     private: false,
   },
-  {
-    path: '/main/my/collect',
-    name: '收藏',
-    num: 0,
-    private: true,
-  },
-  {
-    path: '/main/my/history',
-    name: '观看历史',
-    num: 0,
-    private: true,
-  },
 ]
-
+// 初始默认激活 “作品”
 const router = useRouter()
-let activeIndex = ref('/main/my/works')
+const activeIndex = ref('/main/my/works')
 router.push('/main/my/works')
+// 点击tab栏进行切换
 const handleTabClick = (path) => {
   activeIndex.value = path
   router.push(path)
@@ -52,18 +50,18 @@ const handleTabClick = (path) => {
 </script>
 
 <template>
-  <div class="my-container">
+  <div class="my-container" v-if="ifLogin">
     <div class="header">
       <div class="header-left">
         <div class="header-pic">
-          <img src="../../assets/image.ico" alt="" />
+          <img :src="user.ProFileSrc" alt="" />
         </div>
         <div class="header-infor">
           <div>{{ user.name }}</div>
           <div class="header-infor-inline">
-            <div>关注 {{ user.follow }}</div>
+            <div>关注 {{ user.followNum }}</div>
             <hr />
-            <div>粉丝 {{ user.fans }}</div>
+            <div>粉丝 {{ user.fansNum }}</div>
           </div>
           <div>抖音号： {{ user.douyinId }}</div>
         </div>
@@ -71,7 +69,7 @@ const handleTabClick = (path) => {
       <div class="header-right">
         <div>
           <span>保存登录信息</span>
-          <el-switch v-model="autoLogin"></el-switch>
+          <el-switch v-model="ifAutoLogin"></el-switch>
         </div>
         <el-button class="el-button" @click="handleChangeUserInfor"
           >编辑资料</el-button
@@ -89,7 +87,7 @@ const handleTabClick = (path) => {
         <el-menu-item
           v-for="(item, index) in myTab"
           :key="index"
-          :index="item.path"
+          :index="item.path.toString()"
           class="el-menu-item"
           @click="handleTabClick(item.path)"
           :class="{ activeTab: item.path === activeIndex }"
@@ -106,6 +104,10 @@ const handleTabClick = (path) => {
     <div class="routerView">
       <router-view></router-view>
     </div>
+  </div>
+
+  <div v-else class="notLoginShow">
+    <NotLoginRouterView></NotLoginRouterView>
   </div>
 </template>
 

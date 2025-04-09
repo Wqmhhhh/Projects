@@ -1,6 +1,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+// 导入库
+import { useShowFlags, useSingleVideo } from '@/stores'
+import { storeToRefs } from 'pinia'
+
+const FlagStore = useShowFlags()
+const videoStore = useSingleVideo()
+const { ifFullScreen } = storeToRefs(FlagStore)
+const { ifUserWork, ifPrivate } = storeToRefs(videoStore)
+
 // const currentVideo = ref({
 //   src: '../assets/98433cc4904e30ec520e03aa62a268b1.mp4',
 //   cover: '../assets/image.ico',
@@ -18,8 +27,14 @@ const TransTime = (num) => {
   return min + ':' + sec
 }
 
-// 视频时长
 onMounted(() => {
+  // 视频大小切换
+  if (VideoRef.value.style.width > VideoRef.value.style.height) {
+    VideoRef.value.style.height = '100%'
+  } else {
+    VideoRef.value.style.width = '100%'
+  }
+
   // 监听视频加载完成事件，更新总时长
   VideoRef.value.addEventListener('loadedmetadata', () => {
     totalLength.value = VideoRef.value.duration
@@ -34,6 +49,14 @@ onMounted(() => {
       VideoPause.value = true
     }
   })
+
+  // 初始化时介绍过长进行剪切
+  if (VideoIntro.value.length > 80) {
+    VideoIntroShow.value = VideoIntro.value.substring(0, 80)
+    IntroduceToolong.value = true
+  } else {
+    VideoIntroShow.value = VideoIntro.value
+  }
 })
 
 // 进度条
@@ -74,11 +97,7 @@ const handleSpeed = (value) => {
 
 // 全屏控制
 const handleFullScreen = () => {
-  if (document.fullscreenElement) {
-    document.exitFullscreen() // 退出全屏
-  } else {
-    VideoRef.value.requestFullscreen() // 进入全屏
-  }
+  ifFullScreen.value = !ifFullScreen.value
 }
 
 // 视频上层图标是否显示
@@ -105,16 +124,6 @@ const handleTooLong = () => {
   }
   ToolongWrap.value = !ToolongWrap.value
 }
-
-// 初始化底部文本
-onMounted(() => {
-  if (VideoIntro.value.length > 80) {
-    VideoIntroShow.value = VideoIntro.value.substring(0, 80)
-    IntroduceToolong.value = true
-  } else {
-    VideoIntroShow.value = VideoIntro.value
-  }
-})
 
 // 右侧图标
 const FollowUper = ref(false)
@@ -306,9 +315,76 @@ const handleDeleteComment = (index, arr) => {
           mediatype="video"
           data-index="-1"
           crossorigin="anonymous"
-          src="../assets/98433cc4904e30ec520e03aa62a268b1.mp4"
+          src="../../assets/竖屏.mp4"
           autoplay=""
         ></video>
+      </div>
+
+      <!-- 底部文字 -->
+      <div class="topContainerBottom" v-show="!tagShow">
+        <div>@{{ Uper.UperName }}</div>
+        <div>
+          <span>{{ VideoIntroShow }}</span>
+
+          <!-- 介绍过长时显示 -->
+          <span v-if="!IntroduceToolong"></span>
+          <span v-else @click="handleTooLong">
+            <span class="TooLong" v-if="ToolongWrap"> ...显示全部 </span>
+            <span class="TooLong" v-else> 折叠 </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- 右侧图标 -->
+      <div
+        class="topContainerRight"
+        :class="{ topContainerRightMove: DrawerShow }"
+      >
+        <!-- 作者头像 -->
+        <div class="UperPic" @click="handleClickPic">
+          <img src="../../assets/image.ico" alt="" />
+        </div>
+
+        <!-- 是否关注 -->
+        <div @click="FollowUper = !FollowUper" class="FollowUper">
+          <i
+            class="iconfont icon-31yiguanzhudianpu"
+            v-if="FollowUper"
+            style="color: rgb(254, 44, 85)"
+          ></i>
+          <i class="iconfont icon-31guanzhudianpu" v-else></i>
+        </div>
+
+        <!-- 喜欢 -->
+        <div class="like" @click="handleLike">
+          <i class="iconfont icon-aixin" :class="{ likeUper: likeUper }"></i>
+          <div>{{ likeUperNum }}</div>
+        </div>
+
+        <!-- 评论 -->
+        <div class="commentIcon" @click="handleClickComment">
+          <i class="iconfont icon-pinglun"></i>
+          <div>{{ commentNum }}</div>
+        </div>
+
+        <!-- 收藏 -->
+        <div class="collect" @click="handleCollect">
+          <i
+            class="iconfont icon-weishoucang"
+            :class="{ CollectUper: CollectUper }"
+          ></i>
+          <div>{{ CollectUperNum }}</div>
+        </div>
+
+        <!-- 私密 -->
+        <div
+          v-show="ifUserWork"
+          :class="{ Private: ifPrivate }"
+          @click="ifPrivate = !ifPrivate"
+        >
+          <i class="iconfont icon-simi"></i>
+        </div>
+        <div class="more"><i class="iconfont icon-gengduo1"></i></div>
       </div>
 
       <!-- 视频右侧抽屉 -->
@@ -463,55 +539,6 @@ const handleDeleteComment = (index, arr) => {
       </div>
     </div>
 
-    <!-- 底部文字 -->
-    <div class="topContainerBottom" v-show="!tagShow">
-      <div>@{{ Uper.UperName }}</div>
-      <div>
-        <span>{{ VideoIntroShow }}</span>
-
-        <!-- 介绍过长时显示 -->
-        <span v-if="!IntroduceToolong"></span>
-        <span v-else @click="handleTooLong">
-          <span class="TooLong" v-if="ToolongWrap"> ...显示全部 </span>
-          <span class="TooLong" v-else> 折叠 </span>
-        </span>
-      </div>
-    </div>
-
-    <!-- 右侧图标 -->
-    <div
-      class="topContainerRight"
-      :class="{ topContainerRightMove: DrawerShow }"
-    >
-      <div class="UperPic" @click="handleClickPic">
-        <img src="../assets/image.ico" alt="" />
-      </div>
-      <div @click="FollowUper = !FollowUper" class="FollowUper">
-        <i
-          class="iconfont icon-31yiguanzhudianpu"
-          v-if="FollowUper"
-          style="color: rgb(254, 44, 85)"
-        ></i>
-        <i class="iconfont icon-31guanzhudianpu" v-else></i>
-      </div>
-      <div class="like" @click="handleLike">
-        <i class="iconfont icon-aixin" :class="{ likeUper: likeUper }"></i>
-        <div>{{ likeUperNum }}</div>
-      </div>
-      <div class="commentIcon" @click="handleClickComment">
-        <i class="iconfont icon-pinglun"></i>
-        <div>{{ commentNum }}</div>
-      </div>
-      <div class="collect" @click="handleCollect">
-        <i
-          class="iconfont icon-weishoucang"
-          :class="{ CollectUper: CollectUper }"
-        ></i>
-        <div>{{ CollectUperNum }}</div>
-      </div>
-      <div class="more"><i class="iconfont icon-gengduo1"></i></div>
-    </div>
-
     <!-- 控制条 -->
     <div class="control">
       <!-- 进度条 -->
@@ -536,10 +563,13 @@ const handleDeleteComment = (index, arr) => {
         </div>
 
         <div class="buttonsRight">
-          <div>
+          <!-- 清屏 -->
+          <div class="clearScreen">
             <el-switch size="small" v-model="tagShow"></el-switch>
             <span>清屏</span>
           </div>
+
+          <!-- 倍速 -->
           <div>
             <el-dropdown placement="top" @command="handleSpeed">
               <span class="el-dropdown-link"> {{ SpeedNumber }} </span>
@@ -557,6 +587,7 @@ const handleDeleteComment = (index, arr) => {
             </el-dropdown>
           </div>
 
+          <!-- 音量 -->
           <div>
             <el-dropdown placement="top" class="el-dropdown-voice">
               <div class="el-dropdown-link">
@@ -587,6 +618,7 @@ const handleDeleteComment = (index, arr) => {
             </el-dropdown>
           </div>
 
+          <!-- 全屏 -->
           <div @click="handleFullScreen" class="fullScreen">
             <el-icon><i class="iconfont icon-quanping1"></i></el-icon>
           </div>
@@ -605,7 +637,9 @@ const handleDeleteComment = (index, arr) => {
 .video-container {
   width: 100%;
   height: 100%;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
 }
 
 /* flex */
@@ -625,16 +659,15 @@ const handleDeleteComment = (index, arr) => {
 /* 视频 */
 .topContainer {
   width: 100%;
-  height: 90%;
+  flex: 1;
   position: relative;
   overflow: hidden;
 }
 .videoBox {
   width: 100%;
   height: 100%;
-  transition: all 0.5s;
+  transition: all 0.3s;
   object-fit: contain;
-  position: relative;
 }
 .videoBox:hover {
   cursor: pointer;
@@ -642,9 +675,7 @@ const handleDeleteComment = (index, arr) => {
 video {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
-  width: auto;
-  height: auto;
+  margin: 0 auto;
 }
 .VideoShrink {
   width: 70%;
@@ -654,29 +685,29 @@ video {
 .topContainerBottom {
   position: absolute;
   width: 60%;
-  height: 17%;
-  top: 70%;
-  left: 3%;
+  height: 100px;
+  bottom: 10px;
+  left: 50px;
   text-align: left;
   overflow-y: scroll;
   scrollbar-width: none;
   color: #ffffffe0;
 }
 .topContainerBottom > div:first-child {
-  font-size: 3.5vh;
-  line-height: 6vh;
+  font-size: 25px;
+  line-height: 35px;
   font-weight: bold;
   user-select: none;
 }
 .topContainerBottom > div:nth-child(2) > span:first-child {
-  font-size: 2.5vh;
-  line-height: 3.5vh;
+  font-size: 18px;
+  line-height: 25px;
   user-select: none;
 }
 .topContainerBottom .TooLong {
   display: inline-block;
-  margin-left: 0.5vw;
-  font-size: 2vh;
+  margin-left: 10px;
+  font-size: 15px;
   color: #bbbaba;
 }
 .topContainerBottom .TooLong:hover {
@@ -687,22 +718,24 @@ video {
 /* 右侧图标 */
 .topContainerRight {
   position: absolute;
-  width: 4%;
-  height: 57%;
+  width: 50px;
+  height: 430px;
   color: #fff;
-  top: 15%;
-  left: 93%;
+  right: 50px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: space-between;
-  transition: all 0.5s;
-  font-size: 2vh;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 .topContainerRight .iconfont {
   font-family: 'iconfont', sans-serif;
-  font-size: 3.5vh;
-  line-height: 5vh;
+  font-size: 30px;
+}
+.topContainerRight > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .topContainerRight > div:hover {
   cursor: pointer;
@@ -710,11 +743,9 @@ video {
 }
 .UperPic {
   width: 100%;
-  margin-bottom: 10%;
-  height: auto;
 }
 .UperPic > img {
-  width: 80%;
+  width: 100%;
   border-radius: 100vh;
 }
 .likeUper,
@@ -726,6 +757,9 @@ video {
 }
 .topContainerRightMove {
   left: 63%;
+}
+.Private {
+  color: rgb(15, 182, 228) !important;
 }
 
 /* 抽屉 */
@@ -887,33 +921,6 @@ video {
   background-color: transparent;
 }
 
-/* 滚动条样式 */
-.commentContainer::-webkit-scrollbar,
-.UperWorksVideosContainer::-webkit-scrollbar {
-  width: 1vh; /* 滚动条宽度 */
-  background-color: transparent; /* 滚动条背景颜色 */
-}
-
-/* 滚动条滑块样式 */
-.commentContainer::-webkit-scrollbar-thumb,
-.UperWorksVideosContainer::-webkit-scrollbar-thumb {
-  background-color: #888; /* 滑块颜色 */
-  border-radius: 4px; /* 滑块圆角 */
-}
-
-/* 滑块悬停时的样式 */
-.commentContainer::-webkit-scrollbar-thumb:hover,
-.UperWorksVideosContainer::-webkit-scrollbar-thumb:hover {
-  background-color: #555; /* 悬停时滑块颜色 */
-}
-
-/* 滚动条轨道样式 */
-.commentContainer::-webkit-scrollbar-track,
-.UperWorksVideosContainer::-webkit-scrollbar-track {
-  background-color: #f5f5f537; /* 轨道颜色 */
-  border-radius: 4px; /* 轨道圆角 */
-}
-
 /* 评论Box */
 .commentBox {
   width: 100%;
@@ -1020,58 +1027,64 @@ video {
   background-color: rgb(254, 44, 85);
 }
 
-/* 进度条 */
-.control .iconfont {
-  font-family: 'iconfont', sans-serif;
-  font-size: 4vh;
-  line-height: 5vh;
+/* 滚动条样式 */
+.commentContainer::-webkit-scrollbar,
+.UperWorksVideosContainer::-webkit-scrollbar {
+  width: 1vh; /* 滚动条宽度 */
+  background-color: transparent; /* 滚动条背景颜色 */
 }
+
+/* 滚动条滑块样式 */
+.commentContainer::-webkit-scrollbar-thumb,
+.UperWorksVideosContainer::-webkit-scrollbar-thumb {
+  background-color: #888; /* 滑块颜色 */
+  border-radius: 4px; /* 滑块圆角 */
+}
+
+/* 滑块悬停时的样式 */
+.commentContainer::-webkit-scrollbar-thumb:hover,
+.UperWorksVideosContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* 悬停时滑块颜色 */
+}
+
+/* 滚动条轨道样式 */
+.commentContainer::-webkit-scrollbar-track,
+.UperWorksVideosContainer::-webkit-scrollbar-track {
+  background-color: #f5f5f537; /* 轨道颜色 */
+  border-radius: 4px; /* 轨道圆角 */
+}
+
+/* 进度条 */
 .control {
   width: 100%;
-  height: 10%;
-  bottom: 0;
-  position: relative;
+  height: 75px;
+}
+.control .iconfont {
+  font-family: 'iconfont', sans-serif;
+  font-size: 30px;
 }
 .progressBar {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 5%;
+  height: 5px;
+  position: relative;
+  top: -14px;
   /* 未填充部分颜色 */
   background-color: #ffffff3b;
-  /* background-color: #fff; */
   -webkit-appearance: none; /* 清除默认样式 */
 }
 
 .progressBar::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 1.5vh;
-  height: 0.5vh;
+  width: 10px;
+  height: 5px;
   background: #ffffff90; /* 滑块颜色 */
-  border-radius: 30%;
-}
-
-.progressBar::-moz-range-progress {
-  background-color: #ffffff76; /* 已填充部分颜色 */
-  height: 2vh;
-  border-radius: 0.5vh;
-}
-
-.progressBar::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border: none;
-  border-radius: 50%;
+  border-radius: 20%;
 }
 
 /* 悬停效果 */
 .progressBar:hover::-webkit-slider-thumb {
-  transform: scale(2);
+  transform: scale(1.3);
   cursor: pointer;
-}
-.progressBar:hover::-moz-range-thumb {
-  transform: scale(2);
 }
 
 /* 聚焦效果 */
@@ -1079,72 +1092,71 @@ video {
   outline: none;
 }
 
-/* 按钮 */
+/* 控制条按钮 */
 .buttons {
   color: #ffffffad;
-  font-size: 2.5vh;
+  font-size: 20px;
+  height: 70px;
+  padding: 0 40px;
   position: relative;
-  top: 8%;
-  height: 95%;
-  padding: 0 3%;
-  position: relative;
-  background: linear-gradient(
-    to bottom,
-    rgba(35, 35, 35, 0.753),
-    5%,
-    rgb(35, 35, 35)
-  );
-  border-bottom-right-radius: 4vh;
-  border-bottom-left-radius: 4vh;
+  top: -18px;
+  background: rgba(22, 24, 35, 0.715);
 }
 .buttonsLeft {
-  width: 13%;
+  width: 180px;
+  height: 70px;
 }
 .buttonsRight {
-  width: 20%;
-  font-size: 2.5vh;
-  line-height: 3vh;
+  width: 300px;
 }
 
 .buttonsRight > div:first-child {
-  line-height: 3vh;
+  width: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.buttonsRight > div:first-child > span {
-  margin-left: 0.5vw;
-}
+
 /* 播放 */
 .buttons > div:first-child > div:first-child:hover {
   color: #fff;
   cursor: pointer;
 }
 
+/* 清屏 */
+.clearScreen {
+  padding-bottom: 2%;
+}
+
 /* 倍速 */
 .el-dropdown-link {
-  font-size: 2.5vh;
+  outline: none;
+  font-size: 20px;
   color: #ffffffad;
 }
 .el-dropdown-link:hover {
   cursor: pointer;
 }
 
-/* 音量 */
+/* 音量条框 */
 .VoiceRange {
-  height: 10vh;
-  width: 17vw;
+  height: 50px;
+  width: 250px;
   border: 0;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  font-size: 2.5vh;
-  border-radius: 2vh;
+  justify-content: space-between;
+  font-size: 15px;
+  border-radius: 20px;
   color: #000000;
 }
 .VoiceRange > input {
-  width: 13vw;
-  height: 1vh;
+  width: 200px;
+  height: 20px;
 }
 .VoiceRange > div {
-  width: 2vw;
+  width: 45px;
+  text-align: center;
 }
 
 /* 全屏 */

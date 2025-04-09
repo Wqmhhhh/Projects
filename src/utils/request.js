@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// 设置api的基础URL
-const baseURL = 'http://'
+// 基础地址：
+const baseURL = 'http://192.168.3.76:8099'
 
 // 创建 Axios 实例
 const instance = axios.create({

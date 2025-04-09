@@ -1,4 +1,14 @@
 <script setup>
+import { useShowFlags } from '@/stores/index'
+import { storeToRefs } from 'pinia'
+
+const FlagsStore = useShowFlags()
+const { ifLoginShow } = storeToRefs(FlagsStore)
+
+// TODO：点击显示登录弹框
+const PopLogin = () => {
+  ifLoginShow.value = true
+}
 </script>
 <template>
   <div class="box">
@@ -10,14 +20,13 @@
 </template>
 <style scoped>
 .box {
-  width: 17vw;
-  height: 20vh;
+  width: 100%;
+  /* height: 100%; */
   display: flex;
   align-items: center;
   justify-content: center;
-  /* background-color: #dd1313; */
   text-align: center;
-  font-size: 2.5vh;
+  font-size: 25px;
   line-height: 8vh;
 }
 .box > div {
@@ -27,11 +36,11 @@
   width: 100%;
   margin: 0 auto;
   background-color: rgb(255, 44, 85);
-  height: 6.5vh;
+  height: 50px;
   border: 0;
   border-radius: 2vh;
   color: #fff;
-  font-size: 3vh;
+  font-size: 25px;
 }
 .el-button:hover {
   cursor: pointer;

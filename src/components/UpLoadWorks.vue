@@ -1,92 +1,82 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 // store库
 import { useShowFlags } from '@/stores'
 import { storeToRefs } from 'pinia'
 
 const FlagsStore = useShowFlags()
-const { ifEditShow } = storeToRefs(FlagsStore)
+const { ifUpLoadWorks } = storeToRefs(FlagsStore)
 
-const UserIntroduce = ref()
-const UserName = ref('乌漆抹黑嘿嘿嘿')
-const imgUrl = ref()
-let NameWordNum = ref(0)
-
-const handleNameInput = () => {
-  NameWordNum.value = UserName.value.length
-}
-onMounted(() => {
-  handleNameInput()
-})
+// 封面地址
+const VideoUrl = ref()
 
 // 更新封面
 const onUploadFile = (file) => {
   // 上传视频地址
-  imgUrl.value = URL.createObjectURL(file.raw)
-}
-// 取消按钮退出
-const handleExit = () => {
-  ifEditShow.value = false
+  VideoUrl.value = URL.createObjectURL(file.raw)
 }
 
 // TODO:有数据更新activeButton才更新为true
 const activeButton = ref(false)
-// const handleNameChange = () => {
-//   activeButton.value = true
-// }
 // TODO:提交按钮更新数据
 const handleSubmit = () => {
   console.log(1)
 }
+// 取消按钮退出
+const handleExit = () => {
+  ifUpLoadWorks.value = false
+}
 </script>
 <template>
   <el-dialog
-    v-model="ifEditShow"
+    v-model="ifUpLoadWorks"
     class="ChangeInforDialog"
     :close-on-click-modal="false"
   >
     <template #header>
-      <div class="header">编辑资料</div>
+      <div class="header">投稿</div>
     </template>
+
     <template #footer>
       <div class="footer-box">
         <div class="userPicBox">
           <div class="userPic">
-            <!-- TODO:上传头像要进行base64编码啥的略略略 -->
             <el-upload
               class=""
               :auto-upload="false"
               :show-file-list="false"
               :on-change="onUploadFile"
             >
-              <img v-if="imgUrl" :src="imgUrl" class="avatar" />
+              <video v-if="VideoUrl" :src="VideoUrl" class="avatar"></video>
               <div v-else><i class="iconfont icon-24px"></i></div>
             </el-upload>
           </div>
-          <div>点击修改头像</div>
+          <div>点击投稿视频</div>
         </div>
 
+        <!-- 标题 -->
         <div class="nameBox">
-          <div>名字</div>
+          <div>标题</div>
           <div class="nameInput">
             <input
               v-model="UserName"
               type="text"
-              placeholder="不填昵称要变黑户啦！"
+              placeholder="天赋型选手灵机一动"
               maxlength="20"
-              @input="handleNameInput"
+              @change="handleNameInput"
             />
             <span>{{ NameWordNum }}/20</span>
           </div>
         </div>
 
+        <!-- 简介 -->
         <div class="introduceBox">
           <div>简介</div>
           <div class="IntroduceInput">
             <textarea
               v-model="UserIntroduce"
-              placeholder="oi，就是你！小鬼，介绍一下你自己"
+              placeholder="点击输入文字，为你的视频省流"
             ></textarea>
           </div>
         </div>
@@ -132,25 +122,24 @@ const handleSubmit = () => {
 /* pic */
 .userPic {
   margin: 0 auto;
-  width: 10vw;
-  height: 10vw;
+  width: 15vw;
+  height: 23vh;
   margin-bottom: 2vh;
   background-color: #ffffff94;
-  border-radius: 10vw;
+  border-radius: 2vh;
   border: 3px dashed #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
 }
-.userPic img,
-.userPic div {
-  width: 10vw;
-  height: 10vw;
-}
 .userPic .iconfont {
   font-family: 'iconfont', sans-serif;
   font-size: 10vh;
+}
+.userPic video,
+.userPic div {
+  width: 100%;
 }
 .userPicBox > div {
   font-size: 2.5vh;
@@ -195,7 +184,7 @@ const handleSubmit = () => {
 /* introduce */
 .introduceBox {
   margin-top: 0;
-  height: 25vh;
+  height: 20vh;
 }
 .IntroduceInput {
   height: 75%;

@@ -34,12 +34,8 @@ const router = createRouter({
               component: () => import('@/views/my/components/likePage.vue'),
             },
             {
-              path: '/main/my/collect',
-              component: () => import('@/views/my/components/collectPage.vue'),
-            },
-            {
-              path: '/main/my/history',
-              component: () => import('@/views/my/components/historyPage.vue'),
+              path: '/main/my/private',
+              component: () => import('@/views/my/components/privatePage.vue'),
             },
           ],
         },

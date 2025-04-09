@@ -1,20 +1,30 @@
 <script setup>
-import VideoBoxBig from '@/components/VideoBox-big.vue'
+import VideoBoxBig from '@/components/video/VideoBox-big.vue'
+// import NotLoginRouterView from '@/components/loginPart/NotLoginRouterView.vue'
+// // import { ref } from 'vue'
+
+// // 导入库
+// import { useShowFlags } from '@/stores'
+// const FlagsStore = useShowFlags()
+// const { ifLogin } = FlagsStore
+
+// 处理视频切换
+const handleBefore = () => {}
+const handleNext = () => {}
 </script>
 <template>
   <div class="container">
     <div class="box">
-      <!-- <div>推荐</div> -->
       <VideoBoxBig></VideoBoxBig>
     </div>
 
     <!-- 切换视频按钮 -->
     <el-button-group class="side-button">
-      <el-button type="primary" class="el-button">
+      <el-button type="primary" class="el-button" @click="handleBefore">
         <el-icon class="el-icon--left"><ArrowLeft /></el-icon>
       </el-button>
       <hr />
-      <el-button type="primary" class="el-button">
+      <el-button type="primary" class="el-button" @click="handleNext">
         <el-icon class="el-icon--right"><ArrowRight /></el-icon>
       </el-button>
     </el-button-group>
@@ -28,38 +38,37 @@ import VideoBoxBig from '@/components/VideoBox-big.vue'
   box-sizing: border-box;
 }
 .container {
-  margin-left: 2%;
   width: 100%;
-  height: 87vh;
+  height: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  overflow: hidden;
 }
+
+/* 视频容器 */
 .box {
-  width: 93%;
-  height: 100%;
-  border-radius: 4vh;
-  background-color: #ffffff09;
+  width: 96%;
+  height: 98%;
+  border-radius: 15px;
+  overflow: hidden;
 }
 
 /* 侧边按钮 */
 .side-button {
-  margin-right: 2%;
-  width: 3%;
-  height: 20%;
+  margin: 0 1%;
+  width: 40px;
+  height: 100px;
   display: flex;
   flex-wrap: wrap;
   align-content: space-between;
   border-radius: 4vh;
-  background-color: rgb(43, 44, 54);
 }
 .side-button .el-button {
   transform: rotate(90deg);
   width: 100%;
   height: 49%;
   border: 0;
-  font-size: 4vh;
+  font-size: 20px;
   background-color: transparent;
   color: #ffffff2f;
 }
@@ -68,8 +77,8 @@ import VideoBoxBig from '@/components/VideoBox-big.vue'
 }
 .side-button hr {
   width: 60%;
-  height: 0.1vh;
+  height: 1px;
   margin: 0 auto;
-  border: 0.2vh solid #ffffff34;
+  border: 1px solid #ffffff34;
 }
 </style>

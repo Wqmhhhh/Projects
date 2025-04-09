@@ -1,10 +1,10 @@
 <script setup>
-import VideoBoxSmall from '@/components/VideoBox-small.vue'
+import VideoBoxSmall from '@/components/video/VideoBox-small.vue'
 </script>
 <template>
   <div class="UperWorksVideosContainer">
     <div class="UperWorksVideosBox">
-      <VideoBoxSmall></VideoBoxSmall>
+      <VideoBoxSmall :IntroShow="true"></VideoBoxSmall>
     </div>
   </div>
 </template>

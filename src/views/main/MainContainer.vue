@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import LoginPopUp from '@/components/Login-PopUp.vue'
 import { useRouter } from 'vue-router'
 
 const Tab = [
@@ -30,10 +29,14 @@ onMounted(() => {
   window.addEventListener('resize', () => {
     if (window.innerWidth <= 1100) {
       isCollapse.value = true
-      document.querySelector('.author').style.display = 'none'
+      document.querySelector('.el-col1').style.width = '50px'
+      document.querySelector('.fix-box').style.width = '50px'
+      document.querySelector('.fix-box').style.height = '100px'
     } else {
       isCollapse.value = false
-      document.querySelector('.author').style.display = 'inline-block'
+      document.querySelector('.el-col1').style.width = '150px'
+      document.querySelector('.fix-box').style.width = '150px'
+      document.querySelector('.fix-box').style.height = '50px'
     }
   })
 })
@@ -49,7 +52,7 @@ const handleTabClick = (path) => {
 </script>
 <template>
   <el-row class="tac">
-    <el-col :span="3" class="el-col1">
+    <el-col span="3" class="el-col1">
       <el-menu
         class="el-menu el-menu-tab"
         :collapse="isCollapse"
@@ -71,88 +74,87 @@ const handleTabClick = (path) => {
         </el-menu-item>
       </el-menu>
 
-      <div class="space">
-        <p class="author">@乌漆抹黑嘿嘿嘿</p>
-      </div>
-
-      <el-menu class="el-menu el-menu-fix" :collapse="isCollapse">
-        <div class="fix-box">
-          <div
-            class="el-menu-item el-menu-item-fix"
-            :index="index.toString()"
-            v-for="(item, index) in TabFix"
-            :key="index"
-            :span="3"
-          >
-            <i class="iconfont" :class="item.icon"></i>
-          </div>
-        </div>
+      <el-menu class="fix-box" :collapse="isCollapse">
+        <el-menu-item
+          class="el-menu-item-fix"
+          :index="index.toString()"
+          v-for="(item, index) in TabFix"
+          :key="index"
+          span="3"
+        >
+          <i class="iconfont" :class="item.icon"></i>
+        </el-menu-item>
       </el-menu>
     </el-col>
 
-    <el-col :span="21" class="el-col2">
-      <div class="router-view">
-        <router-view></router-view>
-      </div>
-    </el-col>
+    <div class="router-view">
+      <router-view></router-view>
+    </div>
   </el-row>
-  <LoginPopUp></LoginPopUp>
 </template>
 <style scoped>
 .tac {
-  width: 100%;
-  text-align: center;
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 .el-col1,
 .el-col2,
 .el-menu,
 .space {
-  background-color: rgb(25, 27, 38);
+  background-color: transparent;
+  background-color: rgb(22, 24, 35);
 }
-.el-col1 {
-  overflow: auto;
-  scrollbar-width: none;
-}
-.el-menu {
-  width: 100%;
-}
-.iconfont {
-  font-family: 'iconfont', sans-serif;
-  font-size: 5vh;
-  line-height: 4vh;
-}
-.el-menu,
-.el-menu-item,
+
+/* flex */
+.el-menu-tab,
 .el-menu-item-tab,
 .space,
 .fix-box {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.el-col1 {
+  width: 150px;
+  height: 100vh;
+  display: flex;
+  align-content: space-between;
+}
+.el-menu-tab {
+  /* flex: 1; */
+  width: 100%;
+  height: 50%;
+  border: 0;
+  justify-content: center;
+  overflow: scroll;
+  scrollbar-width: none;
+}
+.iconfont {
+  font-family: 'iconfont', sans-serif;
+  font-size: 23px;
 }
 .el-menu-item {
-  justify-content: center;
-  background-color: rgb(25, 27, 38);
+  display: flex;
+  justify-content: center !important;
+  align-items: center !important;
+  background-color: transparent;
   color: #ffffff98;
   font-weight: 500;
-  font-size: 3vh;
-  width: 100%;
-}
-.el-menu {
-  border: 0;
+  font-size: 17px;
 }
 
 /* Tab */
 /* 正常大小 */
 .el-menu-item-tab {
-  text-align: center;
-  width: 65%;
-  height: 100%;
-  padding: 3% 10%;
-  margin: 10% auto;
-  border-radius: 3vh;
-  display: flex;
-  justify-content: space-between;
+  width: 85%;
+  height: 50px;
+  line-height: 50px;
+  margin: 20px auto;
+  border-radius: 15px;
 }
 .el-menu-tab > .el-menu-item:hover {
   background-color: #b4b4b410;
@@ -166,46 +168,29 @@ const handleTabClick = (path) => {
 }
 /* 折叠后 */
 .el_menu_tab_collapse {
-  width: 55%;
-  height: 25vh;
-  line-height: 25vh;
-  display: block;
-  text-align: center;
-}
-
-/* space */
-.space {
-  width: 100%;
-  height: 50%;
-  justify-content: center;
-  color: #ffffff69;
-  font-size: 2vh;
+  padding-top: 10px;
 }
 
 /* Fix */
 .fix-box {
+  border: 0;
   position: fixed;
-  bottom: 0;
-  width: 12.5%;
-  height: 10vh;
+  bottom: 0px;
+  width: 150px;
+  height: 50px;
 }
 .el-menu-item-fix {
-  justify-content: space-around;
-  text-align: center;
-  height: 100%;
-  width: 33%;
-  padding: 0;
-  color: #ffffff6e;
+  width: 30px;
+  height: 33px;
 }
 .el-menu-item-fix:hover {
   color: #fff;
 }
 
-/* router-view */
+/* router-view:自动占据除侧边tab栏以外的宽度 */
 .router-view {
-  width: 86%;
-  position: fixed;
-  top: 10vh;
-  left: 12.5vw;
+  flex: 1;
+  height: calc(100vh - 56px);
+  padding-left: 5px;
 }
 </style>

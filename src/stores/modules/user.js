@@ -3,25 +3,22 @@ import { ref } from 'vue'
 
 // 用户模块
 export const useUserStore = defineStore(
-  'douyinUser',
+  'User',
   () => {
     // 获取用户信息
-    const user = ref({})
+    const user = ref({
+      name: '乌漆抹黑嘿嘿嘿',
+      followNum: 10,
+      fansNum: 6,
+      douyinId: '11111111111111111',
+      ProFileSrc: '@/assets/image.ico',
+    })
 
-    // 是否开启自动登录自动登录
-    const autoLogin = ref(false)
-
-    // 登录弹框是否显示
-    const LogindialogVisible = ref(true)
-
-    // 编辑资料弹框是否显示
-    const ChangeInforDialogVisible = ref(false)
+    const token = ref()
 
     return {
       user,
-      autoLogin,
-      ChangeInforDialogVisible,
-      LogindialogVisible,
+      token,
     }
   },
   {

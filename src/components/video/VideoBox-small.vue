@@ -2,6 +2,11 @@
 import { ref, onMounted } from 'vue'
 
 // 视频底部介绍
+
+// 根据父组件传入的决定是否显示底部介绍
+const props = defineProps({
+  IntroShow: Boolean,
+})
 const VideoRef = ref()
 const VideoInfo = ref({
   VideoSrc: '',
@@ -60,8 +65,7 @@ const handleMoveToFullScreen = () => {
     >
       <video
         ref="VideoRef"
-        src="../assets/98433cc4904e30ec520e03aa62a268b1.mp4"
-        controls
+        src="../../assets/98433cc4904e30ec520e03aa62a268b1.mp4"
         muted
       ></video>
     </div>
@@ -76,7 +80,7 @@ const handleMoveToFullScreen = () => {
       <span>{{ VideoInfo.VideoLikeNum }}</span>
     </div>
 
-    <div class="introduce">
+    <div class="introduce" v-show="props.IntroShow">
       {{ VideoIntroShow }}
       <span v-show="IntroduceToolong">...</span>
     </div>
@@ -97,6 +101,9 @@ const handleMoveToFullScreen = () => {
 .videoBox {
   width: 100%;
   height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #ffffff5f;
   border-radius: 1.5vh;
   overflow: hidden;
@@ -105,9 +112,9 @@ const handleMoveToFullScreen = () => {
   cursor: pointer;
 }
 .videoBox > video {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
 }
 .introduce {
   width: 100%;
@@ -117,11 +124,13 @@ const handleMoveToFullScreen = () => {
 }
 .iconfont {
   font-family: 'iconfont', sans-serif;
-  font-size: 3.5vh;
+  font-size: 3vh;
+  margin-right: 1vh;
   line-height: 5vh;
   color: #ffffffb7;
 }
 .likeVideoBox {
+  font-size: 2.5vh;
   position: absolute;
   top: 5%;
   left: 5%;
