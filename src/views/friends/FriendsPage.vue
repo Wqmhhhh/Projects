@@ -1,33 +1,56 @@
 <script setup>
-import VideoBoxBig from '@/components/video/VideoBox-big.vue'
-import NotLoginRouterView from '@/components/loginPart/NotLoginRouterView.vue'
-// import { ref } from 'vue'
+// import VideoBoxBig from '@/components/video/VideoBox-big.vue'
+// import NotLoginRouterView from '@/components/loginPart/NotLoginRouterView.vue'
+// // import { ref } from 'vue'
 
-// 导入库
+// // 导入库
 import { useShowFlags } from '@/stores'
 const FlagsStore = useShowFlags()
 const { ifLogin } = FlagsStore
 
-// 处理视频切换
-const handleBefore = () => {}
-const handleNext = () => {}
+// // 导入视频列表
+// import { useVideoList } from '@/stores'
+// const VideoList = useVideoList()
+// const { videoList } = storeToRefs(VideoList)
+
+// // 导入请求视频接口
+// import { getFriendVideoListService } from '@/api/videoList'
+// import { onMounted } from 'vue'
+// import { storeToRefs } from 'pinia'
+
+// // 获取视频列表
+// const getVideoList = async () => {
+//   // TODO:初始化时获取视频列表
+//   const res = getFriendVideoListService()
+//   console.log(res)
+
+//   // TODO:写入视频列表
+// }
+
+// onMounted(getVideoList())
+
+// // TODO:处理视频切换
+// const handleBefore = () => {}
+// const handleNext = () => {}
 </script>
 <template>
   <div class="container" v-if="ifLogin">
-    <div class="box">
-      <VideoBoxBig></VideoBoxBig>
-    </div>
+    <!-- <div class="box">
+      <div v-for="(item, index) in videoList" :key="index">
+        <VideoBoxBig :SingleVideo="item"></VideoBoxBig>
+      </div>
+    </div> -->
 
     <!-- 切换视频按钮 -->
-    <el-button-group class="side-button">
+    <!-- <el-button-group class="side-button">
       <el-button type="primary" class="el-button" @click="handleBefore">
-        <el-icon class="el-icon--left"><ArrowLeft /></el-icon>
+        <el-icon class="el-icon--left"><ArrowLeftBold /></el-icon>
       </el-button>
       <hr />
       <el-button type="primary" class="el-button" @click="handleNext">
-        <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+        <el-icon class="el-icon--right"><ArrowRightBold /></el-icon>
       </el-button>
-    </el-button-group>
+    </el-button-group> -->
   </div>
 
   <div v-else class="notLoginShow">

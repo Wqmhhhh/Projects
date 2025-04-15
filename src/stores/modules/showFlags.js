@@ -15,13 +15,16 @@ export const useShowFlags = defineStore(
     const ifLogin = ref(false)
 
     // 是否自动登录
-    const ifAutoLogin = ref(true)
+    const ifAutoLogin = ref(false)
 
     // 是否全屏
     const ifFullScreen = ref(false)
 
     // 是否展示投稿页面
     const ifUpLoadWorks = ref(true)
+
+    // 顶部Tab栏是否显示返回按钮：跳转搜索页后显示
+    const ifSearch = ref(false)
 
     return {
       ifEditShow,
@@ -30,6 +33,7 @@ export const useShowFlags = defineStore(
       ifAutoLogin,
       ifFullScreen,
       ifUpLoadWorks,
+      ifSearch,
     }
   },
   {

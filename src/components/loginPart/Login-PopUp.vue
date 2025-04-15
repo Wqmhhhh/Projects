@@ -1,19 +1,23 @@
 <script setup>
-import { ref } from 'vue'
-import { useShowFlags } from '@/stores/index'
+import { ref, watch } from 'vue'
+import { useShowFlags, useUserStore } from '@/stores/index'
 import { storeToRefs } from 'pinia'
 
 // store库
 const FlagsStore = useShowFlags()
+const UserStore = useUserStore()
 const { ifLoginShow, ifAutoLogin, ifLogin } = storeToRefs(FlagsStore)
+const { user } = UserStore
+
+// 接口方法
+import { userLoginService, getCodeService } from '@/api/login'
 
 // 是否默认显示自动登录
 const ifAutoLoginPage = ref(false)
 if (ifAutoLogin.value) {
   ifAutoLoginPage.value = true
 }
-// 显示的用户信息
-const UserName = ref('乌漆抹黑嘿嘿嘿')
+
 // 点击 其他方式登录
 const handleOtherWays = () => {
   ifAutoLoginPage.value = !ifAutoLoginPage.value
@@ -42,31 +46,92 @@ const PasswordNumber = ref()
 
 // 检测邮箱是否有效
 const ifEmailNumberQualified = ref(false)
+
 // TODO:处理获取验证码
-const handleGetCode = () => {
-  console.log('获取验证码')
+const getCodeMSG = ref('获取验证码')
+let countdownTimer = null
+let num = 60
+let VoidShake = null
+const handleGetCode = async () => {
+  // 防抖
+  if (VoidShake) return
+  VoidShake = setTimeout(() => {
+    clearTimeout(VoidShake)
+    VoidShake = null
+  }, 5000)
+
+  // 验证码请求
+  const res = await getCodeService(EmailNumber.value)
+  console.log('验证码返回：', res)
+
+  // 倒计时效果
+  if (countdownTimer) return
+
+  countdownTimer = setInterval(() => {
+    if (num <= 0) {
+      getCodeMSG.value = `获取验证码`
+      clearInterval(countdownTimer)
+      countdownTimer = null
+      num = 60
+    } else {
+      num--
+      getCodeMSG.value = `${num} 秒`
+    }
+  }, 1000)
 }
 
-// 登录按钮
+// 登录按钮变色：两个输入框均有数据时变色
 const loginButtonActive = ref(false)
-// TODO:输入框均有输入后才变色
+watch([EmailNumber, CodeNumber, PasswordNumber], (newValues) => {
+  // 处理登录按钮有效
+  const [NewEmailNumber, NewCodeNumber, NewPasswordNumberNew] = newValues
+  if (NewEmailNumber) {
+    if (CodeLogin.value && NewCodeNumber) {
+      loginButtonActive.value = true
+    } else if (!CodeLogin.value && NewPasswordNumberNew) {
+      loginButtonActive.value = true
+    }
+  } else {
+    loginButtonActive.value = false
+  }
 
-// 处理点击登录按钮
-const handleLogin = () => {
+  // 处理获取验证码按钮有效
+  if (NewEmailNumber) {
+    ifEmailNumberQualified.value = true
+  } else {
+    ifEmailNumberQualified.value = false
+  }
+})
+
+// TODO：处理点击登录按钮
+const handleLogin = async () => {
+  // 登录请求
+  const res = await userLoginService(EmailNumber.value, CodeNumber.value)
+  console.log(res)
+
+  ElMessage.success('登录成功！')
+
+  // TODO：写入用户信息
+
   // 登录成功修改 ifLogin、弹框消失、页面刷新
   ifLogin.value = true
   ifLoginShow.value = false
   location.reload()
-  console.log('点击登录按钮')
 }
 
-// TODO:弹框消失清空输入
+// 弹框消失清空输入
+const handleClose = () => {
+  EmailNumber.value = ''
+  PasswordNumber.value = ''
+  CodeNumber.value = ''
+}
 </script>
 <template>
   <el-dialog
     v-model="ifLoginShow"
     class="el-dialog-login--container"
-    :show-close="false"
+    :close-on-click-modal="false"
+    @close="handleClose"
   >
     <div class="header">
       <el-icon
@@ -83,8 +148,8 @@ const handleLogin = () => {
     <template #footer>
       <!-- 自动登录页面 -->
       <div v-if="ifAutoLoginPage" class="AutoLoginPage">
-        <div><img src="../../assets/image.ico" alt="" /></div>
-        <div>{{ UserName }}</div>
+        <div><img :src="user.ProFileSrc" alt="" /></div>
+        <div>{{ user.name }}</div>
         <div>
           <el-button class="el-button" @click="handleLogin">一键登录</el-button>
         </div>
@@ -133,7 +198,7 @@ const handleLogin = () => {
                     @click="handleGetCode"
                     :disabled="!ifEmailNumberQualified"
                     :class="{ ifEmailNumberQualified: ifEmailNumberQualified }"
-                    >获取验证码</el-button
+                    >{{ getCodeMSG }}</el-button
                   >
                 </template>
               </el-input>

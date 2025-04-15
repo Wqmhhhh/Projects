@@ -14,9 +14,13 @@ const {
   ifLogin: notLogin,
   ifAutoLogin,
   ifUpLoadWorks,
+  ifSearch,
 } = storeToRefs(FlagsStore)
-const { user } = UserStore
+const { user, token } = storeToRefs(UserStore)
 const { NoticeList } = storeToRefs(NoticeStore)
+
+// 导入接口
+import { userLogOutService } from '@/api/login'
 
 // 点击显示登录弹框
 const PopLogin = () => {
@@ -35,35 +39,67 @@ const handleBlur = () => {
 // 点击客户端
 const handleKehudaun = () => {
   ElMessage('没有客户端可以下载~')
-  console.log(1)
 }
 // const notice = []
 const FollowUper = ref(false)
 
 // 退出登录
-const handleLogOut = () => {
+const handleLogOut = async () => {
+  // 退出登录
+  const res = userLogOutService(user.id)
+  console.log(res)
+
   // TODO：检查是否有自动登录，没有清除本地信息
+  if (!ifAutoLogin.value) {
+    user.value = {}
+    token.value = ''
+  }
   notLogin.value = false
   location.reload()
+}
+
+// 处理用户搜索
+const searchInput = ref('')
+const handleSearch = () => {
+  // TODO:将搜索内容传给后端
+
+  // 顶部Tab栏显示返回按钮、跳转页面
+  ifSearch.value = true
+  router.push('/search')
+}
+
+// 点击返回按钮返回主页面
+const handleBack = () => {
+  // 顶部Tab不显示返回按钮
+  ifSearch.value = false
+
+  // 返回主页面、输入框清空
+  searchInput.value = ''
+  router.push('/')
 }
 </script>
 <template>
   <div id="app" class="tab">
     <div class="logo">
-      <img src="../assets/tabLogo.png" alt="" />
+      <div class="back" @click="handleBack" v-if="ifSearch">
+        <el-icon><ArrowLeftBold /></el-icon>
+      </div>
+      <img src="../assets/tabLogo.png" alt="" v-else />
     </div>
 
     <div class="search" ref="search" :class="{ focus: isfocus }">
       <input
+        v-model="searchInput"
         type="text"
         name=""
         id=""
         placeholder="搜索你感兴趣的内容"
         @focus="handleFocus"
         @blur="handleBlur"
+        @keyup.enter="handleSearch"
       />
       <hr />
-      <span>
+      <span @click="handleSearch">
         <i class="iconfont icon-sousuo"></i>
         搜索
       </span>
@@ -266,6 +302,7 @@ const handleLogOut = () => {
 /* flex */
 .tab,
 .search span,
+.logo,
 .search,
 .pic-box,
 .down-box,
@@ -308,6 +345,22 @@ const handleLogOut = () => {
 }
 .logo img {
   height: 100%;
+}
+/*跳转登录页显示的返回按钮 */
+.back {
+  left: 30px;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 20px;
+  text-align: center;
+  color: #fff;
+  background-color: #ffffff2a;
+  border-radius: 10px;
+}
+.back:hover {
+  cursor: pointer;
+  background-color: #ffffff67;
 }
 
 /* search */

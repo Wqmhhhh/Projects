@@ -21,11 +21,11 @@ const handleNext = () => {}
     <!-- 切换视频按钮 -->
     <el-button-group class="side-button">
       <el-button type="primary" class="el-button" @click="handleBefore">
-        <el-icon class="el-icon--left"><ArrowLeft /></el-icon>
+        <el-icon class="el-icon--left"><ArrowLeftBold /></el-icon>
       </el-button>
       <hr />
       <el-button type="primary" class="el-button" @click="handleNext">
-        <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+        <el-icon class="el-icon--right"><ArrowRightBold /></el-icon>
       </el-button>
     </el-button-group>
   </div>

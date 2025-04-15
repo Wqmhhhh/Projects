@@ -1,12 +1,20 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+// 导入库
+import { useShowFlags } from '@/stores'
+import { storeToRefs } from 'pinia'
+const FlagsStore = useShowFlags()
+const { ifFullScreen } = storeToRefs(FlagsStore)
+
 // 视频底部介绍
 
 // 根据父组件传入的决定是否显示底部介绍
 const props = defineProps({
   IntroShow: Boolean,
 })
+
+// 绑定视频
 const VideoRef = ref()
 const VideoInfo = ref({
   VideoSrc: '',
@@ -26,7 +34,7 @@ onMounted(() => {
   }
 })
 
-// 点击评论喜欢
+// 点击视频红心喜欢
 const handleLikeVideo = () => {
   if (ifLike.value) {
     ifLike.value = false
@@ -51,7 +59,10 @@ const handleVideoPause = () => {
 
 // TODO:点击视频跳转全屏
 const handleMoveToFullScreen = () => {
-  console.log('点击小-视频播放器进入全屏')
+  // TODO:将视频信息写入 当前视频 中
+
+  // 全屏
+  ifFullScreen.value = true
 }
 </script>
 

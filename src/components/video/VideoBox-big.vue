@@ -2,21 +2,46 @@
 import { ref, onMounted } from 'vue'
 
 // 导入库
-import { useShowFlags, useSingleVideo } from '@/stores'
+import { useShowFlags } from '@/stores'
 import { storeToRefs } from 'pinia'
 
 const FlagStore = useShowFlags()
-const videoStore = useSingleVideo()
 const { ifFullScreen } = storeToRefs(FlagStore)
-const { ifUserWork, ifPrivate } = storeToRefs(videoStore)
+const ifUserWork = ref(false),
+  ifPrivate = ref(false)
 
-// const currentVideo = ref({
-//   src: '../assets/98433cc4904e30ec520e03aa62a268b1.mp4',
-//   cover: '../assets/image.ico',
-// })
+// 父组件传入视频信息
+const props = defineProps({
+  SingleVideo: Object,
+})
+
+// 绑定视频
 const VideoRef = ref(true)
 let totalLength = ref(0)
 let VideoCurrentLength = ref(0)
+
+// 初始化获取视频
+const getVideo = async () => {
+  // TODO：根据接口返回值加载视频
+  // await res=
+}
+// 进度条
+let processNumber = ref(0)
+// 视频暂停
+let VideoPause = ref(false)
+// 音量
+let VoiceVolumn = ref(true)
+const VoiceVolumnNumber = ref(50)
+// 倍速
+const SpeedNumber = ref('倍速')
+// 控制播放/暂停
+let handlePlayPause
+// 控制音量
+let handleVoice
+// 控制倍速
+let handleSpeed
+// 全屏控制
+let handleFullScreen
 
 // 改变时间格式
 const TransTime = (num) => {
@@ -27,7 +52,10 @@ const TransTime = (num) => {
   return min + ':' + sec
 }
 
+// 视频加载完成后执行操作
 onMounted(() => {
+  // getVideo()
+
   // 视频大小切换
   if (VideoRef.value.style.width > VideoRef.value.style.height) {
     VideoRef.value.style.height = '100%'
@@ -57,48 +85,38 @@ onMounted(() => {
   } else {
     VideoIntroShow.value = VideoIntro.value
   }
+
+  // 控制播放/暂停
+  handlePlayPause = () => {
+    if (VideoPause.value === true) {
+      VideoRef.value.play()
+    } else {
+      VideoRef.value.pause()
+    }
+    VideoPause.value = !VideoPause.value
+  }
+
+  // 控制音量
+  handleVoice = () => {
+    if (VoiceVolumnNumber.value === 0) {
+      VoiceVolumn.value = false
+    } else {
+      VoiceVolumn.value = true
+    }
+    VideoRef.value.volume = VoiceVolumnNumber.value / 100 // 将音量值转换为 0-1 范围
+  }
+
+  // 控制倍速
+  handleSpeed = (value) => {
+    SpeedNumber.value = value
+    VideoRef.value.playbackRate = parseFloat(value) // 设置倍速
+  }
+
+  // 全屏控制
+  handleFullScreen = () => {
+    ifFullScreen.value = !ifFullScreen.value
+  }
 })
-
-// 进度条
-let processNumber = ref(0)
-// 视频暂停
-let VideoPause = ref(false)
-// 音量
-let VoiceVolumn = ref(true)
-const VoiceVolumnNumber = ref(50)
-// 倍速
-const SpeedNumber = ref('倍速')
-
-// 控制播放/暂停
-const handlePlayPause = () => {
-  if (VideoPause.value === true) {
-    VideoRef.value.play()
-  } else {
-    VideoRef.value.pause()
-  }
-  VideoPause.value = !VideoPause.value
-}
-
-// 控制音量
-const handleVoice = () => {
-  if (VoiceVolumnNumber.value === 0) {
-    VoiceVolumn.value = false
-  } else {
-    VoiceVolumn.value = true
-  }
-  VideoRef.value.volume = VoiceVolumnNumber.value / 100 // 将音量值转换为 0-1 范围
-}
-
-// 控制倍速
-const handleSpeed = (value) => {
-  SpeedNumber.value = value
-  VideoRef.value.playbackRate = parseFloat(value) // 设置倍速
-}
-
-// 全屏控制
-const handleFullScreen = () => {
-  ifFullScreen.value = !ifFullScreen.value
-}
 
 // 视频上层图标是否显示
 const tagShow = ref(false)
@@ -150,7 +168,7 @@ const handleCollect = () => {
   }
 }
 
-// 点击定时器
+// 点击定时器:区分单击双击
 const clickTimer = ref(null)
 const handleSingleClick = () => {
   // 清除定时器，防止重复触发
@@ -173,6 +191,7 @@ const handleDoubleClick = () => {
   // 直接执行
   handleLike()
 }
+
 // 右侧抽屉
 const sideTab = [
   {
@@ -184,10 +203,28 @@ const sideTab = [
 ]
 // 抽屉显示
 const DrawerShow = ref(false)
-const TabShow = ref(0)
+const TabShow = ref('0')
+
+// 点击头像显示抽屉的 作品
+const handleClickPic = () => {
+  handleTabClick(0)
+  DrawerShow.value = true
+}
+// 点击评论显示抽屉的 评论
+const handleClickComment = () => {
+  if (TabShow.value === '0') {
+    handleTabClick(1)
+    DrawerShow.value = true
+  } else {
+    DrawerShow.value = !DrawerShow.value
+  }
+}
+
+// 抽屉tab栏切换
 const handleTabClick = (index) => {
   TabShow.value = index
 }
+
 // 评论数组
 const CommentArr = ref([
   {
@@ -227,20 +264,6 @@ const CommentArr = ref([
 ])
 // 评论数量
 const CommentNum = ref(CommentArr.value.length)
-// 点击头像显示抽屉的 作品
-const handleClickPic = () => {
-  handleTabClick(0)
-  DrawerShow.value = true
-}
-// 点击评论显示抽屉的 评论
-const handleClickComment = () => {
-  if (TabShow.value === 0) {
-    handleTabClick(1)
-    DrawerShow.value = true
-  } else {
-    DrawerShow.value = !DrawerShow.value
-  }
-}
 // 点击评论喜欢
 const handleLikeComment = (e) => {
   if (e.ifLike) {
@@ -400,7 +423,7 @@ const handleDeleteComment = (index, arr) => {
             <el-menu-item
               v-for="(item, index) in sideTab"
               :key="index"
-              :index="index"
+              :index="index.toString()"
               class="el-menu-item"
               @click="handleTabClick(index)"
               :class="{ activeTab: index === TabShow }"

@@ -23,36 +23,61 @@ const TabFix = [
   },
 ]
 
-// 视口大小变换时Tab栏变化
 let isCollapse = ref(false)
+let initialActiveIndex = () => {
+  activeIndex.value = router.currentRoute.value.path
+  if (activeIndex.value.toString().includes('/main/my')) {
+    activeIndex.value = '/main/my'
+  }
+}
+
+const activeIndex = ref()
+const fixBox = ref()
+const elCol1 = ref()
 onMounted(() => {
+  // 初始化Tab栏路径为当前路由路径
+  initialActiveIndex()
+
+  // 随页面大小切换Tab栏
   window.addEventListener('resize', () => {
-    if (window.innerWidth <= 1100) {
+    if (!fixBox.value) {
+      console.log('fixBox 获取错误')
+      return
+    } else if (!elCol1.value) {
+      console.log('elCol1获取错误')
+      return
+    }
+
+    if (window.innerWidth <= 1000) {
       isCollapse.value = true
-      document.querySelector('.el-col1').style.width = '50px'
-      document.querySelector('.fix-box').style.width = '50px'
-      document.querySelector('.fix-box').style.height = '100px'
+      elCol1.value.style.width = '50px'
+      fixBox.value.style.width = '50px'
+      fixBox.value.style.height = '100px'
+      document.querySelectorAll('.el-menu-aside-text').forEach((item) => {
+        item.style.display = 'none'
+      })
     } else {
       isCollapse.value = false
-      document.querySelector('.el-col1').style.width = '150px'
-      document.querySelector('.fix-box').style.width = '150px'
-      document.querySelector('.fix-box').style.height = '50px'
+      elCol1.value.style.width = '150px'
+      fixBox.value.style.width = '150px'
+      fixBox.value.style.height = '50px'
+      document.querySelectorAll('.el-menu-aside-text').forEach((item) => {
+        item.style.display = 'block'
+      })
     }
   })
 })
 
-// router变化
+// 点击Tab栏按钮，router变化
 const router = useRouter()
-let activeIndex = ref('/main/recommend')
-router.push('/main/recommend')
 const handleTabClick = (path) => {
   router.push(path)
   activeIndex.value = path
 }
 </script>
 <template>
-  <el-row class="tac">
-    <el-col span="3" class="el-col1">
+  <div class="tac">
+    <div class="el-col1" ref="elCol1">
       <el-menu
         class="el-menu el-menu-tab"
         :collapse="isCollapse"
@@ -64,17 +89,17 @@ const handleTabClick = (path) => {
             { el_menu_tab_collapse: isCollapse },
             { activeIndex: activeIndex === item.path },
           ]"
-          v-for="item in Tab"
+          v-for="(item, index) in Tab"
           :index="item.path"
-          :key="item.path"
+          :key="index"
           @click="handleTabClick(item.path)"
         >
           <el-icon><i class="iconfont" :class="item.icon"></i></el-icon>
-          <span>{{ item.name }}</span>
+          <span class="el-menu-aside-text">{{ item.name }}</span>
         </el-menu-item>
       </el-menu>
 
-      <el-menu class="fix-box" :collapse="isCollapse">
+      <el-menu class="fix-box" ref="fixBox">
         <el-menu-item
           class="el-menu-item-fix"
           :index="index.toString()"
@@ -85,12 +110,12 @@ const handleTabClick = (path) => {
           <i class="iconfont" :class="item.icon"></i>
         </el-menu-item>
       </el-menu>
-    </el-col>
+    </div>
 
     <div class="router-view">
       <router-view></router-view>
     </div>
-  </el-row>
+  </div>
 </template>
 <style scoped>
 .tac {
@@ -125,9 +150,8 @@ const handleTabClick = (path) => {
   align-content: space-between;
 }
 .el-menu-tab {
-  /* flex: 1; */
   width: 100%;
-  height: 50%;
+  height: 63%;
   border: 0;
   justify-content: center;
   overflow: scroll;

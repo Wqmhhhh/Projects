@@ -147,6 +147,8 @@ const handleSubmit = () => {
 .userPic div {
   width: 10vw;
   height: 10vw;
+  text-align: center;
+  line-height: 10vw;
 }
 .userPic .iconfont {
   font-family: 'iconfont', sans-serif;

@@ -2,10 +2,10 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 // 单个信息
-export const useSingleVideo = defineStore('SingleVideo', () => {
+export const useCurrentVideo = defineStore('CurrentVideo', () => {
   // 视频信息
 
-  // 视频本身
+  // 视频信息
   const VideoRef = ref({
     src: '',
     poster: '',
@@ -25,9 +25,8 @@ export const useSingleVideo = defineStore('SingleVideo', () => {
 
   //视频评论
   const VideoCommentNum = ref()
-  const VideoCommentList = ref()
 
-  // 视频收藏
+  // 视频收藏数目
   const VideoCollectNum = ref()
 
   // 视频中是否为作者视频：可切换私密
@@ -43,7 +42,6 @@ export const useSingleVideo = defineStore('SingleVideo', () => {
     VideoPause,
 
     VideoCollectNum,
-    VideoCommentList,
     VideoCommentNum,
     VideoLikeNum,
     ifUserWork,

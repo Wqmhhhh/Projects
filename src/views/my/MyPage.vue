@@ -63,7 +63,7 @@ const handleTabClick = (path) => {
             <hr />
             <div>粉丝 {{ user.fansNum }}</div>
           </div>
-          <div>抖音号： {{ user.douyinId }}</div>
+          <div>抖音号： {{ user.id }}</div>
         </div>
       </div>
       <div class="header-right">

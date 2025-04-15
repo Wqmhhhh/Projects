@@ -5,16 +5,19 @@ import { ref } from 'vue'
 export const useUserStore = defineStore(
   'User',
   () => {
-    // 获取用户信息
+    // 用户信息
     const user = ref({
-      name: '乌漆抹黑嘿嘿嘿',
-      followNum: 10,
-      fansNum: 6,
-      douyinId: '11111111111111111',
-      ProFileSrc: '@/assets/image.ico',
+      nickname: '',
+      myFollowsCounts: 0,
+      myFansCounts: 0,
+      id: '',
+      face: '',
+      mobile: '',
+      description: '',
+      bgImg: '',
     })
 
-    const token = ref()
+    const token = ref('')
 
     return {
       user,
