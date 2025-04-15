@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useShowFlags } from '@/stores'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,6 +47,12 @@ const router = createRouter({
       component: () => import('@/views/search/SearchPage.vue'),
     },
   ],
+})
+
+// 添加全局守卫、：同步状态
+router.beforeEach((to) => {
+  const FlafStore = useShowFlags()
+  FlafStore.ifSearch = to.path === '/search'
 })
 
 export default router

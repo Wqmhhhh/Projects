@@ -47,7 +47,7 @@ const FollowUper = ref(false)
 const handleLogOut = async () => {
   // 退出登录
   const res = userLogOutService(user.id)
-  console.log(res)
+  console.log('退出登录：', res)
 
   // TODO：检查是否有自动登录，没有清除本地信息
   if (!ifAutoLogin.value) {
@@ -69,13 +69,14 @@ const handleSearch = () => {
 }
 
 // 点击返回按钮返回主页面
-const handleBack = () => {
-  // 顶部Tab不显示返回按钮
-  ifSearch.value = false
-
+const handleBack = async () => {
   // 返回主页面、输入框清空
   searchInput.value = ''
-  router.push('/')
+  ifSearch.value = false
+  await router.push('/')
+  // 顶部Tab不显示返回按钮
+
+  router.go(0)
 }
 </script>
 <template>

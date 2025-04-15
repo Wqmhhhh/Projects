@@ -30,7 +30,7 @@ const PopLogin = () => {
   box-sizing: border-box;
 }
 .default {
-  width: 90vw;
+  width: 100%;
   height: 90vh;
   color: #ffffffc0;
   font-weight: bold;

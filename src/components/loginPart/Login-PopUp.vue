@@ -12,6 +12,9 @@ const { user } = UserStore
 // 接口方法
 import { userLoginService, getCodeService } from '@/api/login'
 
+// const res = p()
+// console.log(res)
+
 // 是否默认显示自动登录
 const ifAutoLoginPage = ref(false)
 if (ifAutoLogin.value) {
@@ -53,6 +56,9 @@ let countdownTimer = null
 let num = 60
 let VoidShake = null
 const handleGetCode = async () => {
+  // 倒计时效果
+  if (countdownTimer) return
+
   // 防抖
   if (VoidShake) return
   VoidShake = setTimeout(() => {
@@ -63,9 +69,6 @@ const handleGetCode = async () => {
   // 验证码请求
   const res = await getCodeService(EmailNumber.value)
   console.log('验证码返回：', res)
-
-  // 倒计时效果
-  if (countdownTimer) return
 
   countdownTimer = setInterval(() => {
     if (num <= 0) {
@@ -107,7 +110,7 @@ watch([EmailNumber, CodeNumber, PasswordNumber], (newValues) => {
 const handleLogin = async () => {
   // 登录请求
   const res = await userLoginService(EmailNumber.value, CodeNumber.value)
-  console.log(res)
+  console.log('点击登录：', res)
 
   ElMessage.success('登录成功！')
 
@@ -116,7 +119,7 @@ const handleLogin = async () => {
   // 登录成功修改 ifLogin、弹框消失、页面刷新
   ifLogin.value = true
   ifLoginShow.value = false
-  location.reload()
+  // location.reload()
 }
 
 // 弹框消失清空输入

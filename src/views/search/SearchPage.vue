@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import VideoBoxSmall from '@/components/video/VideoBox-small.vue'
 
 // 初始化Box大小
 const searchBox = ref()
@@ -20,11 +21,46 @@ onMounted(
   // 动态调整Box宽度
   window.addEventListener('resize', initialBoxWidth)
 )
+
+// 底部文字
+const VideoInfo = ref({
+  VideoSrc: '',
+  VideoIntro:
+    '网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态',
+  VideoLikeNum: 999,
+})
+const VideoIntroShow = ref()
+const IntroduceToolong = ref(false)
+// 初始化底部文本过长折叠
+const TooLongWrap = () => {
+  if (VideoInfo.value.VideoIntro.length > 25) {
+    VideoIntroShow.value = VideoInfo.value.VideoIntro.substring(0, 25)
+    IntroduceToolong.value = true
+  } else {
+    VideoIntroShow.value = VideoInfo.value.VideoIntro
+    IntroduceToolong.value = false
+  }
+}
+onMounted(TooLongWrap())
 </script>
 
 <template>
   <div class="searchContainer">
-    <div class="searchBox" ref="searchBox"></div>
+    <div class="searchBox" ref="searchBox">
+      <div class="top">综合</div>
+
+      <div class="singleContainer">
+        <div class="singleBox">
+          <div class="video">
+            <videoBoxSmall></videoBoxSmall>
+          </div>
+          <div class="introduce">
+            {{ VideoIntroShow }}
+            <span v-show="IntroduceToolong">...</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,7 +73,7 @@ onMounted(
 .searchContainer {
   width: 100vw;
   height: 100vh;
-  background-color: #fff;
+  background-color: rgb(22, 24, 35);
   display: flex;
   justify-content: center;
   overflow-y: scroll;
@@ -45,7 +81,49 @@ onMounted(
 .searchBox {
   width: 100%;
   height: 100vh;
-  background-color: #d30a0acc;
+  background-color: transparent;
+  /* background-color: #ffffff38; */
+  padding: 10px 20px;
+}
+
+/* 顶部文字 */
+.top {
+  height: 60px;
+  font-size: 25px;
+  font-weight: bold;
+  line-height: 60px;
+  padding-left: 20px;
+  color: #ffffffd8;
+}
+
+/* 视频容器 */
+.singleContainer {
+  width: 100%;
+  padding-bottom: 100px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: left;
+}
+.singleBox {
+  width: 229px;
+  height: 404px;
+  margin: 20px 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: rgb(37, 38, 50);
+}
+.video {
+  height: 80%;
+}
+.introduce {
+  width: 100%;
+  height: 20%;
+  padding-top: 10px;
+  font-size: 17px;
+  line-height: 30px;
+  padding-left: 2%;
+  color: #fff;
+  text-align: left;
 }
 
 /* 滚动条样式 */

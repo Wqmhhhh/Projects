@@ -7,21 +7,16 @@ import { storeToRefs } from 'pinia'
 const FlagsStore = useShowFlags()
 const { ifFullScreen } = storeToRefs(FlagsStore)
 
-// 视频底部介绍
-
-// 根据父组件传入的决定是否显示底部介绍
-const props = defineProps({
-  IntroShow: Boolean,
-})
-
 // 绑定视频
 const VideoRef = ref()
 const VideoInfo = ref({
   VideoSrc: '',
-  VideoIntro: '111111111111111111111111111111111',
+  VideoIntro:
+    '网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态',
   VideoLikeNum: 999,
 })
 const ifLike = ref(false)
+
 const VideoIntroShow = ref()
 const IntroduceToolong = ref(true)
 // 初始化底部文本
@@ -74,11 +69,7 @@ const handleMoveToFullScreen = () => {
       @mouseenter="handleVideoPlay"
       @mouseleave="handleVideoPause"
     >
-      <video
-        ref="VideoRef"
-        src="../../assets/98433cc4904e30ec520e03aa62a268b1.mp4"
-        muted
-      ></video>
+      <video ref="VideoRef" src="../../assets/竖屏.mp4" muted></video>
     </div>
 
     <!-- 视频上上悬浮的内容 -->
@@ -89,11 +80,6 @@ const handleMoveToFullScreen = () => {
         @click="handleLikeVideo()"
       ></i>
       <span>{{ VideoInfo.VideoLikeNum }}</span>
-    </div>
-
-    <div class="introduce" v-show="props.IntroShow">
-      {{ VideoIntroShow }}
-      <span v-show="IntroduceToolong">...</span>
     </div>
   </div>
 </template>
@@ -111,12 +97,10 @@ const handleMoveToFullScreen = () => {
 }
 .videoBox {
   width: 100%;
-  height: 90%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff5f;
-  border-radius: 1.5vh;
   overflow: hidden;
 }
 .videoBox:hover {
@@ -126,12 +110,6 @@ const handleMoveToFullScreen = () => {
   max-height: 100%;
   max-width: 100%;
   object-fit: contain;
-}
-.introduce {
-  width: 100%;
-  font-size: 2.3vh;
-  color: #fff;
-  text-align: left;
 }
 .iconfont {
   font-family: 'iconfont', sans-serif;

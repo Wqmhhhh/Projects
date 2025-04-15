@@ -32,7 +32,7 @@ let initialActiveIndex = () => {
 }
 
 const activeIndex = ref()
-const fixBox = ref()
+const fixbox = ref()
 const elCol1 = ref()
 onMounted(() => {
   // 初始化Tab栏路径为当前路由路径
@@ -40,27 +40,27 @@ onMounted(() => {
 
   // 随页面大小切换Tab栏
   window.addEventListener('resize', () => {
-    if (!fixBox.value) {
+    if (!fixbox.value) {
       console.log('fixBox 获取错误')
       return
     } else if (!elCol1.value) {
-      console.log('elCol1获取错误')
+      console.log('elCol1 获取错误')
       return
     }
 
     if (window.innerWidth <= 1000) {
       isCollapse.value = true
       elCol1.value.style.width = '50px'
-      fixBox.value.style.width = '50px'
-      fixBox.value.style.height = '100px'
+      fixbox.value.style.width = '50px'
+      fixbox.value.style.height = '100px'
       document.querySelectorAll('.el-menu-aside-text').forEach((item) => {
         item.style.display = 'none'
       })
     } else {
       isCollapse.value = false
       elCol1.value.style.width = '150px'
-      fixBox.value.style.width = '150px'
-      fixBox.value.style.height = '50px'
+      fixbox.value.style.width = '150px'
+      fixbox.value.style.height = '50px'
       document.querySelectorAll('.el-menu-aside-text').forEach((item) => {
         item.style.display = 'block'
       })
@@ -99,7 +99,7 @@ const handleTabClick = (path) => {
         </el-menu-item>
       </el-menu>
 
-      <el-menu class="fix-box" ref="fixBox">
+      <el-menu class="fix-box" ref="fixbox">
         <el-menu-item
           class="el-menu-item-fix"
           :index="index.toString()"
@@ -133,7 +133,6 @@ const handleTabClick = (path) => {
 }
 
 /* flex */
-.el-menu-tab,
 .el-menu-item-tab,
 .space,
 .fix-box {
@@ -147,13 +146,15 @@ const handleTabClick = (path) => {
   width: 150px;
   height: 100vh;
   display: flex;
-  align-content: space-between;
+  align-content: top;
 }
 .el-menu-tab {
   width: 100%;
   height: 63%;
   border: 0;
-  justify-content: center;
+  justify-content: start;
+  flex-direction: column;
+  align-content: start;
   overflow: scroll;
   scrollbar-width: none;
 }
