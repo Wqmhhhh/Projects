@@ -1,56 +1,22 @@
 <script setup>
-// import VideoBoxBig from '@/components/video/VideoBox-big.vue'
-// import NotLoginRouterView from '@/components/loginPart/NotLoginRouterView.vue'
-// // import { ref } from 'vue'
+import VideoBoxBig from '@/components/video/VideoBox-big.vue'
+import NotLoginRouterView from '@/components/loginPart/NotLoginRouterView.vue'
+import SideChangeButton from '@/components/video/SideChangeButton.vue'
+// import { ref } from 'vue'
 
-// // 导入库
+// 导入库
 import { useShowFlags } from '@/stores'
 const FlagsStore = useShowFlags()
 const { ifLogin } = FlagsStore
-
-// // 导入视频列表
-// import { useVideoList } from '@/stores'
-// const VideoList = useVideoList()
-// const { videoList } = storeToRefs(VideoList)
-
-// // 导入请求视频接口
-// import { getFriendVideoListService } from '@/api/videoList'
-// import { onMounted } from 'vue'
-// import { storeToRefs } from 'pinia'
-
-// // 获取视频列表
-// const getVideoList = async () => {
-//   // TODO:初始化时获取视频列表
-//   const res = getFriendVideoListService()
-//   console.log(res)
-
-//   // TODO:写入视频列表
-// }
-
-// onMounted(getVideoList())
-
-// // TODO:处理视频切换
-// const handleBefore = () => {}
-// const handleNext = () => {}
 </script>
 <template>
   <div class="container" v-if="ifLogin">
-    <!-- <div class="box">
-      <div v-for="(item, index) in videoList" :key="index">
-        <VideoBoxBig :SingleVideo="item"></VideoBoxBig>
-      </div>
-    </div> -->
+    <div class="box">
+      <VideoBoxBig></VideoBoxBig>
+    </div>
 
     <!-- 切换视频按钮 -->
-    <!-- <el-button-group class="side-button">
-      <el-button type="primary" class="el-button" @click="handleBefore">
-        <el-icon class="el-icon--left"><ArrowLeftBold /></el-icon>
-      </el-button>
-      <hr />
-      <el-button type="primary" class="el-button" @click="handleNext">
-        <el-icon class="el-icon--right"><ArrowRightBold /></el-icon>
-      </el-button>
-    </el-button-group> -->
+    <SideChangeButton></SideChangeButton>
   </div>
 
   <div v-else class="notLoginShow">
@@ -78,35 +44,5 @@ const { ifLogin } = FlagsStore
   height: 98%;
   border-radius: 15px;
   overflow: hidden;
-}
-
-/* 侧边按钮 */
-.side-button {
-  margin: 0 1%;
-  width: 40px;
-  height: 100px;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: space-between;
-  border-radius: 4vh;
-  background-color: rgb(43, 44, 54);
-}
-.side-button .el-button {
-  transform: rotate(90deg);
-  width: 100%;
-  height: 49%;
-  border: 0;
-  font-size: 20px;
-  background-color: transparent;
-  color: #ffffff2f;
-}
-.side-button .el-button:hover {
-  color: #fff;
-}
-.side-button hr {
-  width: 60%;
-  height: 1px;
-  margin: 0 auto;
-  border: 1px solid #ffffff34;
 }
 </style>

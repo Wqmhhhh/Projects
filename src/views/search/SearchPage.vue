@@ -15,19 +15,12 @@ const initialBoxWidth = () => {
   }
 }
 
-onMounted(
-  initialBoxWidth(),
-
-  // 动态调整Box宽度
-  window.addEventListener('resize', initialBoxWidth)
-)
-
 // 底部文字
 const VideoInfo = ref({
   VideoSrc: '',
   VideoIntro:
     '网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态',
-  VideoLikeNum: 999,
+  VideoLikeNum: 0,
 })
 const VideoIntroShow = ref()
 const IntroduceToolong = ref(false)
@@ -41,7 +34,14 @@ const TooLongWrap = () => {
     IntroduceToolong.value = false
   }
 }
-onMounted(TooLongWrap())
+onMounted(() => {
+  TooLongWrap()
+
+  initialBoxWidth()
+
+  // 动态调整Box宽度
+  window.addEventListener('resize', initialBoxWidth)
+})
 </script>
 
 <template>
@@ -82,7 +82,6 @@ onMounted(TooLongWrap())
   width: 100%;
   height: 100vh;
   background-color: transparent;
-  /* background-color: #ffffff38; */
   padding: 10px 20px;
 }
 

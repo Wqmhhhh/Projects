@@ -1,36 +1,54 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useShowFlags, useUserStore } from '@/stores/index'
 import { storeToRefs } from 'pinia'
+// 接口方法
+import { userLoginService, getCodeService } from '@/api/login'
+import { ElMessage } from 'element-plus'
 
 // store库
 const FlagsStore = useShowFlags()
 const UserStore = useUserStore()
 const { ifLoginShow, ifAutoLogin, ifLogin } = storeToRefs(FlagsStore)
-const { user } = UserStore
-
-// 接口方法
-import { userLoginService, getCodeService } from '@/api/login'
-
-// const res = p()
-// console.log(res)
 
 // 是否默认显示自动登录
 const ifAutoLoginPage = ref(false)
-if (ifAutoLogin.value) {
-  ifAutoLoginPage.value = true
-}
 
-// 点击 其他方式登录
-const handleOtherWays = () => {
-  ifAutoLoginPage.value = !ifAutoLoginPage.value
-}
+// 自动登录时用户信息
+const autoUserInfo = ref()
+
+// 登录按钮是否激活
+const loginButtonActive = ref(false)
 
 // tab栏切换登录方式
 const codeActive = ref(true)
 const passwordActive = ref(false)
 const CodeLogin = ref(true)
-// 处理登录方式切换
+
+// 输入信息同步
+const EmailNumber = ref()
+const CodeNumber = ref()
+const PasswordNumber = ref()
+
+// 检测邮箱是否有效
+const ifEmailNumberQualified = ref(false)
+
+// 处理获取验证码
+const getCodeMSG = ref('获取验证码')
+let countdownTimer = null
+let num = 60
+
+// 若有自动登录则从本地读取信息
+const autoInfo = () => {
+  autoUserInfo.value = JSON.parse(localStorage.getItem('User')).user
+}
+
+// 点击其他方式登录
+const handleOtherWays = () => {
+  ifAutoLoginPage.value = !ifAutoLoginPage.value
+}
+
+// 登录方式切换
 const handleCode = () => {
   codeActive.value = true
   passwordActive.value = false
@@ -42,34 +60,20 @@ const handlePassword = () => {
   CodeLogin.value = false
 }
 
-// 输入信息同步
-const EmailNumber = ref()
-const CodeNumber = ref()
-const PasswordNumber = ref()
-
-// 检测邮箱是否有效
-const ifEmailNumberQualified = ref(false)
-
-// TODO:处理获取验证码
-const getCodeMSG = ref('获取验证码')
-let countdownTimer = null
-let num = 60
-let VoidShake = null
-const handleGetCode = async () => {
+const handleGetCode = async (e = null) => {
   // 倒计时效果
   if (countdownTimer) return
 
-  // 防抖
-  if (VoidShake) return
-  VoidShake = setTimeout(() => {
-    clearTimeout(VoidShake)
-    VoidShake = null
-  }, 5000)
-
   // 验证码请求
   const res = await getCodeService(EmailNumber.value)
-  console.log('验证码返回：', res)
-
+  if (res.status == 200 && e === null) {
+    ElMessage.success('发送验证码成功！')
+  }
+  if (e === null) {
+    ElMessage(res.data.data || res.data.msg)
+  } else {
+    return res.data.data
+  }
   countdownTimer = setInterval(() => {
     if (num <= 0) {
       getCodeMSG.value = `获取验证码`
@@ -84,7 +88,6 @@ const handleGetCode = async () => {
 }
 
 // 登录按钮变色：两个输入框均有数据时变色
-const loginButtonActive = ref(false)
 watch([EmailNumber, CodeNumber, PasswordNumber], (newValues) => {
   // 处理登录按钮有效
   const [NewEmailNumber, NewCodeNumber, NewPasswordNumberNew] = newValues
@@ -106,15 +109,38 @@ watch([EmailNumber, CodeNumber, PasswordNumber], (newValues) => {
   }
 })
 
-// TODO：处理点击登录按钮
+// 处理点击登录按钮
 const handleLogin = async () => {
   // 登录请求
-  const res = await userLoginService(EmailNumber.value, CodeNumber.value)
-  console.log('点击登录：', res)
+  try {
+    const res = await userLoginService(EmailNumber.value, CodeNumber.value)
+    const data = res.data.data
+    UserStore.setUserInfo(data)
+  } catch {
+    console.log('登录异步操作失败')
+  }
 
   ElMessage.success('登录成功！')
 
-  // TODO：写入用户信息
+  // 登录成功修改 ifLogin、弹框消失、页面刷新
+  ifLogin.value = true
+  ifLoginShow.value = false
+  location.reload()
+}
+
+// 一键登录按钮
+const handleAutoLogin = async () => {
+  const code = handleGetCode(1)
+  // 登录请求
+  try {
+    const res = await userLoginService(autoInfo.value.mobile, code)
+    const data = res.data.data
+    UserStore.setUserInfo(data)
+  } catch {
+    console.log('登录异步操作失败')
+  }
+
+  ElMessage.success('登录成功！')
 
   // 登录成功修改 ifLogin、弹框消失、页面刷新
   ifLogin.value = true
@@ -128,6 +154,14 @@ const handleClose = () => {
   PasswordNumber.value = ''
   CodeNumber.value = ''
 }
+
+onMounted(() => {
+  // 处理自动登录页面显示
+  if (ifAutoLogin.value) {
+    autoInfo()
+    ifAutoLoginPage.value = true
+  }
+})
 </script>
 <template>
   <el-dialog
@@ -151,10 +185,12 @@ const handleClose = () => {
     <template #footer>
       <!-- 自动登录页面 -->
       <div v-if="ifAutoLoginPage" class="AutoLoginPage">
-        <div><img :src="user.ProFileSrc" alt="" /></div>
-        <div>{{ user.name }}</div>
+        <div><img :src="autoUserInfo.face" alt="" /></div>
+        <div>{{ autoUserInfo.nickname }}</div>
         <div>
-          <el-button class="el-button" @click="handleLogin">一键登录</el-button>
+          <el-button class="el-button" @click="handleAutoLogin">
+            一键登录
+          </el-button>
         </div>
         <div>登录即同意 用户协议 和 隐私政策</div>
         <div @click="handleOtherWays">登录其他账号 →</div>

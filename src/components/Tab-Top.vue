@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import router from '@/router'
 
 // 导入库
@@ -9,26 +9,33 @@ import { storeToRefs } from 'pinia'
 const FlagsStore = useShowFlags()
 const UserStore = useUserStore()
 const NoticeStore = useNoticeList()
-const {
-  ifLoginShow,
-  ifLogin: notLogin,
-  ifAutoLogin,
-  ifUpLoadWorks,
-  ifSearch,
-} = storeToRefs(FlagsStore)
+const { ifLoginShow, ifLogin, ifAutoLogin, ifUpLoadWorks, ifSearch } =
+  storeToRefs(FlagsStore)
 const { user, token } = storeToRefs(UserStore)
 const { NoticeList } = storeToRefs(NoticeStore)
 
 // 导入接口
 import { userLogOutService } from '@/api/login'
+import { ElMessage } from 'element-plus'
+
+// 搜索框聚焦、失焦
+const isfocus = ref(false)
+
+// 通知列表
+// const notice = []
+
+// 通知：关注 按钮标志
+const FollowUper = ref(false)
+
+// 用户输入搜索内容
+const searchInput = ref('')
 
 // 点击显示登录弹框
 const PopLogin = () => {
   ifLoginShow.value = true
 }
 
-// 搜索框聚焦、失焦对应效果
-const isfocus = ref(false)
+// 处理搜索框聚焦、失焦
 const handleFocus = () => {
   isfocus.value = true
 }
@@ -38,29 +45,37 @@ const handleBlur = () => {
 
 // 点击客户端
 const handleKehudaun = () => {
-  ElMessage('没有客户端可以下载~')
+  ElMessage('没有客户端可以下载哦~')
 }
-// const notice = []
-const FollowUper = ref(false)
 
 // 退出登录
 const handleLogOut = async () => {
   // 退出登录
-  const res = userLogOutService(user.id)
-  console.log('退出登录：', res)
+  try {
+    await userLogOutService(user.value.id)
+  } catch {
+    console.log('退出登录异步操作失败')
+  }
+  ElMessage.success('退出登录成功！')
 
-  // TODO：检查是否有自动登录，没有清除本地信息
+  // 检查是否有自动登录，没有清除本地信息
   if (!ifAutoLogin.value) {
     user.value = {}
     token.value = ''
   }
-  notLogin.value = false
+  ifLogin.value = false
   location.reload()
 }
 
 // 处理用户搜索
-const searchInput = ref('')
 const handleSearch = () => {
+  if (!searchInput.value) {
+    ElMessage({
+      duration: 1000,
+      message: '输入内容再搜索吧！',
+    })
+    return
+  }
   // TODO:将搜索内容传给后端
 
   // 顶部Tab栏显示返回按钮、跳转页面
@@ -72,15 +87,40 @@ const handleSearch = () => {
 const handleBack = async () => {
   // 返回主页面、输入框清空
   searchInput.value = ''
-  ifSearch.value = false
-  await router.push('/')
-  // 顶部Tab不显示返回按钮
 
-  router.go(0)
+  // 顶部Tab不显示返回按钮
+  ifSearch.value = false
+
+  await router.push('/main/recommend').catch((err) => {
+    console.log('err', err)
+  })
+
+  // 强行刷新页面：会影响页面性能(无需刷新)
+  // router.go(0)
 }
+
+// TODO：用户名字过长进行折叠
+const handleUserName = () => {
+  // if (user.value.nickname.length > 10) {
+  //   document.querySelector('.user-header-name h3').innerHTML =
+  //     user.value.nickname.subString(0, 10) + '...'
+  // }
+}
+
+// 点击私信跳转页面
+// TODO:需要手动刷新才能跳转
+const handleChat = () => {
+  router.push('/chat')
+}
+
+// 页面加载完成操作
+onMounted(() => {
+  handleUserName()
+})
 </script>
 <template>
   <div id="app" class="tab">
+    <!-- 图标 -->
     <div class="logo">
       <div class="back" @click="handleBack" v-if="ifSearch">
         <el-icon><ArrowLeftBold /></el-icon>
@@ -88,6 +128,7 @@ const handleBack = async () => {
       <img src="../assets/tabLogo.png" alt="" v-else />
     </div>
 
+    <!-- 搜索框 -->
     <div class="search" ref="search" :class="{ focus: isfocus }">
       <input
         v-model="searchInput"
@@ -106,7 +147,7 @@ const handleBack = async () => {
       </span>
     </div>
 
-    <div class="down-box">
+    <div class="down-box" v-show="ifLogin">
       <!-- 充钻石 -->
       <div class="down">
         <i class="iconfont icon-biaoqianlan_jingxuan"></i>
@@ -115,7 +156,7 @@ const handleBack = async () => {
 
       <!-- 客户端 -->
       <el-popover
-        :popper-class="notLogin ? 'kehuduanContainer' : 'TabNotLogin'"
+        popper-class="kehuduanContainer"
         effect="dark"
         :hide-after="200"
       >
@@ -126,7 +167,7 @@ const handleBack = async () => {
           </div>
         </template>
         <template #default>
-          <div class="kehuduan-box" v-if="notLogin">
+          <div class="kehuduan-box">
             <div class="kehuduan-box-top">
               <ul>
                 <li>桌面便捷访问</li>
@@ -140,13 +181,12 @@ const handleBack = async () => {
               <i class="iconfont icon-xiazai"></i>下载电脑客户端
             </el-button>
           </div>
-          <notLoginTab v-else></notLoginTab>
         </template>
       </el-popover>
 
       <!-- 通知 -->
       <el-popover
-        :popper-class="notLogin ? 'noticeContainer' : 'TabNotLogin'"
+        popper-class="noticeContainer"
         effect="dark"
         trigger="hover"
         :hide-after="200"
@@ -158,7 +198,7 @@ const handleBack = async () => {
           </div>
         </template>
         <template #default>
-          <div class="notice-box" v-if="notLogin">
+          <div class="notice-box">
             <div class="notice-header">
               <span>互动消息</span>
             </div>
@@ -196,24 +236,23 @@ const handleBack = async () => {
               <div class="list-end">到底啦~</div>
             </div>
           </div>
-          <notLoginTab v-else></notLoginTab>
         </template>
       </el-popover>
 
       <!-- 私信 -->
       <el-popover
-        :popper-class="notLogin ? 'messageContainer' : 'TabNotLogin'"
+        popper-class="messageContainer"
         effect="dark"
         :hide-after="200"
       >
         <template #reference>
-          <div class="down">
+          <div class="down" @click="handleChat">
             <i class="iconfont icon-sixin"></i>
             <div class="icon-text">私信</div>
           </div>
         </template>
         <template #default>
-          <div class="message-box" v-if="notLogin">
+          <div class="message-box">
             <div class="message-header">
               <span>私信</span>
             </div>
@@ -231,7 +270,6 @@ const handleBack = async () => {
               <div class="list-end">到底啦~</div>
             </div>
           </div>
-          <notLoginTab v-else></notLoginTab>
         </template>
       </el-popover>
 
@@ -247,25 +285,24 @@ const handleBack = async () => {
         effect="dark"
         :hide-after="200"
         placement="bottom-start"
-        v-if="notLogin"
       >
         <template #reference>
           <div class="pic-box" @click="router.push('/main/my')">
-            <img src="../assets/image.ico" class="pic" alt="" />
-            <!-- <img :src="user.ProFileSrc" alt="" class="pic" /> -->
+            <img :src="user.face" alt="" class="pic" />
           </div>
         </template>
         <template #default>
           <div class="user-box">
             <div class="user-header">
               <div class="user-header-pic">
-                <!-- <img :src="user.ProFileSrc" alt="" /> -->
-                <img src="../assets/image.ico" class="pic" alt="" />
+                <img :src="user.face" alt="" />
               </div>
-              <!-- TODO：名字越界了省略号代替 -->
+              <!-- 名字越界了省略号代替 -->
               <div class="user-header-name">
-                <h3>{{ user.name }}</h3>
-                <p>关注 {{ user.followNum }} | 粉丝 {{ user.fansNum }}</p>
+                <h3 ref="TabUserName">{{ user.nickname }}</h3>
+                <p>
+                  关注 {{ user.myFollowsCounts }} | 粉丝 {{ user.myFansCounts }}
+                </p>
               </div>
             </div>
             <div class="user-list">
@@ -284,12 +321,12 @@ const handleBack = async () => {
           </div>
         </template>
       </el-popover>
-
-      <!-- 未登录时显示按钮 -->
-      <el-button v-else class="TabLoginButton" @click="PopLogin"
-        >登录</el-button
-      >
     </div>
+
+    <!-- 未登录时显示按钮 -->
+    <el-button class="TabLoginButton" @click="PopLogin" v-show="!ifLogin">
+      登录
+    </el-button>
   </div>
 </template>
 
@@ -631,9 +668,9 @@ hr {
   justify-content: space-between;
 }
 
-/* 未登录时用户头像 */
+/* 未登录时Tab栏登录按钮 */
 .TabLoginButton {
-  width: 13%;
+  width: 100px;
   height: 50%;
   border-radius: 3vh;
   font-size: 13px;
@@ -656,11 +693,6 @@ hr {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.TabNotLogin {
-  width: 250px !important;
-  background-color: rgb(37, 38, 50) !important;
-  border-radius: 20px !important;
 }
 .kehuduanContainer {
   width: 300px !important;

@@ -11,27 +11,43 @@ const { ifUpLoadWorks } = storeToRefs(FlagsStore)
 // 封面地址
 const VideoUrl = ref()
 
+// 投稿标题
+const WorkTitle = ref('')
+
+// 标题字数
+const TitleWordNum = ref(0)
+
+// 投稿介绍
+const WorkIntroduce = ref('')
+
 // 更新封面
 const onUploadFile = (file) => {
   // 上传视频地址
   VideoUrl.value = URL.createObjectURL(file.raw)
 }
 
-// TODO:有数据更新activeButton才更新为true
-const activeButton = ref(false)
+// 处理标题字数更新
+const handleTitleInput = () => {
+  TitleWordNum.value = WorkTitle.value.length
+}
+
 // TODO:提交按钮更新数据
 const handleSubmit = () => {
   console.log(1)
 }
+
 // 取消按钮退出
 const handleExit = () => {
+  VideoUrl.value = ''
+  WorkIntroduce.value = ''
+  WorkTitle.value = ''
   ifUpLoadWorks.value = false
 }
 </script>
 <template>
   <el-dialog
     v-model="ifUpLoadWorks"
-    class="ChangeInforDialog"
+    class="UpLoadWorkDialog"
     :close-on-click-modal="false"
   >
     <template #header>
@@ -60,13 +76,13 @@ const handleExit = () => {
           <div>标题</div>
           <div class="nameInput">
             <input
-              v-model="UserName"
+              v-model="WorkTitle"
               type="text"
               placeholder="天赋型选手灵机一动"
-              maxlength="20"
-              @change="handleNameInput"
+              maxlength="30"
+              @input="handleTitleInput"
             />
-            <span>{{ NameWordNum }}/20</span>
+            <span>{{ TitleWordNum }}/30</span>
           </div>
         </div>
 
@@ -75,7 +91,7 @@ const handleExit = () => {
           <div>简介</div>
           <div class="IntroduceInput">
             <textarea
-              v-model="UserIntroduce"
+              v-model="WorkIntroduce"
               placeholder="点击输入文字，为你的视频省流"
             ></textarea>
           </div>
@@ -85,7 +101,7 @@ const handleExit = () => {
           <el-button class="el-button no" @click="handleExit">取消</el-button>
           <el-button
             class="el-button submit"
-            :class="{ activeButton: activeButton }"
+            :class="{ activeButton: WorkIntroduce && WorkTitle && VideoUrl }"
             @click="handleSubmit"
           >
             保存
@@ -260,8 +276,9 @@ const handleExit = () => {
   color: #fff;
 }
 </style>
+
 <style>
-.ChangeInforDialog {
+.UpLoadWorkDialog {
   margin: 0 auto;
   height: 100%;
   background-color: rgb(37, 38, 50);

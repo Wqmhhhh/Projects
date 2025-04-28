@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 // store库
@@ -10,14 +10,18 @@ const FlagsStore = useShowFlags()
 const UserStore = useUserStore()
 
 const { ifLogin, ifAutoLogin, ifEditShow } = storeToRefs(FlagsStore)
-const { user } = storeToRefs(UserStore)
+const { user } = UserStore
 
-// TODO:编辑资料弹框
+// 接口
+// import { userInfoQueryService } from '@/api/login'
+
+// 编辑资料弹框
 const handleChangeUserInfor = () => {
   ifEditShow.value = true
+  // location.reload()
 }
 
-// Tab栏
+// Tab栏信息
 const myTab = [
   {
     path: '/main/my/works',
@@ -26,16 +30,16 @@ const myTab = [
     private: false,
   },
   {
+    path: '/main/my/like',
+    name: '喜欢',
+    num: 0,
+    private: false,
+  },
+  {
     path: '/main/my/private',
     name: '私密',
     num: 0,
     private: true,
-  },
-  {
-    path: '/main/my/like',
-    name: '喜欢',
-    num: 166,
-    private: false,
   },
 ]
 // 初始默认激活 “作品”
@@ -47,6 +51,19 @@ const handleTabClick = (path) => {
   activeIndex.value = path
   router.push(path)
 }
+
+// TODO:每次进入页面进行数据请求、渲染页面
+const refresh = async () => {
+  // const res = await userInfoQueryService(user.id)
+  // const data = res.data
+  // UserStore.setUserInfo(data)
+  // console.log(res)
+}
+
+// 页面加载完成的操作
+onMounted(() => {
+  refresh()
+})
 </script>
 
 <template>
@@ -54,14 +71,14 @@ const handleTabClick = (path) => {
     <div class="header">
       <div class="header-left">
         <div class="header-pic">
-          <img :src="user.ProFileSrc" alt="" />
+          <img :src="user.face" alt="" />
         </div>
         <div class="header-infor">
-          <div>{{ user.name }}</div>
+          <div>{{ user.nickname }}</div>
           <div class="header-infor-inline">
-            <div>关注 {{ user.followNum }}</div>
+            <div>关注 {{ user.myFollowsCounts }}</div>
             <hr />
-            <div>粉丝 {{ user.fansNum }}</div>
+            <div>粉丝 {{ user.myFansCounts }}</div>
           </div>
           <div>抖音号： {{ user.id }}</div>
         </div>

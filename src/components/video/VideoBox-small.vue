@@ -13,7 +13,7 @@ const VideoInfo = ref({
   VideoSrc: '',
   VideoIntro:
     '网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态',
-  VideoLikeNum: 999,
+  VideoLikeNum: 0,
 })
 const ifLike = ref(false)
 

@@ -2,43 +2,90 @@
 import { onMounted, ref } from 'vue'
 
 // store库
-import { useShowFlags } from '@/stores'
+import { useShowFlags, useUserStore } from '@/stores'
 import { storeToRefs } from 'pinia'
 
-const FlagsStore = useShowFlags()
-const { ifEditShow } = storeToRefs(FlagsStore)
+// 接口
+import { userInfoChangeService, userFaceChangeService } from '@/api/login'
 
-const UserIntroduce = ref()
-const UserName = ref('乌漆抹黑嘿嘿嘿')
+const FlagsStore = useShowFlags()
+const userStore = useUserStore()
+const { ifEditShow } = storeToRefs(FlagsStore)
+const { user } = userStore
+
+const UserIntroduce = ref('')
+const UserName = ref('')
 const imgUrl = ref()
 let NameWordNum = ref(0)
 
 const handleNameInput = () => {
   NameWordNum.value = UserName.value.length
+  if (UserName.value != user.nickname) {
+    activeButton.value = true
+  } else {
+    activeButton.value = false
+  }
 }
-onMounted(() => {
-  handleNameInput()
-})
+
+const handleIntroChange = () => {
+  if (UserIntroduce.value != user.nickname) {
+    activeButton.value = true
+  } else {
+    activeButton.value = false
+  }
+}
+
+// 填充用户信息
+const InputInfo = () => {
+  UserIntroduce.value = user.description
+  UserName.value = user.nickname
+  imgUrl.value = user.face
+}
+
+// 有数据更新activeButton才更新为true
+const activeButton = ref(false)
 
 // 更新封面
-const onUploadFile = (file) => {
-  // 上传视频地址
+const onUploadFile = async (file) => {
+  // TODO：使用unicloud现成的API上传图片、视频
+  // 注意此处为选中，还未上传，上传在提交按钮处
+  const res = await userFaceChangeService(user.id)
+  console.log(res)
+
   imgUrl.value = URL.createObjectURL(file.raw)
+
+  activeButton.value = true
 }
+
 // 取消按钮退出
 const handleExit = () => {
+  UserIntroduce.value = user.description
+  UserName.value = user.nickname
+  imgUrl.value = user.face
   ifEditShow.value = false
 }
 
-// TODO:有数据更新activeButton才更新为true
-const activeButton = ref(false)
-// const handleNameChange = () => {
-//   activeButton.value = true
-// }
 // TODO:提交按钮更新数据
-const handleSubmit = () => {
-  console.log(1)
+const handleSubmit = async () => {
+  // TODO:昵称更新
+  if (UserName.value !== user.nickname) {
+    const res = await userInfoChangeService(user.id, 1, UserName.value)
+    console.log(res)
+  }
+
+  // TODO:简介更新
+  if (UserIntroduce.value !== user.description) {
+    const res = await userInfoChangeService(user.id, 6, UserIntroduce.value)
+    console.log(res)
+  }
+
+  // TODO：头像更新
 }
+
+onMounted(() => {
+  InputInfo()
+  handleNameInput()
+})
 </script>
 <template>
   <el-dialog
@@ -53,7 +100,6 @@ const handleSubmit = () => {
       <div class="footer-box">
         <div class="userPicBox">
           <div class="userPic">
-            <!-- TODO:上传头像要进行base64编码啥的略略略 -->
             <el-upload
               class=""
               :auto-upload="false"
@@ -86,7 +132,8 @@ const handleSubmit = () => {
           <div class="IntroduceInput">
             <textarea
               v-model="UserIntroduce"
-              placeholder="oi，就是你！小鬼，介绍一下你自己"
+              placeholder="oi 小鬼，介绍一下自己叭！"
+              @input="handleIntroChange"
             ></textarea>
           </div>
         </div>

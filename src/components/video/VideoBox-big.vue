@@ -11,9 +11,9 @@ const ifUserWork = ref(false),
   ifPrivate = ref(false)
 
 // 父组件传入视频信息
-const props = defineProps({
-  SingleVideo: Object,
-})
+// const props = defineProps({
+//   SingleVideo: Object,
+// })
 
 // 绑定视频
 const VideoRef = ref(true)
@@ -21,10 +21,10 @@ let totalLength = ref(0)
 let VideoCurrentLength = ref(0)
 
 // 初始化获取视频
-const getVideo = async () => {
-  // TODO：根据接口返回值加载视频
-  // await res=
-}
+// const getVideo = async () => {
+//   // TODO：根据接口返回值加载视频
+//   // await res=
+// }
 // 进度条
 let processNumber = ref(0)
 // 视频暂停

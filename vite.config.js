@@ -9,6 +9,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // base: 'http://192.168.3.76:8099',
   plugins: [
     vue(),
     vueDevTools(),
@@ -24,13 +25,17 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://192.168.3.76:8099', //请求的地址
-  //       changeOrigin: true,
-  //       // rewrite: (path) => path.replace(/^\/api/, ''), // 可选，用于重写请求路径
-  //     },
-  //   },
-  // },
+
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://192.168.3.76:8099/', //请求的地址
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''), // 可选，用于重写请求路径
+      },
+      onProxyReq(proxyReq) {
+        proxyReq.removeHeader('origin')
+      },
+    },
+  },
 })

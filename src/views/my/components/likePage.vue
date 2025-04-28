@@ -1,11 +1,9 @@
 <script setup>
-import VideoBoxSmall from '@/components/video/VideoBox-small.vue'
+import VideoSmallBox from './VideoSmallBox.vue'
 </script>
 <template>
   <div class="UperWorksVideosContainer">
-    <div class="UperWorksVideosBox">
-      <VideoBoxSmall :IntroShow="true"></VideoBoxSmall>
-    </div>
+    <VideoSmallBox></VideoSmallBox>
   </div>
 </template>
 
@@ -24,13 +22,5 @@ import VideoBoxSmall from '@/components/video/VideoBox-small.vue'
   flex-wrap: wrap;
   align-items: start;
   align-content: start;
-  /* background-color: #ffffff38; */
-}
-
-.UperWorksVideosBox {
-  width: 14%;
-  height: 50%;
-  border-radius: 2.5vh;
-  margin: 2vh 1vw;
 }
 </style>

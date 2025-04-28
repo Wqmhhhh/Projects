@@ -6,7 +6,7 @@ export const useShowFlags = defineStore(
   'showFlags',
   () => {
     // 登录弹框
-    const ifLoginShow = ref(false)
+    const ifLoginShow = ref(true)
 
     // 编辑弹框
     const ifEditShow = ref(false)
