@@ -2,20 +2,16 @@
 import { onMounted, ref, watch } from 'vue'
 import { useShowFlags, useUserStore } from '@/stores/index'
 import { storeToRefs } from 'pinia'
-// 接口方法
-import { userLoginService, getCodeService } from '@/api/login'
 import { ElMessage } from 'element-plus'
 
 // store库
 const FlagsStore = useShowFlags()
 const UserStore = useUserStore()
+const { user } = storeToRefs(UserStore)
 const { ifLoginShow, ifAutoLogin, ifLogin } = storeToRefs(FlagsStore)
 
 // 是否默认显示自动登录
 const ifAutoLoginPage = ref(false)
-
-// 自动登录时用户信息
-const autoUserInfo = ref()
 
 // 登录按钮是否激活
 const loginButtonActive = ref(false)
@@ -38,11 +34,6 @@ const getCodeMSG = ref('获取验证码')
 let countdownTimer = null
 let num = 60
 
-// 若有自动登录则从本地读取信息
-const autoInfo = () => {
-  autoUserInfo.value = JSON.parse(localStorage.getItem('User')).user
-}
-
 // 点击其他方式登录
 const handleOtherWays = () => {
   ifAutoLoginPage.value = !ifAutoLoginPage.value
@@ -60,20 +51,19 @@ const handlePassword = () => {
   CodeLogin.value = false
 }
 
-const handleGetCode = async (e = null) => {
+const handleGetCode = async () => {
   // 倒计时效果
   if (countdownTimer) return
 
   // 验证码请求
-  const res = await getCodeService(EmailNumber.value)
-  if (res.status == 200 && e === null) {
-    ElMessage.success('发送验证码成功！')
+  const data = UserStore.getSmsCode(EmailNumber.value)
+  if (data) {
+    ElMessage({
+      duration: 5000,
+      message: data,
+    })
   }
-  if (e === null) {
-    ElMessage(res.data.data || res.data.msg)
-  } else {
-    return res.data.data
-  }
+
   countdownTimer = setInterval(() => {
     if (num <= 0) {
       getCodeMSG.value = `获取验证码`
@@ -112,40 +102,20 @@ watch([EmailNumber, CodeNumber, PasswordNumber], (newValues) => {
 // 处理点击登录按钮
 const handleLogin = async () => {
   // 登录请求
-  try {
-    const res = await userLoginService(EmailNumber.value, CodeNumber.value)
-    const data = res.data.data
-    UserStore.setUserInfo(data)
-  } catch {
-    console.log('登录异步操作失败')
+  if (UserStore.userLogin(EmailNumber.value, CodeNumber.value)) {
+    ElMessage.success('登录成功！')
   }
-
-  ElMessage.success('登录成功！')
-
-  // 登录成功修改 ifLogin、弹框消失、页面刷新
-  ifLogin.value = true
-  ifLoginShow.value = false
-  location.reload()
-}
-
-// 一键登录按钮
-const handleAutoLogin = async () => {
-  const code = handleGetCode(1)
-  // 登录请求
-  try {
-    const res = await userLoginService(autoInfo.value.mobile, code)
-    const data = res.data.data
-    UserStore.setUserInfo(data)
-  } catch {
-    console.log('登录异步操作失败')
-  }
-
-  ElMessage.success('登录成功！')
 
   // 登录成功修改 ifLogin、弹框消失、页面刷新
   ifLogin.value = true
   ifLoginShow.value = false
   // location.reload()
+}
+
+// 一键登录按钮
+const handleAutoLogin = () => {
+  CodeNumber.value = UserStore.getSmsCode(user.value.mobile)
+  handleLogin()
 }
 
 // 弹框消失清空输入
@@ -158,7 +128,6 @@ const handleClose = () => {
 onMounted(() => {
   // 处理自动登录页面显示
   if (ifAutoLogin.value) {
-    autoInfo()
     ifAutoLoginPage.value = true
   }
 })
@@ -185,8 +154,8 @@ onMounted(() => {
     <template #footer>
       <!-- 自动登录页面 -->
       <div v-if="ifAutoLoginPage" class="AutoLoginPage">
-        <div><img :src="autoUserInfo.face" alt="" /></div>
-        <div>{{ autoUserInfo.nickname }}</div>
+        <div><img :src="user.face" alt="" /></div>
+        <div>{{ user.nickname }}</div>
         <div>
           <el-button class="el-button" @click="handleAutoLogin">
             一键登录
@@ -335,17 +304,18 @@ onMounted(() => {
   font-weight: bold;
 }
 .header-back {
-  opacity: 0;
+  display: none;
+  position: absolute;
 }
 .header-back:hover {
   cursor: pointer;
   color: #000;
 }
 .headerBackVisible {
-  opacity: 1 !important;
+  display: inline-block;
 }
 .header-title {
-  width: 93%;
+  width: 100%;
   text-align: center;
   color: #000;
 }

@@ -3,12 +3,9 @@ import { storeToRefs } from 'pinia'
 import VideoBoxBig from './VideoBox-big.vue'
 
 // 导入库
-import { useCurrentVideo, useShowFlags } from '@/stores'
-const CurrentVideo = useCurrentVideo()
+import { useShowFlags } from '@/stores'
 const FlagsStore = useShowFlags()
 const { ifFullScreen } = storeToRefs(FlagsStore)
-// TODO:解构赋值
-const { video } = storeToRefs(CurrentVideo)
 
 // 点击返回返回上一个页面
 const handleBack = () => {

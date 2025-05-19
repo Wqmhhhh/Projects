@@ -21,7 +21,7 @@ export const useShowFlags = defineStore(
     const ifFullScreen = ref(false)
 
     // 是否展示投稿页面
-    const ifUpLoadWorks = ref(true)
+    const ifUpLoadWorks = ref(false)
 
     // 顶部Tab栏是否显示返回按钮：跳转搜索页后显示
     const ifSearch = ref(false)

@@ -5,18 +5,23 @@ import { onMounted, ref } from 'vue'
 import { useShowFlags, useUserStore } from '@/stores'
 import { storeToRefs } from 'pinia'
 
-// 接口
-import { userInfoChangeService, userFaceChangeService } from '@/api/login'
-
 const FlagsStore = useShowFlags()
-const userStore = useUserStore()
+const UserStore = useUserStore()
 const { ifEditShow } = storeToRefs(FlagsStore)
-const { user } = userStore
+const { user } = storeToRefs(UserStore)
 
+// 简介
 const UserIntroduce = ref('')
+// 用户名
 const UserName = ref('')
+// 头像地址
 const imgUrl = ref()
-let NameWordNum = ref(0)
+// 更新后头像地址
+const file = ref({})
+// 用户名字数
+const NameWordNum = ref(0)
+// 有数据更新activeButton才更新为true
+const activeButton = ref(false)
 
 const handleNameInput = () => {
   NameWordNum.value = UserName.value.length
@@ -42,18 +47,13 @@ const InputInfo = () => {
   imgUrl.value = user.face
 }
 
-// 有数据更新activeButton才更新为true
-const activeButton = ref(false)
-
-// 更新封面
-const onUploadFile = async (file) => {
+// 更新头像
+const onUploadFile = async (f) => {
   // TODO：使用unicloud现成的API上传图片、视频
-  // 注意此处为选中，还未上传，上传在提交按钮处
-  const res = await userFaceChangeService(user.id)
-  console.log(res)
+  file.value = f.raw
 
-  imgUrl.value = URL.createObjectURL(file.raw)
-
+  // 此处为选中，还未上传，上传在提交按钮处
+  imgUrl.value = URL.createObjectURL(f.raw)
   activeButton.value = true
 }
 
@@ -68,18 +68,37 @@ const handleExit = () => {
 // TODO:提交按钮更新数据
 const handleSubmit = async () => {
   // TODO:昵称更新
-  if (UserName.value !== user.nickname) {
-    const res = await userInfoChangeService(user.id, 1, UserName.value)
-    console.log(res)
-  }
+  // if (UserName.value !== user.nickname) {
+  //   if (UserStore.changeInfo(1, UserName.value)) {
+  //     ElMessage.success('更改昵称成功！')
+  //   } else {
+  //     ElMessage.error('更改昵称失败！')
+  //   }
+  // }
 
   // TODO:简介更新
-  if (UserIntroduce.value !== user.description) {
-    const res = await userInfoChangeService(user.id, 6, UserIntroduce.value)
-    console.log(res)
-  }
+  // if (UserIntroduce.value !== user.description) {
+  //   if (UserStore.changeInfo(1, UserIntroduce.value)) {
+  //     ElMessage.success('更改简介成功！')
+  //   } else {
+  //     ElMessage.error('更改简介失败！')
+  //   }
+  // }
 
   // TODO：头像更新
+  // if (imgUrl.value != user.bgImg) {
+  //   const data = new FormData()
+  //   data.append('image', file.value)
+
+  //   if (UserStore.changeInfo(data)) {
+  //     ElMessage.success('更改头像成功！')
+  //   } else {
+  //     ElMessage.error('更改头像失败！')
+  //   }
+  // }
+
+  // 更新后重新获取用户信息
+  UserStore.getUserInfo()
 }
 
 onMounted(() => {

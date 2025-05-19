@@ -25,5 +25,6 @@ import TabSide from './components/TabSide.vue'
   flex: 1;
   height: calc(100vh - 56px);
   padding-left: 5px;
+  background-color: rgb(22, 24, 35);
 }
 </style>

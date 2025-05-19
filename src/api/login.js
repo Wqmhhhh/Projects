@@ -15,19 +15,5 @@ export const getCodeService = (mobile) => {
 
 // 退出登录
 export const userLogOutService = (userId) => {
-  return request.post('/passport/logout', { userId })
-}
-
-// 更改用户信息
-export const userInfoChangeService = (userId, changeNum, data) => {
-  // TODO:和后端确认是否需要指定参数名
-  return request.post(`/userInfo/modifyUserInfo?type=${changeNum}`, {
-    userId,
-    data,
-  })
-}
-
-// 更改用户头像
-export const userFaceChangeService = (userId) => {
-  return request.post('/userInfo/modifyImage', { userId, type: 2 })
+  return request.get('/passport/logout', { params: { userId } })
 }

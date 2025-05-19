@@ -147,8 +147,6 @@ const handleTooLong = () => {
 const FollowUper = ref(false)
 const likeUper = ref(false)
 const likeUperNum = ref(9999)
-const CollectUper = ref(false)
-const CollectUperNum = ref(9999)
 const commentNum = ref(9999)
 
 const handleLike = () => {
@@ -159,14 +157,14 @@ const handleLike = () => {
     likeUperNum.value--
   }
 }
-const handleCollect = () => {
-  CollectUper.value = !CollectUper.value
-  if (CollectUper.value) {
-    CollectUperNum.value++
-  } else {
-    CollectUperNum.value--
-  }
-}
+// const handleCollect = () => {
+//   CollectUper.value = !CollectUper.value
+//   if (CollectUper.value) {
+//     CollectUperNum.value++
+//   } else {
+//     CollectUperNum.value--
+//   }
+// }
 
 // 点击定时器:区分单击双击
 const clickTimer = ref(null)
@@ -391,13 +389,13 @@ const handleDeleteComment = (index, arr) => {
         </div>
 
         <!-- 收藏 -->
-        <div class="collect" @click="handleCollect">
+        <!-- <div class="collect" @click="handleCollect">
           <i
             class="iconfont icon-weishoucang"
             :class="{ CollectUper: CollectUper }"
           ></i>
           <div>{{ CollectUperNum }}</div>
-        </div>
+        </div> -->
 
         <!-- 私密 -->
         <div
@@ -742,12 +740,12 @@ video {
 .topContainerRight {
   position: absolute;
   width: 50px;
-  height: 430px;
+  height: 370px;
   color: #fff;
   right: 50px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 .topContainerRight .iconfont {
@@ -759,6 +757,9 @@ video {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex-shrink: unset;
+  height: 70px;
+  padding: 10px 0;
 }
 .topContainerRight > div:hover {
   cursor: pointer;

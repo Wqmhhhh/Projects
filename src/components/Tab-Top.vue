@@ -11,11 +11,9 @@ const UserStore = useUserStore()
 const NoticeStore = useNoticeList()
 const { ifLoginShow, ifLogin, ifAutoLogin, ifUpLoadWorks, ifSearch } =
   storeToRefs(FlagsStore)
-const { user, token } = storeToRefs(UserStore)
+const { user } = storeToRefs(UserStore)
 const { NoticeList } = storeToRefs(NoticeStore)
 
-// 导入接口
-import { userLogOutService } from '@/api/login'
 import { ElMessage } from 'element-plus'
 
 // 搜索框聚焦、失焦
@@ -51,20 +49,11 @@ const handleKehudaun = () => {
 // 退出登录
 const handleLogOut = async () => {
   // 退出登录
-  try {
-    await userLogOutService(user.value.id)
-  } catch {
-    console.log('退出登录异步操作失败')
-  }
-  ElMessage.success('退出登录成功！')
-
-  // 检查是否有自动登录，没有清除本地信息
-  if (!ifAutoLogin.value) {
-    user.value = {}
-    token.value = ''
+  if (UserStore.userLogout) {
+    ElMessage.success('退出登录成功！')
   }
   ifLogin.value = false
-  location.reload()
+  // location.reload()
 }
 
 // 处理用户搜索

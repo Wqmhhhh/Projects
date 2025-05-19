@@ -2,45 +2,53 @@
 import { ref } from 'vue'
 
 // store库
-import { useShowFlags } from '@/stores'
+import { useShowFlags, useVideo, useUserStore } from '@/stores'
 import { storeToRefs } from 'pinia'
+import { ElMessage } from 'element-plus'
 
 const FlagsStore = useShowFlags()
+const videoStore = useVideo()
 const { ifUpLoadWorks } = storeToRefs(FlagsStore)
 
-// 封面地址
+// 视频地址
 const VideoUrl = ref()
 
-// 投稿标题
-const WorkTitle = ref('')
+// 封面地址
+const CoverUrl = ref()
 
-// 标题字数
-const TitleWordNum = ref(0)
+// 视频宽高
+const VideoWidth = ref()
+const VideoHeight = ref()
 
 // 投稿介绍
 const WorkIntroduce = ref('')
 
-// 更新封面
+// 更新视频
 const onUploadFile = (file) => {
-  // 上传视频地址
+  // TODO：视频地址、视频封面转换格式、视频宽高
   VideoUrl.value = URL.createObjectURL(file.raw)
 }
 
-// 处理标题字数更新
-const handleTitleInput = () => {
-  TitleWordNum.value = WorkTitle.value.length
-}
-
-// TODO:提交按钮更新数据
+// TODO:上传视频按钮
 const handleSubmit = () => {
-  console.log(1)
+  const vlogBO = {
+    id: '',
+    vlogerId: useUserStore().user.id,
+    url: VideoUrl.value,
+    cover: CoverUrl.value,
+    title: WorkIntroduce.value,
+    width: VideoWidth.value,
+    height: VideoHeight.value,
+  }
+  if (videoStore.uploadVideo(vlogBO)) {
+    ElMessage.success('上传视频成功！')
+  }
 }
 
 // 取消按钮退出
 const handleExit = () => {
   VideoUrl.value = ''
   WorkIntroduce.value = ''
-  WorkTitle.value = ''
   ifUpLoadWorks.value = false
 }
 </script>
@@ -71,28 +79,13 @@ const handleExit = () => {
           <div>点击投稿视频</div>
         </div>
 
-        <!-- 标题 -->
-        <div class="nameBox">
-          <div>标题</div>
-          <div class="nameInput">
-            <input
-              v-model="WorkTitle"
-              type="text"
-              placeholder="天赋型选手灵机一动"
-              maxlength="30"
-              @input="handleTitleInput"
-            />
-            <span>{{ TitleWordNum }}/30</span>
-          </div>
-        </div>
-
         <!-- 简介 -->
         <div class="introduceBox">
           <div>简介</div>
           <div class="IntroduceInput">
             <textarea
               v-model="WorkIntroduce"
-              placeholder="点击输入文字，为你的视频省流"
+              placeholder="点击输入视频简介"
             ></textarea>
           </div>
         </div>
@@ -104,7 +97,7 @@ const handleExit = () => {
             :class="{ activeButton: WorkIntroduce && WorkTitle && VideoUrl }"
             @click="handleSubmit"
           >
-            保存
+            上传
           </el-button>
         </div>
       </div>
@@ -160,41 +153,6 @@ const handleExit = () => {
 .userPicBox > div {
   font-size: 2.5vh;
   text-align: center;
-}
-
-/* name */
-.nameBox,
-.introduceBox {
-  margin-top: 2vh;
-  height: 15vh;
-  text-align: left;
-  font-size: 2.5vh;
-  line-height: 5vh;
-  color: #fff;
-}
-.nameInput {
-  margin-top: 1vh;
-  padding: 0 1vw;
-  width: 100%;
-  height: 6vh;
-  border-radius: 2vh;
-  background-color: #ffffff38;
-}
-.nameInput input {
-  width: 80%;
-  height: 100%;
-  font-size: 2.4vh;
-  background-color: transparent;
-  border: 0;
-  outline: none;
-  color: #ffffffe7;
-}
-.nameInput span {
-  font-size: 2.5vh;
-  position: relative;
-  left: 3vw;
-  line-height: 6vh;
-  color: #ffffff4d;
 }
 
 /* introduce */

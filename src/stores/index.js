@@ -10,5 +10,4 @@ export default pinia
 export * from './modules/showFlags'
 export * from './modules/user'
 export * from './modules/video'
-export * from './modules/videoList'
 export * from './modules/NoticeList'

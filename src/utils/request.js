@@ -31,10 +31,14 @@ instance.interceptors.request.use(
 
     if (token && specificPath.some((path) => config.url.includes(path))) {
       // 在请求头中添加认证信息字段
-      config.headers.Authorization = {
-        headerUserId: user.id,
-        headerUserToken: token,
-      }
+      config.headers['headerUserId'] = user.id
+      config.headers['headerUserToken'] = token
+    }
+
+    if (config.url.includes('/userInfo/modifyImage')) {
+      config.headers['Content-Type'] = 'multipart/form-data'
+    } else {
+      config.headers['Content-Type'] = 'application/json'
     }
 
     return config
