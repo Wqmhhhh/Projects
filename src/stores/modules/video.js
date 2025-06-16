@@ -49,63 +49,18 @@ export const useVideo = defineStore('video', () => {
 
   // 当前视频信息
   const currentVideo = ref({
-    // 当前视频Id
-    vlogId: 0,
-
-    // 视频作者ID
-    vlogerId: 0,
-
-    // 作者头像
-    vlogerFace: '',
-
-    // 作者昵称
-    vlogerName: '',
-
-    // 标题
-    content: '',
-
-    // 视频地址
-    url: '',
-
-    // 视频封面
-    cover: '',
-
-    // 视频宽度
-    width: '',
-
-    // 视频高度
-    height: '',
-
     // 视频总时长
     totalLength: 0,
 
     // 当前播放进度
-    VideoCurrentLength: 0,
+    currentLength: 0,
 
     // 视频暂停
-    isPlay: false,
-
-    // 视频点赞
-    likeCounts: 0,
-
-    //视频评论数量
-    commentsCounts: 0,
-
-    // 视频收藏数目
-    // VideoCollectNum: 0,
-
-    // 视频中是否为作者视频：可切换私密
-    // ifUserWork: true,
-
-    // 视频是否私密
-    isPrivate: false,
-
-    // 是否关注该作者
-    doIFollowVloger: false,
-
-    // 是否点赞该视频
-    doILikeThisVlog: false,
+    isPlay: '',
   })
+
+  // 当前视频vlogId
+  const currentVlogId = ref()
 
   // 设置视频列表
   const setVideoList = (n, data) => {
@@ -133,10 +88,6 @@ export const useVideo = defineStore('video', () => {
         break
       case 8:
         currentVideoList.value = data
-        break
-      case 9:
-        currentVideo.value = data
-        // TODO：根据data设置时长等没有的信息
         break
     }
   }
@@ -238,8 +189,15 @@ export const useVideo = defineStore('video', () => {
   }
 
   // 上传视频
-  const uploadVideo = async (VlogBO) => {
-    const res = await vlogUploadService(VlogBO)
+  const uploadVideo = async (title, width, height, video, image) => {
+    const res = await vlogUploadService(
+      user.id,
+      title,
+      width,
+      height,
+      video,
+      image,
+    )
     console.log(res)
 
     // TODO：更新 我的 对应视频列表
@@ -250,6 +208,18 @@ export const useVideo = defineStore('video', () => {
     } else {
       return false
     }
+  }
+
+  // 设置当前视频vlogId
+  const setCurrentVlogId = (vlogId) => {
+    vlogId.value = vlogId
+  }
+
+  // 设置当前视频信息
+  const setCurrentVlog = (totalLength, currentLength, isPlay) => {
+    currentVideo.value.totalLength = totalLength
+    currentVideo.value.currentLength = currentLength
+    currentVideo.value.isPlay = isPlay
   }
 
   return {
@@ -264,6 +234,7 @@ export const useVideo = defineStore('video', () => {
 
     currentVideoList,
     currentVideo,
+    currentVlogId,
 
     setVideoList,
     getRecList,
@@ -282,5 +253,8 @@ export const useVideo = defineStore('video', () => {
     publicVideo,
     privateVideo,
     uploadVideo,
+
+    setCurrentVlogId,
+    setCurrentVlog,
   }
 })

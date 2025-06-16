@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 // store库
 import { useShowFlags, useUserStore } from '@/stores'
 import { storeToRefs } from 'pinia'
+import { ElMessage } from 'element-plus'
 
 const FlagsStore = useShowFlags()
 const UserStore = useUserStore()
@@ -17,7 +18,7 @@ const UserName = ref('')
 // 头像地址
 const imgUrl = ref()
 // 更新后头像地址
-const file = ref({})
+let file
 // 用户名字数
 const NameWordNum = ref(0)
 // 有数据更新activeButton才更新为true
@@ -25,7 +26,7 @@ const activeButton = ref(false)
 
 const handleNameInput = () => {
   NameWordNum.value = UserName.value.length
-  if (UserName.value != user.nickname) {
+  if (UserName.value != user.value.nickname && UserName.value) {
     activeButton.value = true
   } else {
     activeButton.value = false
@@ -33,7 +34,7 @@ const handleNameInput = () => {
 }
 
 const handleIntroChange = () => {
-  if (UserIntroduce.value != user.nickname) {
+  if (UserIntroduce.value != user.value.description && UserIntroduce.value) {
     activeButton.value = true
   } else {
     activeButton.value = false
@@ -42,18 +43,16 @@ const handleIntroChange = () => {
 
 // 填充用户信息
 const InputInfo = () => {
-  UserIntroduce.value = user.description
-  UserName.value = user.nickname
-  imgUrl.value = user.face
+  UserIntroduce.value = user.value.description
+  UserName.value = user.value.nickname
+  imgUrl.value = user.value.face
 }
 
 // 更新头像
-const onUploadFile = async (f) => {
-  // TODO：使用unicloud现成的API上传图片、视频
-  file.value = f.raw
-
+const onUploadFile = async (e) => {
+  file = e.raw
   // 此处为选中，还未上传，上传在提交按钮处
-  imgUrl.value = URL.createObjectURL(f.raw)
+  imgUrl.value = URL.createObjectURL(e.raw)
   activeButton.value = true
 }
 
@@ -65,45 +64,62 @@ const handleExit = () => {
   ifEditShow.value = false
 }
 
-// TODO:提交按钮更新数据
+// 提交按钮更新数据
 const handleSubmit = async () => {
-  // TODO:昵称更新
-  // if (UserName.value !== user.nickname) {
-  //   if (UserStore.changeInfo(1, UserName.value)) {
-  //     ElMessage.success('更改昵称成功！')
-  //   } else {
-  //     ElMessage.error('更改昵称失败！')
-  //   }
-  // }
-
-  // TODO:简介更新
-  // if (UserIntroduce.value !== user.description) {
-  //   if (UserStore.changeInfo(1, UserIntroduce.value)) {
-  //     ElMessage.success('更改简介成功！')
-  //   } else {
-  //     ElMessage.error('更改简介失败！')
-  //   }
-  // }
-
-  // TODO：头像更新
-  // if (imgUrl.value != user.bgImg) {
-  //   const data = new FormData()
-  //   data.append('image', file.value)
-
-  //   if (UserStore.changeInfo(data)) {
-  //     ElMessage.success('更改头像成功！')
-  //   } else {
-  //     ElMessage.error('更改头像失败！')
-  //   }
-  // }
+  // 昵称更新
+  if (UserName.value !== user.value.nickname) {
+    if (UserName.value === '') {
+      ElMessage('昵称不能为空')
+    } else {
+      console.log('提交更改昵称请求')
+      if (UserStore.changeInfo(1, UserName.value)) {
+        ElMessage.success('更改昵称成功！')
+      } else {
+        ElMessage.error('更改昵称失败！')
+      }
+    }
+  }
+  // 简介更新
+  if (UserIntroduce.value !== user.value.description) {
+    if (UserIntroduce.value === '') {
+      ElMessage('简介不能为空')
+    } else {
+      console.log('提交更改简介请求')
+      if (UserStore.changeInfo(6, UserIntroduce.value)) {
+        ElMessage.success('更改简介成功！')
+      } else {
+        ElMessage.error('更改简介失败！')
+      }
+    }
+  }
+  // 头像更新
+  if (imgUrl.value !== user.value.face) {
+    console.log('提交更改头像请求')
+    const data = new FormData()
+    data.append('image', file)
+    // UserStore.faceChange(data)
+    if (UserStore.faceChange(data)) {
+      ElMessage.success('更改头像成功！')
+    } else {
+      ElMessage.error('更改头像失败！')
+    }
+  }
 
   // 更新后重新获取用户信息
   UserStore.getUserInfo()
+
+  // 编辑弹框消失
+  handleExit()
+
+  // TODO：看是否会自动更新，不自动更新刷新一下
+  // location.reload()
 }
 
-onMounted(() => {
+onMounted(async () => {
   InputInfo()
-  handleNameInput()
+  if (UserName.value) {
+    handleNameInput()
+  }
 })
 </script>
 <template>
@@ -111,6 +127,7 @@ onMounted(() => {
     v-model="ifEditShow"
     class="ChangeInforDialog"
     :close-on-click-modal="false"
+    :before-close="handleExit"
   >
     <template #header>
       <div class="header">编辑资料</div>
@@ -124,6 +141,7 @@ onMounted(() => {
               :auto-upload="false"
               :show-file-list="false"
               :on-change="onUploadFile"
+              name="image"
             >
               <img v-if="imgUrl" :src="imgUrl" class="avatar" />
               <div v-else><i class="iconfont icon-24px"></i></div>

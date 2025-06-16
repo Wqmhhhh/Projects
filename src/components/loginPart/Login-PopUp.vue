@@ -57,12 +57,12 @@ const handleGetCode = async () => {
 
   // 验证码请求
   const data = UserStore.getSmsCode(EmailNumber.value)
-  if (data) {
+  data.then((result) => {
     ElMessage({
       duration: 5000,
-      message: data,
+      message: result,
     })
-  }
+  })
 
   countdownTimer = setInterval(() => {
     if (num <= 0) {
@@ -114,7 +114,11 @@ const handleLogin = async () => {
 
 // 一键登录按钮
 const handleAutoLogin = () => {
-  CodeNumber.value = UserStore.getSmsCode(user.value.mobile)
+  const res = UserStore.getSmsCode(user.value.mobile)
+  res.then((result) => {
+    CodeNumber.value = result
+  })
+
   handleLogin()
 }
 

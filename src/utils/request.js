@@ -29,10 +29,11 @@ instance.interceptors.request.use(
     // 需要请求头的路径数组
     const specificPath = ['/userInfo/modifyUserInfo', '/userInfo/modifyImage']
 
-    if (token && specificPath.some((path) => config.url.includes(path))) {
+    if (specificPath.some((path) => config.url.includes(path))) {
       // 在请求头中添加认证信息字段
       config.headers['headerUserId'] = user.id
       config.headers['headerUserToken'] = token
+      console.log('添加请求头', user.id, token)
     }
 
     if (config.url.includes('/userInfo/modifyImage')) {
@@ -40,6 +41,8 @@ instance.interceptors.request.use(
     } else {
       config.headers['Content-Type'] = 'application/json'
     }
+
+    console.log('Content-Type', config.headers['Content-Type'])
 
     return config
   },

@@ -49,7 +49,7 @@ const handleKehudaun = () => {
 // 退出登录
 const handleLogOut = async () => {
   // 退出登录
-  if (UserStore.userLogout) {
+  if (UserStore.userLogout(user.value.id)) {
     ElMessage.success('退出登录成功！')
   }
   ifLogin.value = false
@@ -229,17 +229,16 @@ onMounted(() => {
       </el-popover>
 
       <!-- 私信 -->
-      <el-popover
+      <div class="down" @click="handleChat">
+        <i class="iconfont icon-sixin"></i>
+        <div class="icon-text">私信</div>
+      </div>
+      <!-- <el-popover
         popper-class="messageContainer"
         effect="dark"
         :hide-after="200"
       >
-        <template #reference>
-          <div class="down" @click="handleChat">
-            <i class="iconfont icon-sixin"></i>
-            <div class="icon-text">私信</div>
-          </div>
-        </template>
+        <template #reference> </template>
         <template #default>
           <div class="message-box">
             <div class="message-header">
@@ -260,7 +259,7 @@ onMounted(() => {
             </div>
           </div>
         </template>
-      </el-popover>
+      </el-popover> -->
 
       <!-- 投稿 -->
       <div class="down" @click="ifUpLoadWorks = true">

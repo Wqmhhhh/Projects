@@ -1,7 +1,8 @@
 <script setup>
 import chatListComponent from './components/chatListComponent.vue'
+import chatView from './components/chatView.vue'
 import { onMounted, ref } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { Search, Close } from '@element-plus/icons-vue'
 import { useChatList } from '@/stores/modules/chatListInfo'
 import { storeToRefs } from 'pinia'
 import router from '@/router'
@@ -10,33 +11,31 @@ const chatStore = useChatList()
 const {
   naviBarIndex,
   chatList,
-  ifHaveList,
-  ifHaveView,
   friendsList,
   followList,
+  ifHaveChatList,
+  ifHaveFriendList,
+  ifHaveFollowList,
+  ifHaveView,
 } = storeToRefs(chatStore)
 
 // 搜索内容
-const searchInput = ref('')
-
-// 列表数组
-const list = ref(chatList.value)
+const searchInput = ref()
+// 搜索视图是否显示
+const ifSearchViewShow = ref(false)
 
 // 处理导航栏图标切换对应视图
 const handleChatActive = () => {
-  naviBarIndex.value = 'chat'
-  chatStore.changeFlag()
-  list.value = chatList
+  ifSearchViewShow.value = false
+  chatStore.changeFlag('chat')
 }
 const handleFriendActive = () => {
-  naviBarIndex.value = 'friend'
-  chatStore.changeFlag()
-  list.value = friendsList
+  ifSearchViewShow.value = false
+  chatStore.changeFlag('friend')
 }
 const handleFollowActive = () => {
-  naviBarIndex.value = 'follow'
-  chatStore.changeFlag()
-  list.value = followList
+  ifSearchViewShow.value = false
+  chatStore.changeFlag('follow')
 }
 
 // 返回视频页面
@@ -44,8 +43,26 @@ const handleBack = () => {
   router.push('/main/recommend')
 }
 
+// 点击搜索显示对应效果
+const handleSearch = () => {
+  ifSearchViewShow.value = true
+}
+
+const handleBlur = () => {
+  if (!ifSearchViewShow.value) {
+    searchInput.value.blur()
+  } else {
+    searchInput.value.focus()
+  }
+}
+
+const handleSearchClose = () => {
+  ifSearchViewShow.value = false
+  searchInput.value.blur()
+}
+
 onMounted(() => {
-  chatStore.changeFlag()
+  chatStore.changeFlag(naviBarIndex.value)
 })
 </script>
 
@@ -112,40 +129,71 @@ onMounted(() => {
           <!-- 搜索框 -->
           <div class="search">
             <el-input
-              v-model="searchInput"
+              ref="searchInput"
               style="width: 210px"
               placeholder="搜索"
               :prefix-icon="Search"
               size="large"
-            />
-          </div>
-
-          <!-- 默认背景文字 -->
-          <div v-if="!ifHaveList" class="listDefault">
-            <div v-if="naviBarIndex === 'chat'">
-              竟然没有一个人找你聊天吗
-              <br />
-              快去找人聊天吧！
-            </div>
-            <div v-else-if="naviBarIndex === 'friend'">
-              帅到没朋友吗 有点意思
-            </div>
-            <div v-else>竟然一个关注的人都没有吗!</div>
+              class="searchInput"
+              @focus="handleSearch"
+              @blur="handleBlur"
+            >
+              <template #suffix>
+                <el-icon @click.stop="handleSearchClose" class="searchClose"
+                  ><Close
+                /></el-icon>
+              </template>
+            </el-input>
           </div>
 
           <!-- 列表视图 -->
-          <div class="List" v-else>
-            <div v-for="(item, index) in list" :key="index">
-              <chatListComponent :information="item"></chatListComponent>
+          <div class="List">
+            <!-- 聊天列表 -->
+            <div v-if="naviBarIndex === 'chat'">
+              <div v-if="!ifHaveChatList" class="listDefault">
+                竟然没有一个人找你聊天吗
+                <br />
+                快去找人聊天吧！
+              </div>
+
+              <div v-for="item in chatList" :key="item.id" v-else>
+                <chatListComponent :information="item"></chatListComponent>
+              </div>
             </div>
+
+            <!-- 朋友列表 -->
+            <div v-if="naviBarIndex === 'friend'">
+              <div v-if="!ifHaveFriendList" class="listDefault">
+                帅到没朋友吗 有点意思
+              </div>
+              <div v-for="item in friendsList" :key="item.id" v-else>
+                <chatListComponent :information="item"></chatListComponent>
+              </div>
+            </div>
+
+            <!-- 关注列表 -->
+            <div v-if="naviBarIndex === 'follow'">
+              <div v-if="!ifHaveFollowList" class="listDefault">
+                竟然一个关注的人都没有吗!
+              </div>
+              <div v-for="item in followList" :key="item.id" v-else>
+                <chatListComponent :information="item"></chatListComponent>
+              </div>
+            </div>
+
+            <!-- 搜索视图 -->
+            <div class="searchView" v-if="ifSearchViewShow"></div>
           </div>
         </el-col>
 
         <!-- 视图栏 -->
         <el-col :span="18" class="column columnView">
-          <div v-show="!ifHaveView" class="ViewDefault">
+          <div v-if="!ifHaveView" class="ViewDefault">
             <i class="iconfont icon-yinfu2"></i>
             <span>抖音·记录美好生活</span>
+          </div>
+          <div v-else>
+            <chatView></chatView>
           </div>
         </el-col>
       </el-row>
@@ -271,12 +319,35 @@ onMounted(() => {
   color: #fff;
   font-size: 15px;
 }
+:deep(.el-input__wrapper.is-focus) {
+  outline: 1px solid rgb(0, 102, 204);
+}
+.searchView {
+  height: 552px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  background-color: rgb(33, 35, 44);
+}
+.searchClose:hover {
+  cursor: pointer;
+  color: #fff;
+}
 .listDefault {
   font-size: 17px;
   margin: 80% 0;
   color: #ffffff39;
   text-align: center;
   line-height: 40px;
+}
+.List {
+  overflow-y: scroll;
+  scrollbar-width: none;
+  width: 100%;
+  height: 552px;
+  position: relative;
 }
 
 /* 视图栏 */

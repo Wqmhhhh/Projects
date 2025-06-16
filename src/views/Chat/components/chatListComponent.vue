@@ -9,9 +9,7 @@ const { chatListActiveIndex } = storeToRefs(chatStore)
 const props = defineProps({
   information: Object,
 })
-console.log(props.information)
 const info = ref(props.information)
-console.log(info.value.name)
 
 // 处理文字过长
 const handleText = () => {
@@ -19,15 +17,17 @@ const handleText = () => {
     info.value.name.length > 10
       ? info.value.name.substring(0, 7) + '...'
       : info.value.name
-  info.value.msg =
-    info.value.msg.length > 10
-      ? info.value.msg.substring(0, 10) + '...'
-      : info.value.msg
+  if (info.value.msg) {
+    info.value.msg =
+      info.value.msg.length > 10
+        ? info.value.msg.substring(0, 10) + '...'
+        : info.value.msg
+  }
 }
 
 // 处理点击列表元素
 const handleListActive = () => {
-  chatListActiveIndex.value = info.value.id
+  chatStore.setChatListActiveIndex(info.value.id)
 }
 
 onMounted(() => {
@@ -47,10 +47,10 @@ onMounted(() => {
 
     <div class="text">
       <div>{{ info.name }}</div>
-      <div class="grey">{{ info.msg }}</div>
+      <div class="grey" v-if="info.msg">{{ info.msg }}</div>
     </div>
 
-    <div class="icon">
+    <div class="icon" v-if="info.time">
       <div class="grey">{{ info.time }}</div>
       <div v-show="info.ifMuted">
         <el-icon class="grey"><MuteNotification /></el-icon>
@@ -96,20 +96,24 @@ onMounted(() => {
 
 /* 文字*/
 .text {
-  margin: 0 5px;
+  margin: 0 6px;
   width: 130px;
   height: 40px;
   color: #ffffffe6;
   font-size: 14px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
 }
 .grey {
   color: #ffffff64;
   font-size: 13px;
+  margin-top: 5px;
 }
 .icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
   text-align: center;
   height: 40px;
 }

@@ -13,10 +13,15 @@ export const useCommentList = defineStore('commentList', () => {
   // 评论列表
   const commentList = ref([])
 
+  // 评论数量
+  const commentNum = ref()
+
   // 获取评论列表
   const getCommentList = async (vlogId, userId, page, pageSize) => {
     const res = await getCommentListService(vlogId, userId, page, pageSize)
     console.log(res)
+
+    // commentList.value=res.data.data
   }
 
   // 获取视频评论数量
@@ -24,6 +29,8 @@ export const useCommentList = defineStore('commentList', () => {
     // 注意！vlogId为string
     const res = await getCommentNumService(vlogId)
     console.log(res)
+
+    // commentNum.value=res.data.data
   }
 
   // 删除评论
@@ -101,6 +108,7 @@ export const useCommentList = defineStore('commentList', () => {
 
   return {
     commentList,
+    commentNum,
 
     addComment,
     getCommentList,

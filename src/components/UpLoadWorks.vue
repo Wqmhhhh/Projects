@@ -1,8 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 // store库
-import { useShowFlags, useVideo, useUserStore } from '@/stores'
+import { useShowFlags, useVideo } from '@/stores'
 import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus'
 
@@ -23,27 +23,81 @@ const VideoHeight = ref()
 // 投稿介绍
 const WorkIntroduce = ref('')
 
-// 更新视频
-const onUploadFile = (file) => {
-  // TODO：视频地址、视频封面转换格式、视频宽高
-  VideoUrl.value = URL.createObjectURL(file.raw)
+// // 更新视频
+// const onUploadFile = (file) => {
+//   // TODO：视频地址、视频封面转换格式、视频宽高
+//   VideoUrl.value = URL.createObjectURL(file.raw)
+// }
+
+// // TODO:上传视频按钮
+// const handleSubmit = () => {
+//   const vlogBO = {
+//     vlogerId: useUserStore().user.id,
+//     url: VideoUrl.value,
+//     cover: CoverUrl.value,
+//     title: WorkIntroduce.value,
+//     width: VideoWidth.value,
+//     height: VideoHeight.value,
+//   }
+//   if (videoStore.uploadVideo(vlogBO)) {
+//     ElMessage.success('上传视频成功！')
+//   }
+// }
+
+const videoElement = ref(null)
+const canvasElement = ref(null)
+
+const onUploadFile = (uploadFile) => {
+  const file = uploadFile.raw
+  VideoUrl.value = URL.createObjectURL(file)
+
+  // 创建一个视频元素来加载视频
+  const video = document.createElement('video')
+  video.src = VideoUrl.value
+  video.addEventListener('loadedmetadata', () => {
+    // 获取视频的宽高
+    VideoWidth.value = video.videoWidth
+    VideoHeight.value = video.videoHeight
+
+    // 创建一个Canvas元素来绘制视频的第一帧
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const context = canvas.getContext('2d')
+    context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    // 将Canvas内容转换为图片URL
+    CoverUrl.value = canvas.toDataURL('image/png')
+  })
 }
 
-// TODO:上传视频按钮
 const handleSubmit = () => {
-  const vlogBO = {
-    id: '',
-    vlogerId: useUserStore().user.id,
-    url: VideoUrl.value,
-    cover: CoverUrl.value,
-    title: WorkIntroduce.value,
-    width: VideoWidth.value,
-    height: VideoHeight.value,
-  }
-  if (videoStore.uploadVideo(vlogBO)) {
+  const videoFormData = new FormData()
+  const imageFormData = new FormData()
+
+  videoFormData.append('video', VideoUrl.value)
+  imageFormData.append('image', CoverUrl.value)
+
+  // 调用上传视频的API
+  if (
+    videoStore.uploadVideo(
+      WorkIntroduce.value,
+      VideoWidth.value,
+      VideoHeight.value,
+      videoFormData,
+      imageFormData
+    )
+  ) {
     ElMessage.success('上传视频成功！')
+  } else {
+    ElMessage.error('上传视频失败！')
   }
 }
+
+onMounted(() => {
+  videoElement.value = document.createElement('video')
+  canvasElement.value = document.createElement('canvas')
+})
 
 // 取消按钮退出
 const handleExit = () => {
@@ -71,6 +125,9 @@ const handleExit = () => {
               :auto-upload="false"
               :show-file-list="false"
               :on-change="onUploadFile"
+              :file-list="fileList"
+              name="video"
+              accept="video/*"
             >
               <video v-if="VideoUrl" :src="VideoUrl" class="avatar"></video>
               <div v-else><i class="iconfont icon-24px"></i></div>
@@ -94,7 +151,7 @@ const handleExit = () => {
           <el-button class="el-button no" @click="handleExit">取消</el-button>
           <el-button
             class="el-button submit"
-            :class="{ activeButton: WorkIntroduce && WorkTitle && VideoUrl }"
+            :class="{ activeButton: WorkIntroduce && VideoUrl }"
             @click="handleSubmit"
           >
             上传
@@ -158,7 +215,7 @@ const handleExit = () => {
 /* introduce */
 .introduceBox {
   margin-top: 0;
-  height: 20vh;
+  height: 40vh;
 }
 .IntroduceInput {
   height: 75%;
@@ -210,7 +267,7 @@ const handleExit = () => {
   display: flex;
   justify-content: space-between;
   /* background-color: #fff; */
-  margin-top: 10vh;
+  margin-top: 5vh;
 }
 .buttons .el-button {
   width: 43%;

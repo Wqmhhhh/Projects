@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import VideoBoxBig from './VideoBox-big.vue'
 
@@ -6,11 +7,12 @@ import VideoBoxBig from './VideoBox-big.vue'
 import { useShowFlags } from '@/stores'
 const FlagsStore = useShowFlags()
 const { ifFullScreen } = storeToRefs(FlagsStore)
+const videoList = ref([])
 
-// 点击返回返回上一个页面
+// 点击 返回 回到上一个页面
 const handleBack = () => {
   ifFullScreen.value = false
-  console.log(1)
+  console.log('点击返回')
 }
 </script>
 
@@ -19,7 +21,11 @@ const handleBack = () => {
     <div class="back" @click="handleBack">
       <el-icon><ArrowLeftBold /></el-icon>
     </div>
-    <VideoBoxBig></VideoBoxBig>
+    <div class="box">
+      <div v-for="item in videoList" :key="item.vlogId">
+        <VideoBoxBig :props="item"></VideoBoxBig>
+      </div>
+    </div>
   </div>
 </template>
 

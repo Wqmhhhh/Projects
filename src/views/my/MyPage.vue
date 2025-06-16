@@ -12,9 +12,6 @@ const UserStore = useUserStore()
 const { ifLogin, ifAutoLogin, ifEditShow } = storeToRefs(FlagsStore)
 const { user } = UserStore
 
-// 接口
-// import { userInfoQueryService } from '@/api/login'
-
 // 编辑资料弹框
 const handleChangeUserInfor = () => {
   ifEditShow.value = true

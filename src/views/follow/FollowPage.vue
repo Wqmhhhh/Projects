@@ -2,7 +2,6 @@
 import VideoBoxBig from '@/components/video/VideoBox-big.vue'
 import NotLoginRouterView from '@/components/loginPart/NotLoginRouterView.vue'
 import SideChangeButton from '@/components/video/SideChangeButton.vue'
-// import { ref } from 'vue'
 
 // 导入库
 import { useShowFlags } from '@/stores'
@@ -19,6 +18,7 @@ const { ifLogin } = FlagsStore
     <SideChangeButton></SideChangeButton>
   </div>
 
+  <!-- 未登录视图 -->
   <div v-else class="notLoginShow">
     <NotLoginRouterView></NotLoginRouterView>
   </div>

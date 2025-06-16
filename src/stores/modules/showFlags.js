@@ -26,6 +26,9 @@ export const useShowFlags = defineStore(
     // 顶部Tab栏是否显示返回按钮：跳转搜索页后显示
     const ifSearch = ref(false)
 
+    // 当前视频高度
+    const currentVideoHeight = ref(0)
+
     return {
       ifEditShow,
       ifLoginShow,
@@ -34,6 +37,8 @@ export const useShowFlags = defineStore(
       ifFullScreen,
       ifUpLoadWorks,
       ifSearch,
+
+      currentVideoHeight,
     }
   },
   {

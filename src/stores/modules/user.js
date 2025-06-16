@@ -9,6 +9,7 @@ import {
   userInfoChangeService,
   userFaceChangeService,
   userInfoQueryService,
+  getMsgService,
 } from '@/api/userInfo'
 import { useShowFlags } from './showFlags'
 
@@ -44,8 +45,13 @@ export const useUserStore = defineStore(
       user.value.id = data.id
       user.value.updatedTime = data.updatedTime
       user.value.totalLikeMeCounts = data.totalLikeMeCounts
-      token.value = data.token
+      if (data.userToken) {
+        token.value = data.userToken
+      }
     }
+
+    // 消息列表
+    const MsgList = ref([])
 
     // 登录
     const userLogin = async (mobile, smsCode) => {
@@ -79,7 +85,6 @@ export const useUserStore = defineStore(
         return true
       } catch (e) {
         console.log('退出登录异步操作失败', e)
-
         return false
       }
     }
@@ -90,12 +95,19 @@ export const useUserStore = defineStore(
         const res = await getCodeService(mobile)
         console.log('验证码返回值', res)
 
-        // if (res.status == 200) {
-        //   ElMessage.success('发送验证码成功！')
-        // }
+        if (res.status == 200) {
+          ElMessage.success('发送验证码成功！')
+        }
 
         // 返回验证码或报错信息
-        return res.data.data || res.data.msg
+        // TODO:看一下验证码结构，无法正常显示弹框
+        if (res.data.data) {
+          // console.log('验证码：', res.data.data)
+          return res.data.data
+        } else {
+          console.log('过快：', res.data.msg)
+          return res.data.msg
+        }
       } catch (e) {
         console.log('发送验证码异步操作失败', e)
 
@@ -108,18 +120,16 @@ export const useUserStore = defineStore(
       const res = await userInfoQueryService(user.value.id)
       console.log('查询用户信息返回值', res)
 
-      // setUserInfo(res.data.data)
+      setUserInfo(res.data.data)
     }
 
     // 更改用户头像
     const faceChange = async (data) => {
-      // 注意！data需要为formData类型
-      console.log(typeof data)
       const res = await userFaceChangeService(user.value.id, data)
       console.log('更改用户头像返回值', res)
 
-      // TODO更改成功返回true
-      if (res.data) {
+      // TODO:更改成功返回true
+      if (res.data.status === 200) {
         return true
       } else {
         return false
@@ -141,7 +151,7 @@ export const useUserStore = defineStore(
       const res = await userInfoChangeService(UpdatedUserBO, changeNum)
       console.log('更改用户信息返回值', res)
 
-      // TODO更改成功返回true
+      // 更改成功返回true
       if (res.data) {
         return true
       } else {
@@ -149,9 +159,18 @@ export const useUserStore = defineStore(
       }
     }
 
+    // 获取通知信息
+    const getMsg = async (page, pageSize) => {
+      const res = await getMsgService(user.value.id, page, pageSize)
+      console.log('通知列表：', res)
+
+      // 将信息写入消息列表
+    }
+
     return {
       user,
       token,
+      MsgList,
 
       userLogin,
       userLogout,
@@ -161,6 +180,8 @@ export const useUserStore = defineStore(
       getUserInfo,
       faceChange,
       changeInfo,
+
+      getMsg,
     }
   },
   {

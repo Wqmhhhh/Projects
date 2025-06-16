@@ -2,47 +2,102 @@
 import { ref, onMounted } from 'vue'
 
 // 导入库
-import { useShowFlags } from '@/stores'
+import { useShowFlags, useVideo, useUserStore, useCommentList } from '@/stores'
 import { storeToRefs } from 'pinia'
 
 const FlagStore = useShowFlags()
+const VideoStore = useVideo()
+const CommentStore = useCommentList()
+const { commentList: CommentArr, commentNum } = storeToRefs(CommentStore)
 const { ifFullScreen } = storeToRefs(FlagStore)
-const ifUserWork = ref(false),
-  ifPrivate = ref(false)
 
 // 父组件传入视频信息
-// const props = defineProps({
-//   SingleVideo: Object,
-// })
+const props = defineProps({
+  videoInfo: Object,
+})
 
+// 评论有关信息
+let commentPage = 1
+let commentPageSize = 5
 // 绑定视频
 const VideoRef = ref(true)
-let totalLength = ref(0)
-let VideoCurrentLength = ref(0)
-
-// 初始化获取视频
-// const getVideo = async () => {
-//   // TODO：根据接口返回值加载视频
-//   // await res=
-// }
+// TODO：视频总长:需手动设置
+const totalLength = ref(0)
+// 当前播放进度
+const VideoCurrentLength = ref(0)
 // 进度条
-let processNumber = ref(0)
+const processNumber = ref(0)
 // 视频暂停
-let VideoPause = ref(false)
-// 音量
-let VoiceVolumn = ref(true)
+const VideoPause = ref(false)
+// 音量调整是否显示
+const VoiceVolumn = ref(true)
+// 音量大小
 const VoiceVolumnNumber = ref(50)
 // 倍速
 const SpeedNumber = ref('倍速')
-// 控制播放/暂停
-let handlePlayPause
-// 控制音量
-let handleVoice
-// 控制倍速
-let handleSpeed
-// 全屏控制
-let handleFullScreen
+// 视频上层图标是否显示
+const tagShow = ref(false)
+// 显示的标题内容
+const VideoIntroShow = ref()
+// 右侧图标
+const FollowUper = ref()
+const likeUper = ref()
+const likeUperNum = ref()
+const ifUserWork = ref()
+const ifPrivate = ref()
 
+// 介绍过长
+const IntroduceToolong = ref(true)
+// 介绍过长进行折叠
+const ToolongWrap = ref(true)
+// 右侧抽屉
+const sideTab = [
+  {
+    name: 'TA 的作品',
+  },
+  {
+    name: '评论',
+  },
+]
+// 抽屉显示
+const DrawerShow = ref(false)
+const TabShow = ref('0')
+// 评论内容
+const sendBoxText = ref('')
+
+// 控制播放/暂停
+const handlePlayPause = () => {
+  if (VideoPause.value === true) {
+    VideoRef.value.play()
+  } else {
+    VideoRef.value.pause()
+  }
+  VideoPause.value = !VideoPause.value
+}
+// 控制音量
+const handleVoice = () => {
+  if (VoiceVolumnNumber.value === 0) {
+    VoiceVolumn.value = false
+  } else {
+    VoiceVolumn.value = true
+  }
+  VideoRef.value.volume = VoiceVolumnNumber.value / 100 // 将音量值转换为 0-1 范围
+}
+// 控制倍速
+const handleSpeed = (value) => {
+  SpeedNumber.value = value
+  VideoRef.value.playbackRate = parseFloat(value) // 设置倍速
+}
+// 全屏控制
+const handleFullScreen = () => {
+  ifFullScreen.value = !ifFullScreen.value
+  // 保存当前视频进度
+  VideoStore.setCurrentVlog(
+    totalLength.value,
+    VideoCurrentLength.value,
+    VideoPause.value
+  )
+}
 // 改变时间格式
 const TransTime = (num) => {
   let min = String(Math.floor(num / 60))
@@ -51,17 +106,42 @@ const TransTime = (num) => {
   sec = sec >= 10 ? sec : '0' + sec
   return min + ':' + sec
 }
+// 初始化视频
+const initialVideo = () => {
+  // 视频大小切换
+  if (props.videoInfo.height > props.videoInfo.width) {
+    VideoRef.value.style.width = '100%'
+  } else {
+    VideoRef.value.style.height = '100%'
+  }
+  // 初始化时介绍过长进行剪切
+  if (props.videoInfo.content > 80) {
+    VideoIntroShow.value = props.videoInfo.content.substring(0, 80)
+    IntroduceToolong.value = true
+  } else {
+    VideoIntroShow.value = props.videoInfo.content.value
+  }
+  // 是否点赞视频
+  likeUper.value = props.videoInfo.doILikeThisVlog
+  // 是否关注
+  FollowUper.value = props.videoInfo.doIFollowVloger
+  // 点赞量
+  likeUperNum.value = props.videoInfo.likeCounts
+  // 评论量
+  commentNum.value = props.videoInfo.commentsCounts
+  // 是否为作者视频
+  // 设置是否为作者作品、是否私密
+  if (props.videoInfo.vlogerId === useUserStore().user.value.id) {
+    ifUserWork.value = true
+    ifPrivate.value = props.videoInfo.isPrivate
+  } else {
+    ifUserWork.value = false
+  }
+}
 
 // 视频加载完成后执行操作
 onMounted(() => {
-  // getVideo()
-
-  // 视频大小切换
-  if (VideoRef.value.style.width > VideoRef.value.style.height) {
-    VideoRef.value.style.height = '100%'
-  } else {
-    VideoRef.value.style.width = '100%'
-  }
+  initialVideo()
 
   // 监听视频加载完成事件，更新总时长
   VideoRef.value.addEventListener('loadedmetadata', () => {
@@ -77,84 +157,24 @@ onMounted(() => {
       VideoPause.value = true
     }
   })
-
-  // 初始化时介绍过长进行剪切
-  if (VideoIntro.value.length > 80) {
-    VideoIntroShow.value = VideoIntro.value.substring(0, 80)
-    IntroduceToolong.value = true
-  } else {
-    VideoIntroShow.value = VideoIntro.value
-  }
-
-  // 控制播放/暂停
-  handlePlayPause = () => {
-    if (VideoPause.value === true) {
-      VideoRef.value.play()
-    } else {
-      VideoRef.value.pause()
-    }
-    VideoPause.value = !VideoPause.value
-  }
-
-  // 控制音量
-  handleVoice = () => {
-    if (VoiceVolumnNumber.value === 0) {
-      VoiceVolumn.value = false
-    } else {
-      VoiceVolumn.value = true
-    }
-    VideoRef.value.volume = VoiceVolumnNumber.value / 100 // 将音量值转换为 0-1 范围
-  }
-
-  // 控制倍速
-  handleSpeed = (value) => {
-    SpeedNumber.value = value
-    VideoRef.value.playbackRate = parseFloat(value) // 设置倍速
-  }
-
-  // 全屏控制
-  handleFullScreen = () => {
-    ifFullScreen.value = !ifFullScreen.value
-  }
 })
 
-// 视频上层图标是否显示
-const tagShow = ref(false)
-// 视频作者信息
-const Uper = ref({
-  UperName: '乌漆抹黑嘿嘿嘿',
-  UperFansNumber: '30.5万',
-})
-const VideoIntro = ref(
-  `一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的符号一串没有用的`
-)
-let VideoIntroShow = ref()
-
-// 介绍过长
-const IntroduceToolong = ref(true)
-// 介绍过长进行折叠
-const ToolongWrap = ref(true)
+// 处理标题的折叠、展开
 const handleTooLong = () => {
   if (ToolongWrap.value) {
-    VideoIntroShow.value = VideoIntro.value
+    VideoIntroShow.value = props.videoInfo.content.value
   } else {
-    VideoIntroShow.value = VideoIntro.value.substring(0, 80)
+    VideoIntroShow.value = props.videoInfo.content.substring(0, 80)
   }
   ToolongWrap.value = !ToolongWrap.value
 }
 
-// 右侧图标
-const FollowUper = ref(false)
-const likeUper = ref(false)
-const likeUperNum = ref(9999)
-const commentNum = ref(9999)
-
+// 处理喜欢操作
 const handleLike = () => {
-  likeUper.value = !likeUper.value
-  if (likeUper.value) {
-    likeUperNum.value++
+  if (!likeUper.value) {
+    VideoStore.likeVideo(props.videoInfo.vlogerId, props.videoInfo.vlogId)
   } else {
-    likeUperNum.value--
+    VideoStore.cancelLikeVideo(props.videoInfo.vlogerId, props.videoInfo.vlogId)
   }
 }
 // const handleCollect = () => {
@@ -190,21 +210,9 @@ const handleDoubleClick = () => {
   handleLike()
 }
 
-// 右侧抽屉
-const sideTab = [
-  {
-    name: 'TA 的作品',
-  },
-  {
-    name: '评论',
-  },
-]
-// 抽屉显示
-const DrawerShow = ref(false)
-const TabShow = ref('0')
-
 // 点击头像显示抽屉的 作品
 const handleClickPic = () => {
+  // TODO：发送请求
   handleTabClick(0)
   DrawerShow.value = true
 }
@@ -213,55 +221,34 @@ const handleClickComment = () => {
   if (TabShow.value === '0') {
     handleTabClick(1)
     DrawerShow.value = true
+    CommentStore.getCommentList(
+      props.videoInfo.vlogId,
+      useUserStore().user.value.id,
+      commentPage,
+      commentPageSize
+    )
   } else {
     DrawerShow.value = !DrawerShow.value
   }
 }
+
+// TODO：评论懒加载
+// const commentList = () => {
+//   if (commentPage * commentPageSize < commentNum) {
+//     CommentStore.getCommentList(
+//       props.videoInfo.vlogId,
+//       useUserStore().user.value.id,
+//       commentPage + 1,
+//       commentPageSize
+//     )
+//   }
+// }
 
 // 抽屉tab栏切换
 const handleTabClick = (index) => {
   TabShow.value = index
 }
 
-// 评论数组
-const CommentArr = ref([
-  {
-    picSrc: '../assets/image.ico',
-    SendName: '乌漆抹黑嘿嘿嘿',
-    msg: '建议加入淡斑精华',
-    likeNum: 0,
-    ifLike: false,
-    time: '一天前',
-    reply: [
-      {
-        picSrc: '../assets/image.ico',
-        SendName: '乌漆抹黑嘿嘿嘿',
-        msg: '建议加入淡斑精华',
-        likeNum: 0,
-        ifLike: false,
-        time: '一天前',
-      },
-      {
-        picSrc: '../assets/image.ico',
-        SendName: '乌漆抹黑嘿嘿嘿',
-        msg: '建议加入淡斑精华',
-        likeNum: 0,
-        ifLike: false,
-        time: '一天前',
-      },
-      {
-        picSrc: '../assets/image.ico',
-        SendName: '乌漆抹黑嘿嘿嘿',
-        msg: '建议加入淡斑精华',
-        likeNum: 0,
-        ifLike: false,
-        time: '一天前',
-      },
-    ],
-  },
-])
-// 评论数量
-const CommentNum = ref(CommentArr.value.length)
 // 点击评论喜欢
 const handleLikeComment = (e) => {
   if (e.ifLike) {
@@ -273,17 +260,11 @@ const handleLikeComment = (e) => {
   }
 }
 
-// TODO:将store中的user信息同步进来
-const User = {
-  name: 'whhhh',
-  src: '../assets/image.ico',
-}
-const sendBoxText = ref('')
 // 点击评论发送
 const handleCommentSend = () => {
   const newComment = {
-    picSrc: '../assets/image.ico',
-    SendName: User.name,
+    picSrc: useUserStore().user.face,
+    SendName: useUserStore().user.value.nickname,
     msg: sendBoxText.value,
     likeNum: 0,
     ifLike: false,
@@ -297,7 +278,7 @@ const handleCommentSend = () => {
     CommentArr.value.unshift(newComment)
   }
   sendBoxText.value = ''
-  CommentNum.value = ref(CommentArr.value.length)
+  commentNum.value = ref(CommentArr.value.length)
 }
 // 回复评论
 const curretReply = ref(null)
@@ -309,24 +290,27 @@ const handleReply = (item) => {
 
 // 删除评论
 const handleDeleteComment = (index, arr) => {
+  // TODO：调用删除接口
+  // CommentStore.delComment(commentId,props.videoInfo.vlogId,useUserStore().user.value.id,pageXOffset,pageSeze)
   if (arr && arr.value) {
     arr.value.splice(index, 1)
   } else if (Array.isArray(arr)) {
     arr.splice(index, 1)
   }
-  CommentNum.value = ref(CommentArr.value.length)
+  commentNum.value = ref(CommentArr.value.length)
 }
 </script>
 <template>
   <div class="video-container">
     <!-- 顶部视频 -->
     <div class="topContainer">
-      <!-- TODO:把视频第一帧作为背景，加模糊 -->
+      <!-- TODO:背景设置，加模糊 -->
       <div
         class="videoBox"
         :class="{ VideoShrink: DrawerShow }"
         @dblclick="handleDoubleClick"
         @click="handleSingleClick"
+        :style="{ backgroundImage: `url(${props.videoInfo.cover})` }"
       >
         <video
           ref="VideoRef"
@@ -336,14 +320,14 @@ const handleDeleteComment = (index, arr) => {
           mediatype="video"
           data-index="-1"
           crossorigin="anonymous"
-          src="../../assets/竖屏.mp4"
+          :src="props.videoInfo.url"
           autoplay=""
         ></video>
       </div>
 
       <!-- 底部文字 -->
       <div class="topContainerBottom" v-show="!tagShow">
-        <div>@{{ Uper.UperName }}</div>
+        <div>@{{ props.videoInfo.vlogerName }}</div>
         <div>
           <span>{{ VideoIntroShow }}</span>
 
@@ -689,6 +673,9 @@ const handleDeleteComment = (index, arr) => {
   height: 100%;
   transition: all 0.3s;
   object-fit: contain;
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(10px);
 }
 .videoBox:hover {
   cursor: pointer;

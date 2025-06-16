@@ -1,14 +1,21 @@
 <script setup>
 import VideoBoxBig from '@/components/video/VideoBox-big.vue'
 import SideChangeButton from '@/components/video/SideChangeButton.vue'
+import { useVideo } from '@/stores'
+import { storeToRefs } from 'pinia'
+const VideoStore = useVideo()
+const { currentVideoList: videoList } = storeToRefs(VideoStore)
 </script>
 <template>
   <div class="container">
     <div class="box">
-      <VideoBoxBig></VideoBoxBig>
+      <div v-for="item in videoList" :key="item.vlogId">
+        <VideoBoxBig :videoInfo="item"></VideoBoxBig>
+      </div>
     </div>
 
     <!-- 切换视频按钮 -->
+    <!-- TODO:传递视频高度 -->
     <SideChangeButton></SideChangeButton>
   </div>
 </template>

@@ -146,6 +146,22 @@ export const getLikeVideoList = (userId, page, pageSize) => {
 }
 
 // 上传视频
-export const vlogUploadService = (vlog) => {
-  return request.post('/vlog//publish', vlog)
+export const vlogUploadService = (
+  userId,
+  title,
+  width,
+  height,
+  video,
+  image,
+) => {
+  return request.post('/vlog/publish', {
+    params: {
+      userId,
+      title,
+      width,
+      height,
+      video,
+      image,
+    },
+  })
 }
