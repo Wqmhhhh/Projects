@@ -2,41 +2,41 @@
 import { ref, onMounted } from 'vue'
 
 // 导入库
-import { useShowFlags } from '@/stores'
+import { useShowFlags, useVideo } from '@/stores'
 import { storeToRefs } from 'pinia'
 const FlagsStore = useShowFlags()
+const VideoStore = useVideo()
 const { ifFullScreen } = storeToRefs(FlagsStore)
 
 // 绑定视频
 const VideoRef = ref()
-const VideoInfo = ref({
-  VideoSrc: '',
-  VideoIntro:
-    '网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态网络连接异常，请检查服务器状态',
-  VideoLikeNum: 0,
-})
-const ifLike = ref(false)
 
-const VideoIntroShow = ref()
-const IntroduceToolong = ref(true)
-// 初始化底部文本
-onMounted(() => {
-  if (VideoInfo.value.VideoIntro.length > 10) {
-    VideoIntroShow.value = VideoInfo.value.VideoIntro.substring(0, 10)
-    IntroduceToolong.value = true
-  } else {
-    VideoIntroShow.value = VideoInfo.value.VideoIntro
-  }
+// 视频信息
+const props = defineProps({
+  videoInfo: Object,
 })
+
+const ifLike = ref(false)
+const likeNum = ref(0)
+
+// 初始化视频
+const iniciateVideo = () => {
+  ifLike.value = props.videoInfo.doILikeThisVlog
+  likeNum.value = props.videoInfo.likeCounts
+}
 
 // 点击视频红心喜欢
 const handleLikeVideo = () => {
-  if (ifLike.value) {
-    ifLike.value = false
-    VideoInfo.value.VideoLikeNum--
-  } else {
+  if (!ifLike.value) {
+    console.log('发送喜欢视频请求')
+    VideoStore.likeVideo(props.videoInfo.vlogerId, props.videoInfo.vlogId)
     ifLike.value = true
-    VideoInfo.value.VideoLikeNum++
+    likeNum.value++
+  } else {
+    console.log('发送取消喜欢视频请求')
+    VideoStore.cancelLikeVideo(props.videoInfo.vlogerId, props.videoInfo.vlogId)
+    ifLike.value = false
+    likeNum.value--
   }
 }
 
@@ -57,8 +57,14 @@ const handleMoveToFullScreen = () => {
   // TODO:将视频信息写入 当前视频 中
 
   // 全屏
-  ifFullScreen.value = true
+  ifFullScreen.value = false
+  console.log('点击全屏')
 }
+
+// 初始化底部文本
+onMounted(() => {
+  iniciateVideo()
+})
 </script>
 
 <template>
@@ -69,17 +75,17 @@ const handleMoveToFullScreen = () => {
       @mouseenter="handleVideoPlay"
       @mouseleave="handleVideoPause"
     >
-      <video ref="VideoRef" src="../../assets/竖屏.mp4" muted></video>
+      <video ref="VideoRef" :src="props.videoInfo.url" muted></video>
     </div>
 
-    <!-- 视频上上悬浮的内容 -->
+    <!-- 视频上悬浮的内容 -->
     <div class="likeVideoBox">
       <i
         class="iconfont icon-aixin"
         :class="{ likeVideo: ifLike }"
         @click="handleLikeVideo()"
       ></i>
-      <span>{{ VideoInfo.VideoLikeNum }}</span>
+      <span>{{ likeNum }}</span>
     </div>
   </div>
 </template>
@@ -94,6 +100,8 @@ const handleMoveToFullScreen = () => {
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: hidden;
+  border-radius: 20px;
 }
 .videoBox {
   width: 100%;

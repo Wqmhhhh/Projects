@@ -26,8 +26,11 @@ export const useShowFlags = defineStore(
     // 顶部Tab栏是否显示返回按钮：跳转搜索页后显示
     const ifSearch = ref(false)
 
-    // 当前视频高度
-    const currentVideoHeight = ref(0)
+    // 聊天历史弹框是否显示
+    const ifChatHisShow = ref(false)
+
+    // 聊天界面设置弹框是否打开
+    const ifSettingShow = ref(false)
 
     return {
       ifEditShow,
@@ -37,8 +40,8 @@ export const useShowFlags = defineStore(
       ifFullScreen,
       ifUpLoadWorks,
       ifSearch,
-
-      currentVideoHeight,
+      ifChatHisShow,
+      ifSettingShow,
     }
   },
   {

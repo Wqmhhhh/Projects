@@ -8,7 +8,9 @@ export const userInfoChangeService = (UpdatedUserBO, type) => {
 
 // 更改用户头像
 export const userFaceChangeService = (userId, image) => {
-  console.log('图片文件file:', image)
+  for (let [key, value] of image.entries()) {
+    console.log(`${key}:`, value)
+  }
   return request.post(`/userInfo/modifyImage?userId=${userId}&type=2`, image)
 }
 

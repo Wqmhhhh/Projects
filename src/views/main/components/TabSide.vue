@@ -2,6 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { useVideo, useUserStore } from '@/stores'
+
 // Tab栏信息
 const Tab = [
   { path: '/main/recommend', name: '推荐', icon: 'icon-sijiaoxing' },
@@ -35,12 +37,31 @@ const initialActiveIndex = () => {
   if (activeIndex.value.toString().includes('/main/my')) {
     activeIndex.value = '/main/my'
   }
+  handleTabClick(activeIndex.value)
 }
 
 // 点击Tab栏按钮router变化
 const handleTabClick = (path) => {
   router.push(path)
   activeIndex.value = path
+  if (path == '/main/recommend') {
+    console.log('发送推荐视频请求')
+    useVideo().getRecList(5)
+  } else if (path == '/main/follow') {
+    console.log('发送关注视频请求')
+    useVideo().getFollList(5)
+  } else if (path == '/main/friends') {
+    console.log('发送朋友视频请求')
+    useVideo().getFriList(5)
+  } else if (path == '/main/my') {
+    console.log('发送查询用户信息请求')
+    useUserStore().getUserInfo()
+  }
+}
+
+// 处理底部固定栏
+const handleNo = () => {
+  ElMessage('这是一个起到装饰作用的按钮')
 }
 
 onMounted(() => {
@@ -74,7 +95,7 @@ onMounted(() => {
         v-for="(item, index) in TabFix"
         :key="index"
       >
-        <i class="iconfont" :class="item.icon"></i>
+        <i class="iconfont" :class="item.icon" @click="handleNo"></i>
       </el-menu-item>
     </el-menu>
   </div>

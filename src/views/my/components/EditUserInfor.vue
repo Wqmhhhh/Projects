@@ -97,7 +97,6 @@ const handleSubmit = async () => {
     console.log('提交更改头像请求')
     const data = new FormData()
     data.append('image', file)
-    // UserStore.faceChange(data)
     if (UserStore.faceChange(data)) {
       ElMessage.success('更改头像成功！')
     } else {
@@ -111,8 +110,8 @@ const handleSubmit = async () => {
   // 编辑弹框消失
   handleExit()
 
-  // TODO：看是否会自动更新，不自动更新刷新一下
-  // location.reload()
+  // 看是否会自动更新，不自动更新刷新一下
+  location.reload()
 }
 
 onMounted(async () => {

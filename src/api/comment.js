@@ -56,3 +56,14 @@ export const cancelLikeCommentService = (commentId, userId) => {
     },
   })
 }
+
+// 获取通知列表
+export const getNoticeListService = (userId, page, pageSize) => {
+  return request.get('msg/list', {
+    params: {
+      userId,
+      page,
+      pageSize,
+    },
+  })
+}

@@ -3,8 +3,25 @@ import axios from 'axios'
 // 导入库
 import { useUserStore } from '@/stores'
 
+// 导入加载动画
+import { ElLoading } from 'element-plus'
+
+let loading
+function startLoading() {
+  loading = ElLoading.service({
+    lock: true,
+    text: '',
+    background: 'rgba(0, 0, 0, 0.7)',
+  })
+}
+
+function endLoading() {
+  //使用Element loading-close 方法
+  loading.close()
+}
+
 // 基础地址：后端服务器的API接口
-// const baseURL = 'http://192.168.3.76:8099'
+// const baseURL = 'http://192.168.3.76:8080'
 const baseURL = '/api'
 
 // 创建 Axios 实例
@@ -26,6 +43,9 @@ instance.interceptors.request.use(
     const UserStore = useUserStore()
     const { user, token } = UserStore
 
+    // 开启Loading效果
+    startLoading()
+
     // 需要请求头的路径数组
     const specificPath = ['/userInfo/modifyUserInfo', '/userInfo/modifyImage']
 
@@ -36,7 +56,10 @@ instance.interceptors.request.use(
       console.log('添加请求头', user.id, token)
     }
 
-    if (config.url.includes('/userInfo/modifyImage')) {
+    if (
+      config.url.includes('/userInfo/modifyImage') ||
+      config.url.includes('/vlog/publish1')
+    ) {
       config.headers['Content-Type'] = 'multipart/form-data'
     } else {
       config.headers['Content-Type'] = 'application/json'
@@ -49,6 +72,9 @@ instance.interceptors.request.use(
 
   // 请求错误操作
   (error) => {
+    // 关闭Loading效果
+    endLoading()
+
     // 将错误封装为一个被拒绝的 Promise 对象进行返回
     return Promise.reject(error)
   },
@@ -58,11 +84,17 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   // 对响应数据操作
   (response) => {
+    // 关闭Loading效果
+    endLoading()
+
     return response
   },
 
   // 响应错误操作
   (error) => {
+    // 关闭Loading效果
+    endLoading()
+
     console.log(error)
     if (error.message === 'Network Error') {
       ElMessage.error('网络连接异常，请检查服务器状态')

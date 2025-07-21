@@ -1,28 +1,86 @@
 <script setup>
 import chatListComponent from './components/chatListComponent.vue'
 import chatView from './components/chatView.vue'
+import contextMenu from './components/contextMenu.vue'
+import chatHisPopUp from './components/chatHis-PopUp.vue'
+import settingBox from './components/settingBox.vue'
+
 import { onMounted, ref } from 'vue'
+// import { ElMessageBox } from 'element-plus'
+
 import { Search, Close } from '@element-plus/icons-vue'
-import { useChatList } from '@/stores/modules/chatListInfo'
+import { useChatRoomInfo } from '@/stores/modules/chatListInfo'
+import { useShowFlags } from '@/stores'
+
 import { storeToRefs } from 'pinia'
 import router from '@/router'
+import { ElMessage } from 'element-plus'
 
-const chatStore = useChatList()
+// flagStore
+const flagStore = useShowFlags()
+const { ifSettingShow } = storeToRefs(flagStore)
+
+// 聊天store
+const chatStore = useChatRoomInfo()
 const {
   naviBarIndex,
   chatList,
   friendsList,
   followList,
+  fansList,
   ifHaveChatList,
   ifHaveFriendList,
   ifHaveFollowList,
+  ifHaveFansList,
   ifHaveView,
 } = storeToRefs(chatStore)
 
-// 搜索内容
-const searchInput = ref()
+// 搜索
+const search = ref()
+const searchInput = ref('')
+
 // 搜索视图是否显示
 const ifSearchViewShow = ref(false)
+
+// 置顶聊天
+const pinTop = () => {
+  console.log('置顶聊天')
+}
+
+// 标记未读信息
+const markAsNoRead = () => {
+  console.log('标记未读聊天')
+}
+
+// 消息免打扰
+const muted = () => {
+  console.log('消息免打扰')
+}
+
+// 删除聊天
+const deleteChat = () => {
+  console.log('删除聊天')
+}
+
+// 右键操作
+const menuItems = [
+  {
+    label: '置顶',
+    action: pinTop,
+  },
+  {
+    label: '标为未读',
+    action: markAsNoRead,
+  },
+  {
+    label: '消息免打扰',
+    action: muted,
+  },
+  {
+    label: '删除',
+    action: deleteChat,
+  },
+]
 
 // 处理导航栏图标切换对应视图
 const handleChatActive = () => {
@@ -37,6 +95,10 @@ const handleFollowActive = () => {
   ifSearchViewShow.value = false
   chatStore.changeFlag('follow')
 }
+const handleFansActive = () => {
+  ifSearchViewShow.value = false
+  chatStore.changeFlag('fans')
+}
 
 // 返回视频页面
 const handleBack = () => {
@@ -50,15 +112,34 @@ const handleSearch = () => {
 
 const handleBlur = () => {
   if (!ifSearchViewShow.value) {
-    searchInput.value.blur()
+    search.value.blur()
   } else {
-    searchInput.value.focus()
+    search.value.focus()
   }
 }
 
 const handleSearchClose = () => {
   ifSearchViewShow.value = false
-  searchInput.value.blur()
+  search.value.blur()
+}
+
+// 点击设置显示编辑信息
+const handleChangeUserInfor = () => {
+  ifSettingShow.value = true
+  // location.reload()
+}
+
+// 更多、问题显示
+const handleMore = () => {
+  ElMessage('什么都没有！惊不惊喜！刺不刺激')
+}
+const handleQues = () => {
+  ElMessage('小孩子家家哪来那么多问题，出门左转找AI')
+}
+
+// 右键点击聊天列表显示下拉框进行操作
+const onRightClick = () => {
+  console.log('点击右键')
 }
 
 onMounted(() => {
@@ -104,21 +185,33 @@ onMounted(() => {
             >
               <i class="iconfont icon-wodeguanzhu"></i>
             </div>
+
+            <!-- 粉丝 -->
+            <div
+              class="fans"
+              :class="{ fansActive: naviBarIndex === 'fans' }"
+              @click="handleFansActive"
+            >
+              <i class="iconfont icon-fensi"></i>
+            </div>
           </div>
 
           <div class="FixBottom">
             <!-- 设置 -->
             <div class="setting">
-              <i class="iconfont icon-shezhi"></i>
+              <i
+                class="iconfont icon-shezhi"
+                @click="handleChangeUserInfor"
+              ></i>
             </div>
 
             <!-- 更多 -->
             <div class="more">
-              <i class="iconfont icon-gengduo"></i>
+              <i class="iconfont icon-gengduo" @click="handleMore"></i>
             </div>
 
             <!-- 问题 -->
-            <div class="question">
+            <div class="question" @click="handleQues">
               <i class="iconfont icon-changjianwentixiangguanwenti"></i>
             </div>
           </div>
@@ -129,7 +222,7 @@ onMounted(() => {
           <!-- 搜索框 -->
           <div class="search">
             <el-input
-              ref="searchInput"
+              ref="search"
               style="width: 210px"
               placeholder="搜索"
               :prefix-icon="Search"
@@ -137,6 +230,7 @@ onMounted(() => {
               class="searchInput"
               @focus="handleSearch"
               @blur="handleBlur"
+              v-model="searchInput"
             >
               <template #suffix>
                 <el-icon @click.stop="handleSearchClose" class="searchClose"
@@ -151,13 +245,18 @@ onMounted(() => {
             <!-- 聊天列表 -->
             <div v-if="naviBarIndex === 'chat'">
               <div v-if="!ifHaveChatList" class="listDefault">
-                竟然没有一个人找你聊天吗
+                聊天记录为空
                 <br />
                 快去找人聊天吧！
               </div>
 
               <div v-for="item in chatList" :key="item.id" v-else>
-                <chatListComponent :information="item"></chatListComponent>
+                <contextMenu :items="menuItems">
+                  <chatListComponent
+                    :information="item"
+                    @contextmenu.prevent="onRightClick"
+                  ></chatListComponent
+                ></contextMenu>
               </div>
             </div>
 
@@ -181,6 +280,16 @@ onMounted(() => {
               </div>
             </div>
 
+            <!-- 粉丝列表 -->
+            <div v-if="naviBarIndex === 'fans'">
+              <div v-if="!ifHaveFansList" class="listDefault">
+                0个人是你的粉丝
+              </div>
+              <div v-for="item in fansList" :key="item.id" v-else>
+                <chatListComponent :information="item"></chatListComponent>
+              </div>
+            </div>
+
             <!-- 搜索视图 -->
             <div class="searchView" v-if="ifSearchViewShow"></div>
           </div>
@@ -197,6 +306,12 @@ onMounted(() => {
           </div>
         </el-col>
       </el-row>
+
+      <!-- 聊天记录弹框 -->
+      <chatHis-PopUp></chatHis-PopUp>
+
+      <!-- 设置弹框 -->
+      <settingBox></settingBox>
     </div>
   </div>
 </template>
@@ -277,7 +392,8 @@ onMounted(() => {
 .columnFix .iconfont:hover,
 .chatActive .iconfont,
 .friendActive .iconfont,
-.followActive .iconfont {
+.followActive .iconfont,
+.fansActive .iconfont {
   color: rgb(0, 102, 204);
   cursor: pointer;
 }
@@ -286,7 +402,8 @@ onMounted(() => {
 }
 .chat,
 .friend,
-.follow {
+.follow,
+.fans {
   width: 37px;
   height: 37px;
   text-align: center;
@@ -295,7 +412,8 @@ onMounted(() => {
 }
 .chatActive,
 .friendActive,
-.followActive {
+.followActive,
+.fansActive {
   background-color: #ffffff2a;
 }
 

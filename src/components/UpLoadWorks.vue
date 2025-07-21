@@ -23,37 +23,35 @@ const VideoHeight = ref()
 // 投稿介绍
 const WorkIntroduce = ref('')
 
-// // 更新视频
-// const onUploadFile = (file) => {
-//   // TODO：视频地址、视频封面转换格式、视频宽高
-//   VideoUrl.value = URL.createObjectURL(file.raw)
-// }
-
-// // TODO:上传视频按钮
-// const handleSubmit = () => {
-//   const vlogBO = {
-//     vlogerId: useUserStore().user.id,
-//     url: VideoUrl.value,
-//     cover: CoverUrl.value,
-//     title: WorkIntroduce.value,
-//     width: VideoWidth.value,
-//     height: VideoHeight.value,
-//   }
-//   if (videoStore.uploadVideo(vlogBO)) {
-//     ElMessage.success('上传视频成功！')
-//   }
-// }
-
 const videoElement = ref(null)
 const canvasElement = ref(null)
 
+// 视频文件
+let file
+
+// 辅助函数：Data URL 转 Blob
+const dataURLtoBlob = (dataUrl) => {
+  const arr = dataUrl.split(',')
+  const mime = arr[0].match(/:(.*?);/)[1]
+  const bstr = atob(arr[1])
+  let n = bstr.length
+  const u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new Blob([u8arr], { type: mime })
+}
+
 const onUploadFile = (uploadFile) => {
-  const file = uploadFile.raw
+  // console.log('视频源文件', uploadFile.raw)
+  file = uploadFile.raw
+
+  // 回显视频
   VideoUrl.value = URL.createObjectURL(file)
 
-  // 创建一个视频元素来加载视频
+  // 创建一个视频元素获取封、宽高信息
   const video = document.createElement('video')
-  video.src = VideoUrl.value
+  video.src = URL.createObjectURL(file)
   video.addEventListener('loadedmetadata', () => {
     // 获取视频的宽高
     VideoWidth.value = video.videoWidth
@@ -67,31 +65,47 @@ const onUploadFile = (uploadFile) => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height)
 
     // 将Canvas内容转换为图片URL
-    CoverUrl.value = canvas.toDataURL('image/png')
+    const blob = dataURLtoBlob(canvas.toDataURL('image/png'))
+    CoverUrl.value = new File([blob], 'cover.png', { type: 'image/png' })
   })
 }
 
+// 上传视频
 const handleSubmit = () => {
+  if (!file) {
+    ElMessage.error('视频不能为空！')
+    return
+  }
+  if (WorkIntroduce.value === '') {
+    ElMessage.error('视频简介不能为空！')
+    return
+  }
+
   const videoFormData = new FormData()
   const imageFormData = new FormData()
 
-  videoFormData.append('video', VideoUrl.value)
+  videoFormData.append('video', file)
   imageFormData.append('image', CoverUrl.value)
 
+  console.log('提交上传视频请求')
+
   // 调用上传视频的API
-  if (
-    videoStore.uploadVideo(
-      WorkIntroduce.value,
-      VideoWidth.value,
-      VideoHeight.value,
-      videoFormData,
-      imageFormData
-    )
-  ) {
-    ElMessage.success('上传视频成功！')
-  } else {
-    ElMessage.error('上传视频失败！')
-  }
+  const res = videoStore.uploadVideo(
+    WorkIntroduce.value,
+    VideoWidth.value,
+    VideoHeight.value,
+    file,
+    CoverUrl.value
+  )
+  res.then((result) => {
+    if (result) {
+      ElMessage.success('上传视频成功！')
+    } else {
+      ElMessage.error('上传视频失败')
+    }
+  })
+
+  handleExit()
 }
 
 onMounted(() => {
@@ -106,6 +120,7 @@ const handleExit = () => {
   ifUpLoadWorks.value = false
 }
 </script>
+
 <template>
   <el-dialog
     v-model="ifUpLoadWorks"
@@ -125,7 +140,6 @@ const handleExit = () => {
               :auto-upload="false"
               :show-file-list="false"
               :on-change="onUploadFile"
-              :file-list="fileList"
               name="video"
               accept="video/*"
             >
@@ -161,6 +175,7 @@ const handleExit = () => {
     </template>
   </el-dialog>
 </template>
+
 <style scoped>
 * {
   margin: 0;

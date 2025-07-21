@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// import { useShowFlags } from '@/stores'
+import { ElLoading } from 'element-plus'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,10 +62,21 @@ const router = createRouter({
   ],
 })
 
-// 添加全局守卫：对路由进行操作
-// router.beforeEach((to) => {
-//   const FlagStore = useShowFlags()
-//   FlagStore.ifSearch = to.path === 'search'
-// })
+let loading
+let loadingStart
+
+router.beforeEach(() => {
+  loadingStart = Date.now()
+  loading = ElLoading.service({
+    lock: true,
+    text: '',
+    background: 'rgba(0, 0, 0, 0.7)',
+  })
+})
+
+router.afterEach(() => {
+  const delay = 1000 - (Date.now() - loadingStart) // 至少显示 300ms
+  setTimeout(() => loading?.close(), delay > 0 ? delay : 0)
+})
 
 export default router

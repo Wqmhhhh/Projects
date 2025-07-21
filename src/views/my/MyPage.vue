@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
 // store库
-import { useShowFlags, useUserStore } from '@/stores/index'
+// import { useFansStore } from '@/stores/index'
+import { useShowFlags, useUserStore, useVideo } from '@/stores/index'
 import { storeToRefs } from 'pinia'
 
 const FlagsStore = useShowFlags()
@@ -15,7 +16,6 @@ const { user } = UserStore
 // 编辑资料弹框
 const handleChangeUserInfor = () => {
   ifEditShow.value = true
-  // location.reload()
 }
 
 // Tab栏信息
@@ -23,53 +23,84 @@ const myTab = [
   {
     path: '/main/my/works',
     name: '作品',
-    num: 0,
     private: false,
   },
   {
     path: '/main/my/like',
     name: '喜欢',
-    num: 0,
     private: false,
   },
   {
     path: '/main/my/private',
     name: '私密',
-    num: 0,
     private: true,
   },
 ]
+
 // 初始默认激活 “作品”
 const router = useRouter()
 const activeIndex = ref('/main/my/works')
-router.push('/main/my/works')
+
 // 点击tab栏进行切换
 const handleTabClick = (path) => {
   activeIndex.value = path
+
+  if (path === '/main/my/works') {
+    console.log('发送我的公开视频列表请求')
+    useVideo().getMyPubList(10)
+  } else if (path === '/main/my/like') {
+    console.log('发送我的喜欢视频列表请求')
+    useVideo().getMyLikeList(10)
+  } else if (path === '/main/my/private') {
+    console.log('发送我的私密视频列表请求')
+    useVideo().getMyPriList(10)
+  }
+
   router.push(path)
 }
 
-// TODO:每次进入页面进行数据请求、渲染页面
-const refresh = async () => {
-  // const res = await userInfoQueryService(user.id)
-  // const data = res.data
-  // UserStore.setUserInfo(data)
-  // console.log(res)
+// 每次进入页面进行数据请求、渲染页面
+const refresh = () => {
+  console.log('发送查询用户信息请求')
+  UserStore.getUserInfo()
 }
+
+// 查询我的关注列表
+// const queryFollowList = () => {
+//   console.log('查询我的关注列表')
+//   useFansStore().queryFollowList(1, 3)
+// }
+
+// const queryFansList = () => {
+//   console.log('查询我的粉丝列表')
+//   useFansStore().queryFansList(1, 3)
+// }
 
 // 页面加载完成的操作
 onMounted(() => {
+  // 初始化
   refresh()
+
+  // queryFollowList()
+  // queryFansList()
+
+  nextTick(() => {
+    handleTabClick('/main/my/works')
+    activeIndex.value = '/main/my/works'
+  })
 })
 </script>
 
 <template>
   <div class="my-container" v-if="ifLogin">
+    <!-- 顶部个人信息 -->
     <div class="header">
       <div class="header-left">
+        <!-- 头像 -->
         <div class="header-pic">
           <img :src="user.face" alt="" />
         </div>
+        <!-- 信息 -->
         <div class="header-infor">
           <div>{{ user.nickname }}</div>
           <div class="header-infor-inline">
@@ -80,17 +111,22 @@ onMounted(() => {
           <div>抖音号： {{ user.id }}</div>
         </div>
       </div>
+
       <div class="header-right">
+        <!-- 保存登录信息 -->
         <div>
           <span>保存登录信息</span>
           <el-switch v-model="ifAutoLogin"></el-switch>
         </div>
-        <el-button class="el-button" @click="handleChangeUserInfor"
-          >编辑资料</el-button
-        >
+
+        <!-- 编辑资料 -->
+        <el-button class="el-button" @click="handleChangeUserInfor">
+          编辑资料
+        </el-button>
       </div>
     </div>
 
+    <!-- Tab栏切换‘我的’视频列表 -->
     <div class="Tab-container">
       <el-menu
         mode="horizontal"
@@ -108,9 +144,9 @@ onMounted(() => {
         >
           <span>{{ item.name }}</span>
 
-          <span v-if="item.private"
-            ><el-icon><Lock /></el-icon> </span
-          ><span v-else>{{ item.num }}</span>
+          <span v-if="item.private">
+            <el-icon><Lock /></el-icon>
+          </span>
         </el-menu-item>
       </el-menu>
     </div>
@@ -164,11 +200,15 @@ onMounted(() => {
 }
 .header-pic {
   width: 25%;
+  /* 定义宽高比为1:1 */
+  aspect-ratio: 1 / 1;
+  border-radius: 100vh;
+  overflow: hidden;
   display: inline-block;
+  background-color: #fff;
 }
 .header-pic img {
   width: 100%;
-  border-radius: 100vh;
 }
 .header-infor {
   width: 70%;

@@ -51,6 +51,7 @@ const handlePassword = () => {
   CodeLogin.value = false
 }
 
+// 获取验证码
 const handleGetCode = async () => {
   // 倒计时效果
   if (countdownTimer) return
@@ -127,6 +128,11 @@ const handleClose = () => {
   EmailNumber.value = ''
   PasswordNumber.value = ''
   CodeNumber.value = ''
+
+  getCodeMSG.value = `获取验证码`
+  clearInterval(countdownTimer)
+  countdownTimer = null
+  num = 60
 }
 
 onMounted(() => {
@@ -136,6 +142,7 @@ onMounted(() => {
   }
 })
 </script>
+
 <template>
   <el-dialog
     v-model="ifLoginShow"
@@ -259,12 +266,15 @@ onMounted(() => {
 }
 .AutoLoginPage > div:first-child {
   width: 20%;
+  aspect-ratio: 1;
   margin: 0 auto;
+  border-radius: 100vh;
+  overflow: hidden;
+  background-color: #000000;
   margin-top: 5vh;
 }
 .AutoLoginPage img {
   width: 100%;
-  border-radius: 100vh;
 }
 .AutoLoginPage > div:nth-child(2) {
   font-size: 2.5vh;

@@ -3,7 +3,12 @@ import { ref, onMounted } from 'vue'
 import router from '@/router'
 
 // 导入库
-import { useShowFlags, useUserStore, useNoticeList } from '@/stores/index'
+import {
+  useShowFlags,
+  useUserStore,
+  useNoticeList,
+  useVideo,
+} from '@/stores/index'
 import { storeToRefs } from 'pinia'
 
 const FlagsStore = useShowFlags()
@@ -19,14 +24,16 @@ import { ElMessage } from 'element-plus'
 // 搜索框聚焦、失焦
 const isfocus = ref(false)
 
-// 通知列表
-// const notice = []
-
-// 通知：关注 按钮标志
+// 通知 关注 按钮标志
 const FollowUper = ref(false)
 
 // 用户输入搜索内容
 const searchInput = ref('')
+
+// 绑定通知元素
+const noticeRef = ref()
+
+// 搜索
 
 // 点击显示登录弹框
 const PopLogin = () => {
@@ -66,6 +73,7 @@ const handleSearch = () => {
     return
   }
   // TODO:将搜索内容传给后端
+  useVideo().getSearList(1, 20, searchInput.value)
 
   // 顶部Tab栏显示返回按钮、跳转页面
   ifSearch.value = true
@@ -88,12 +96,18 @@ const handleBack = async () => {
   // router.go(0)
 }
 
-// TODO：用户名字过长进行折叠
-const handleUserName = () => {
-  // if (user.value.nickname.length > 10) {
-  //   document.querySelector('.user-header-name h3').innerHTML =
-  //     user.value.nickname.subString(0, 10) + '...'
-  // }
+// 用户名字过长进行折叠
+const handleUserName = (e) => {
+  if (e.length > 10) {
+    return e.slice(0, 10) + '...'
+  } else {
+    return e
+  }
+}
+
+// 处理充钻石
+const handleMoney = () => {
+  ElMessage('国家反诈中心提示您：氪金可不是好习惯哦~')
 }
 
 // 点击私信跳转页面
@@ -102,11 +116,38 @@ const handleChat = () => {
   router.push('/chat')
 }
 
+// 处理通知
+const getNoticeList = () => {
+  console.log('发送获取通知请求')
+  NoticeStore.getNoticeList(10)
+}
+
+// 规范化通知时间
+const formatTime = (e) => {
+  const time = e.slice(0, 10)
+  return time
+}
+
+// 处理通知消息过长
+const handleComment = (e) => {
+  if (e.length > 10) {
+    return e.slice(0, 10) + '...'
+  } else {
+    return e
+  }
+}
+
 // 页面加载完成操作
 onMounted(() => {
-  handleUserName()
+  // 监听通知悬浮事件
+  if (noticeRef.value) {
+    noticeRef.value.addEventListener('mouseenter', getNoticeList)
+  }
+
+  // TODO：监听通知框滚动，动态加载内容
 })
 </script>
+
 <template>
   <div id="app" class="tab">
     <!-- 图标 -->
@@ -136,9 +177,10 @@ onMounted(() => {
       </span>
     </div>
 
+    <!-- 顶部Tab栏右侧图标 -->
     <div class="down-box" v-show="ifLogin">
       <!-- 充钻石 -->
-      <div class="down">
+      <div class="down" @click="handleMoney">
         <i class="iconfont icon-biaoqianlan_jingxuan"></i>
         <div class="icon-text">充钻石</div>
       </div>
@@ -181,8 +223,11 @@ onMounted(() => {
         :hide-after="200"
       >
         <template #reference>
-          <div class="down">
-            <i class="iconfont icon-tongzhizhongxin"></i>
+          <div class="down" ref="noticeRef">
+            <div class="noticeIcon">
+              <i class="iconfont icon-tongzhizhongxin"></i>
+              <div class="redSpot" v-show="NoticeList.length > 0"></div>
+            </div>
             <div class="icon-text">通知</div>
           </div>
         </template>
@@ -191,38 +236,114 @@ onMounted(() => {
             <div class="notice-header">
               <span>互动消息</span>
             </div>
-            <div class="notice-list">
-              <!-- TODO：填入对应内容 -->
+
+            <!-- 通知列表 -->
+            <div class="notice-list" v-if="NoticeList.length !== 0">
+              <!-- 单个通知容器 -->
               <div
                 class="notice-each"
-                v-for="(item, index) in NoticeList"
-                :key="index"
+                v-for="item in NoticeList"
+                :key="item.id"
               >
+                <!-- 通知来源的头像 -->
                 <div class="notice-img">
-                  <img src="../assets/image.ico" alt="" />
+                  <img :src="item.fromFace" alt="" />
                 </div>
-                <div class="notice-text">
-                  <h3>乌漆抹黑嘿嘿嘿</h3>
-                  <!-- TODO：长评论仅显示一行字，剩余的省略号代替 -->
-                  <p class="notice-comment">好饿好饿好饿</p>
-                  <p class="notice-comment-time">回复了你的评论2024-10-02</p>
+
+                <!-- 中间内容 -->
+                <div class="noticeMid">
+                  <!-- 关注信息 -->
+                  <div class="notice-text" v-if="item.msgType === 1">
+                    <div>
+                      <h3>{{ item.fromNickname }}</h3>
+
+                      <p class="notice-comment-time">
+                        关注了你 {{ formatTime(item.createTime) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- 回复评论 -->
+                  <div class="notice-text" v-else-if="item.msgType === 4">
+                    <div>
+                      <h3>{{ item.fromNickname }}</h3>
+                      <p class="notice-comment">
+                        {{ handleComment(item.msgContent.commentContent) }}
+                      </p>
+                      <p class="notice-comment-time">
+                        回复了你 {{ formatTime(item.createTime) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- 点赞视频 -->
+                  <div class="notice-text" v-else-if="item.msgType === 2">
+                    <div>
+                      <h3>{{ item.fromNickname }}</h3>
+
+                      <p class="notice-comment-time">
+                        点赞了你的视频 {{ formatTime(item.createTime) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- 评论视频 -->
+                  <div class="notice-text" v-else-if="item.msgType === 3">
+                    <div>
+                      <h3>{{ item.fromNickname }}</h3>
+                      <p class="notice-comment">
+                        {{ handleComment(item.msgContent.commentContent) }}
+                      </p>
+                      <p class="notice-comment-time">
+                        评论了你的视频 {{ formatTime(item.createTime) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- 点赞评论 -->
+                  <div class="notice-text" v-else-if="item.msgType === 5">
+                    <div>
+                      <h3>{{ item.fromNickname }}</h3>
+
+                      <p class="notice-comment-time">
+                        赞了你的评论 {{ formatTime(item.createTime) }}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div
-                  class="UperWorksFollowButton notice-button"
-                  @click="FollowUper = !FollowUper"
-                >
-                  <el-button
-                    class="el-button DrawerNotfollow"
-                    v-if="!FollowUper"
-                    >回关</el-button
+
+                <!-- 右侧内容 -->
+                <div class="noticeRight">
+                  <!-- 关注按钮 -->
+                  <div
+                    v-if="item.msgType === 1"
+                    class="UperWorksFollowButton notice-button"
+                    @click="handleBackFollow"
                   >
-                  <el-button class="el-button Drawerfollow" v-else
-                    >互相关注</el-button
-                  >
+                    <el-button
+                      class="el-button DrawerNotfollow"
+                      v-if="!FollowUper"
+                      >回关</el-button
+                    >
+                    <el-button class="el-button Drawerfollow" v-else
+                      >互相关注</el-button
+                    >
+                  </div>
+
+                  <!-- 其余放图片 -->
+                  <div class="noticeImg" v-else>
+                    <img :src="item.msgContent.vlogCover" alt="" />
+                  </div>
                 </div>
               </div>
 
               <div class="list-end">到底啦~</div>
+            </div>
+
+            <!-- 没有通知信息的样式 -->
+            <div class="no-notice-list" v-else>
+              <i class="iconfont icon-yinfu2"></i>
+              <div>真是寂寞如雪啊~</div>
             </div>
           </div>
         </template>
@@ -230,9 +351,16 @@ onMounted(() => {
 
       <!-- 私信 -->
       <div class="down" @click="handleChat">
-        <i class="iconfont icon-sixin"></i>
+        <div class="noticeIcon">
+          <i class="iconfont icon-sixin"></i>
+          <!-- <div
+            class="redSpot redSpotMsg"
+            v-show="messageList.length === 0"
+          ></div> -->
+        </div>
         <div class="icon-text">私信</div>
       </div>
+
       <!-- <el-popover
         popper-class="messageContainer"
         effect="dark"
@@ -287,7 +415,7 @@ onMounted(() => {
               </div>
               <!-- 名字越界了省略号代替 -->
               <div class="user-header-name">
-                <h3 ref="TabUserName">{{ user.nickname }}</h3>
+                <h3 ref="TabUserName">{{ handleUserName(user.nickname) }}</h3>
                 <p>
                   关注 {{ user.myFollowsCounts }} | 粉丝 {{ user.myFansCounts }}
                 </p>
@@ -474,11 +602,27 @@ hr {
 }
 
 /* 通知、私信 */
+.noticeIcon {
+  position: relative;
+}
+.redSpot {
+  width: 10px;
+  position: absolute;
+  height: 10px;
+  background-color: rgba(255, 44, 86);
+  border-radius: 10px;
+  top: -3px;
+  left: 13px;
+}
+.redSpotMsg {
+  left: 23px;
+}
 .notice-box,
 .message-box {
   width: 350px;
   height: 500px;
   padding: 2% 0;
+  z-index: 10;
 }
 .notice-header,
 .message-header {
@@ -491,6 +635,21 @@ hr {
 .message-list {
   height: 90%;
   overflow-y: scroll;
+  overflow-x: hidden;
+  /* background-color: #fff; */
+}
+.no-notice-list {
+  display: flex;
+  width: 200px;
+  height: 70%;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+  margin: 0 auto;
+  color: #ffffff82;
+}
+.no-notice-list .iconfont {
+  font-size: 30px;
 }
 
 /* 滚动条样式 */
@@ -510,7 +669,8 @@ hr {
 /* 滑块悬停时的样式 */
 .notice-list::-webkit-scrollbar-thumb:hover,
 .message-list::-webkit-scrollbar-thumb:hover {
-  background-color: #555; /* 悬停时滑块颜色 */
+  background-color: #a5a3a3; /* 悬停时滑块颜色 */
+  cursor: pointer;
 }
 
 /* 滚动条轨道样式 */
@@ -520,12 +680,20 @@ hr {
   border-radius: 4px; /* 轨道圆角 */
 }
 
+/* 单个通知样式 */
+.noticeMid {
+  width: 65%;
+}
+.noticeRight {
+  width: 20%;
+}
 .notice-each,
 .message-each {
   border-radius: 10px;
   height: 20%;
   padding: 0 5%;
   margin-right: 3%;
+  justify-content: start;
 }
 .notice-each:hover,
 .message-each:hover,
@@ -535,17 +703,21 @@ hr {
 }
 .notice-img,
 .message-img {
-  width: 17%;
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+  overflow: hidden;
+  background-color: #fff;
+  margin-right: 5px;
 }
 .notice-img img,
 .message-img img {
   width: 100%;
-  border-radius: 5vh;
 }
 .notice-text,
 .message-text {
-  width: 75%;
-  height: 65%;
+  width: 100%;
+  height: 80%;
   padding: 0 3%;
   text-align: left;
 }
@@ -561,9 +733,9 @@ hr {
   color: #888888b0;
 }
 
+/* 关注按钮 */
 .UperWorksFollowButton {
-  width: 25%;
-  height: 40%;
+  height: 30px;
 }
 .UperWorksFollowButton > .el-button {
   width: 100%;
@@ -577,6 +749,16 @@ hr {
 }
 .UperWorksFollowButton > .Drawerfollow {
   background-color: #ffffff3f;
+}
+/* 通知列表图片 */
+.noticeImg {
+  height: 70px;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 5px;
+}
+.noticeImg img {
+  width: 100%;
 }
 
 /* 私信 */
@@ -595,17 +777,24 @@ hr {
 }
 
 .list-end {
+  margin-top: 10px;
   font-size: 15px;
-  line-height: 6vh;
+  line-height: 15px;
   text-align: center;
   color: #ffffffad;
 }
 
 /* 头像 */
 /* tab栏头像 */
-.pic {
+.pic-box {
+  background-color: #fff;
   width: 40px;
-  border-radius: 8vh;
+  height: 40px;
+  border-radius: 40px;
+  overflow: hidden;
+}
+.pic {
+  width: 100%;
 }
 /* 下拉框 */
 .user-box {
@@ -616,8 +805,11 @@ hr {
   height: 50%;
 }
 .user-header-pic {
-  height: 100%;
-  width: 25%;
+  width: 50px;
+  height: 50px;
+  border-radius: 40px;
+  overflow: hidden;
+  background-color: #fff;
 }
 .user-header-pic img {
   width: 100%;

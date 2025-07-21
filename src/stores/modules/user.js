@@ -27,7 +27,7 @@ export const useUserStore = defineStore(
       mobile: '',
       description: '',
       bgImg: '',
-      updatedTime: '',
+      updatedTime: '', // 创建时间
       totalLikeMeCounts: 0,
     })
 
@@ -49,9 +49,6 @@ export const useUserStore = defineStore(
         token.value = data.userToken
       }
     }
-
-    // 消息列表
-    const MsgList = ref([])
 
     // 登录
     const userLogin = async (mobile, smsCode) => {
@@ -77,8 +74,7 @@ export const useUserStore = defineStore(
         console.log('退出登录返回值', res)
 
         // 若没有自动登录则清空用户信息
-        // TODO：看下这里是否需要ifAutoLogin.value
-        if (!useShowFlags().ifAutoLogin.value) {
+        if (!useShowFlags().ifAutoLogin) {
           setUserInfo('')
         }
 
@@ -100,9 +96,7 @@ export const useUserStore = defineStore(
         }
 
         // 返回验证码或报错信息
-        // TODO:看一下验证码结构，无法正常显示弹框
         if (res.data.data) {
-          // console.log('验证码：', res.data.data)
           return res.data.data
         } else {
           console.log('过快：', res.data.msg)
@@ -111,7 +105,7 @@ export const useUserStore = defineStore(
       } catch (e) {
         console.log('发送验证码异步操作失败', e)
 
-        return false
+        return '发送验证码失败'
       }
     }
 
@@ -170,7 +164,6 @@ export const useUserStore = defineStore(
     return {
       user,
       token,
-      MsgList,
 
       userLogin,
       userLogout,

@@ -154,14 +154,14 @@ export const vlogUploadService = (
   video,
   image,
 ) => {
-  return request.post('/vlog/publish', {
-    params: {
-      userId,
-      title,
-      width,
-      height,
-      video,
-      image,
-    },
-  })
+  console.log(video, image)
+  const data = new FormData()
+  data.append('userId', userId)
+  data.append('height', height)
+  data.append('width', width)
+  data.append('video', video)
+  data.append('image', image)
+  data.append('title', title)
+
+  return request.post('/vlog/publish1', data)
 }

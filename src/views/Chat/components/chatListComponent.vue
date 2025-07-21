@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useChatList } from '@/stores/modules/chatListInfo'
+import { useChatRoomInfo } from '@/stores/modules/chatListInfo'
 import { storeToRefs } from 'pinia'
 
-const chatStore = useChatList()
+const chatStore = useChatRoomInfo()
 const { chatListActiveIndex } = storeToRefs(chatStore)
 
 const props = defineProps({

@@ -7,9 +7,9 @@
       <slot name="text"></slot>
     </div>
 
-    <div class="image">
+    <!-- <div class="image">
       <slot name="image"></slot>
-    </div>
+    </div> -->
   </div>
 </template>
 <style scoped>
@@ -19,7 +19,7 @@
   padding: 0;
 }
 .container {
-  width: 842px;
+  width: 830px;
   padding: 5px 15px;
   display: flex;
   justify-content: start;

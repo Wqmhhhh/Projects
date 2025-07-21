@@ -1,6 +1,11 @@
 <script setup>
+import { useVideo } from '@/stores'
 import { onMounted, ref } from 'vue'
 import VideoBoxSmall from '@/components/video/VideoBox-small.vue'
+import { storeToRefs } from 'pinia'
+
+const videoStore = useVideo()
+const { searchVideo } = storeToRefs(videoStore)
 
 // 初始化Box大小
 const searchBox = ref()
@@ -46,19 +51,33 @@ onMounted(() => {
 
 <template>
   <div class="searchContainer">
-    <div class="searchBox" ref="searchBox">
+    <!-- 有视频显示 -->
+    <div class="searchBox" ref="searchBox" v-if="searchVideo.length > 0">
       <div class="top">综合</div>
 
       <div class="singleContainer">
-        <div class="singleBox">
+        <div class="singleBox" v-for="item in searchVideo" :key="item.vlogId">
+          <!-- 视频 -->
           <div class="video">
-            <videoBoxSmall></videoBoxSmall>
+            <videoBoxSmall :videoInfo="item"></videoBoxSmall>
           </div>
+
+          <!-- 视频介绍 -->
           <div class="introduce">
-            {{ VideoIntroShow }}
+            {{ item.content }}
             <span v-show="IntroduceToolong">...</span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 没有视频显示 -->
+    <div class="noSearVideoList" v-else>
+      <i class="iconfont icon-yinfu2"></i>
+      <div>
+        搜索结果为空
+        <br />
+        换个关键词试试吧
       </div>
     </div>
   </div>
@@ -146,5 +165,21 @@ onMounted(() => {
 .searchContainer::-webkit-scrollbar-track {
   background-color: #f5f5f537; /* 轨道颜色 */
   border-radius: 4px; /* 轨道圆角 */
+}
+
+/* 没有视频样式 */
+.noSearVideoList {
+  margin: 0 auto;
+  width: 270px;
+  height: 50%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 27px;
+  color: #ffffff9b;
+}
+.noSearVideoList .iconfont {
+  font-family: 'iconfont', sans-serif;
+  font-size: 30px;
 }
 </style>

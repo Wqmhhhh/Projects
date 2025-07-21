@@ -1,7 +1,12 @@
 <script setup>
-// 处理视频切换
-const handleBefore = () => {}
-const handleNext = () => {}
+const emit = defineEmits(['changeVideo'])
+// 处理视频切换：1代表下一个，-1代表上一个
+const handleBefore = () => {
+  emit('changeVideo', -1)
+}
+const handleNext = () => {
+  emit('changeVideo', 1)
+}
 </script>
 <template>
   <!-- 切换视频按钮 -->
@@ -30,7 +35,7 @@ const handleNext = () => {}
   display: flex;
   flex-wrap: wrap;
   align-content: space-between;
-  border-radius: 4vh;
+  border-radius: 40px;
   background-color: rgb(43, 44, 54);
 }
 .side-button .el-button {
