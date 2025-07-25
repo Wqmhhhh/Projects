@@ -16,7 +16,7 @@ const FlagStore = useShowFlags()
 const VideoStore = useVideo()
 const CommentStore = useCommentList()
 const fansStore = useFansStore()
-const { commentList, commentNum } = storeToRefs(CommentStore)
+const { commentList, commentNum, noMoreCom } = storeToRefs(CommentStore)
 const { ifFullScreen } = storeToRefs(FlagStore)
 
 // 父组件传入视频信息
@@ -27,7 +27,7 @@ const props = defineProps({
 })
 
 // 评论有关信息
-let commentPageSize = 10
+let commentPageSize = 3
 
 // 绑定视频
 const VideoRef = ref()
@@ -85,7 +85,7 @@ const TabShow = ref('0')
 const sendBoxText = ref('')
 
 // 父评论Id
-// const fatherCommentId = ref('0')
+const fatherCommentId = ref('0')
 
 // 控制播放/暂停
 const handlePlayPause = () => {
@@ -158,6 +158,7 @@ const initialVideo = () => {
   // 初始化时介绍过长进行剪切
   if (props.videoInfo.content.length > 80) {
     VideoIntroShow.value = props.videoInfo.content.substring(0, 80)
+    console.log(VideoIntroShow.value)
     IntroduceToolong.value = true
   } else {
     VideoIntroShow.value = props.videoInfo.content.value
@@ -181,7 +182,7 @@ const initialVideo = () => {
 // 处理标题的折叠、展开
 const handleTooLong = () => {
   if (ToolongWrap.value) {
-    VideoIntroShow.value = props.videoInfo.content.value
+    VideoIntroShow.value = props.videoInfo.content
   } else {
     VideoIntroShow.value = props.videoInfo.content.substring(0, 80)
   }
@@ -294,45 +295,42 @@ const handleClickPic = () => {
 const handleClickComment = () => {
   if (TabShow.value === '0') {
     handleTabClick(1)
-    DrawerShow.value = true
-
-    // 评论请求
-    console.log('发送评论请求')
-    CommentStore.getCommentList(
-      props.videoInfo.vlogId,
-      useUserStore().user.id,
-      commentPageSize
-    )
-    CommentStore.getCommentNum(props.videoInfo.vlogId)
+    DrawerShow.value = !DrawerShow.value
   } else {
     DrawerShow.value = !DrawerShow.value
   }
 }
-
-// TODO：评论懒加载
-// const commentList = () => {
-//   if (commentPage * commentPageSize < commentNum) {
-//     CommentStore.getCommentList(
-//       props.videoInfo.vlogId,
-//       useUserStore().user.id,
-//       commentPage + 1,
-//       commentPageSize
-//     )
-//   }
-// }
 
 // 抽屉tab栏切换
 const handleTabClick = (index) => {
   TabShow.value = index
   if (index === 1) {
     // 评论请求
+    // 没有更多评论时不再触发请求
+    if (noMoreCom.value === true) {
+      return
+    }
+
     console.log('发送评论请求')
-    CommentStore.getCommentList(
-      props.videoInfo.vlogId,
-      useUserStore().user.id,
-      commentPageSize
-    )
-    CommentStore.getCommentNum(props.videoInfo.vlogId)
+
+    try {
+      CommentStore.getCommentList(
+        props.videoInfo.vlogId,
+        useUserStore().user.id,
+        commentPageSize
+      )
+      CommentStore.getCommentNum(props.videoInfo.vlogId)
+    } catch (error) {
+      console.error('评论请求失败:', error)
+      ElMessage.error('获取评论失败')
+    }
+
+    // CommentStore.getCommentList(
+    //   props.videoInfo.vlogId,
+    //   useUserStore().user.id,
+    //   commentPageSize
+    // )
+    // CommentStore.getCommentNum(props.videoInfo.vlogId)
   }
 }
 
@@ -443,6 +441,22 @@ const formatTime = (e) => {
   return time
 }
 
+// 处理评论区滚动
+// const handleCommentScroll = (e) => {
+//   const { scrollTop, scrollHeight, clientHeight } = e.target
+
+//   // 滚动高度到达元素高度的90%时再次请求评论内容
+//   // 判断是否滚动到底部（距离底部小于一定阈值，如 50px）
+//   const isBottom = scrollHeight - (scrollTop + clientHeight) < 50
+
+//   if (isBottom && !noMoreCom.value) {
+//     handleTabClick(1)
+//   }
+
+//   // 阻止滚动事件冒泡到父元素
+//   e.stopPropagation()
+// }
+
 // 获取视频详细信息
 // const getDetailInfo = () => {
 //   console.log('获取单个视频详细信息请求')
@@ -476,16 +490,21 @@ onMounted(() => {
   commentContainer.value.addEventListener(
     'wheel',
     (e) => {
-      const isScrollable =
-        commentContainer.value.scrollHeight >
-        commentContainer.value.clientHeight
+      const { scrollTop, scrollHeight, clientHeight } = e.target
 
-      // 当可滚动且未到达边界时，阻止冒泡
-      if (isScrollable) {
-        e.stopPropagation()
+      // 判断是否滚动到底部（距离底部小于一定阈值，如 50px）
+      const isBottom = scrollHeight - (scrollTop + clientHeight) < 50
+
+      if (isBottom && !noMoreCom.value) {
+        handleTabClick(1)
       }
+
+      // 阻止滚动事件冒泡到父元素
+      e.stopPropagation()
     },
-    { passive: false }
+    {
+      passive: false,
+    }
   )
 })
 
@@ -566,73 +585,76 @@ watch(
           crossorigin="anonymous"
           :src="props.videoInfo.url"
         ></video>
-      </div>
 
-      <!-- 底部文字 -->
-      <div class="topContainerBottom" v-show="!tagShow">
-        <div>@{{ props.videoInfo.vlogerName }}</div>
-        <div>
-          <span>{{ props.videoInfo.content }}</span>
+        <!-- 视频上方遮罩层 -->
+        <div class="videoHover">
+          <!-- 底部文字 -->
+          <div class="topContainerBottom" v-show="!tagShow">
+            <div>@{{ props.videoInfo.vlogerName }}</div>
+            <div>
+              <span>{{ VideoIntroShow }}</span>
 
-          <!-- 介绍过长时显示 -->
-          <span v-if="!IntroduceToolong"></span>
-          <span v-else @click="handleTooLong">
-            <span class="TooLong" v-if="ToolongWrap"> ...显示全部 </span>
-            <span class="TooLong" v-else> 折叠 </span>
-          </span>
-        </div>
-      </div>
+              <!-- 介绍过长时显示 -->
+              <span v-if="!IntroduceToolong"></span>
+              <span v-else @click="handleTooLong">
+                <span class="TooLong" v-if="ToolongWrap"> ...显示全部 </span>
+                <span class="TooLong" v-else> 折叠 </span>
+              </span>
+            </div>
+          </div>
 
-      <!-- 右侧图标 -->
-      <div
-        class="topContainerRight"
-        :class="{ topContainerRightMove: DrawerShow }"
-      >
-        <!-- 作者头像 -->
-        <div class="UperPic" @click="handleClickPic">
-          <img :src="props.videoInfo.vlogerFace" alt="" />
-        </div>
+          <!-- 右侧图标 -->
+          <div class="topContainerRight">
+            <!-- 作者头像 -->
+            <div class="UperPic" @click="handleClickPic">
+              <img :src="props.videoInfo.vlogerFace" alt="" />
+            </div>
 
-        <!-- 是否关注 -->
-        <div @click="handlleFollow" class="FollowUper" v-show="!ifUserWork">
-          <i
-            class="iconfont icon-31yiguanzhudianpu"
-            v-if="FollowUper"
-            style="color: rgb(254, 44, 85)"
-          ></i>
-          <i class="iconfont icon-31guanzhudianpu" v-else></i>
-        </div>
+            <!-- 是否关注 -->
+            <div @click="handlleFollow" class="FollowUper" v-show="!ifUserWork">
+              <i
+                class="iconfont icon-31yiguanzhudianpu"
+                v-if="FollowUper"
+                style="color: rgb(254, 44, 85)"
+              ></i>
+              <i class="iconfont icon-31guanzhudianpu" v-else></i>
+            </div>
 
-        <!-- 喜欢 -->
-        <div class="like" @click="handleLike">
-          <i class="iconfont icon-aixin" :class="{ likeUper: likeUper }"></i>
-          <div>{{ likeUperNum }}</div>
-        </div>
+            <!-- 喜欢 -->
+            <div class="like" @click="handleLike">
+              <i
+                class="iconfont icon-aixin"
+                :class="{ likeUper: likeUper }"
+              ></i>
+              <div>{{ likeUperNum }}</div>
+            </div>
 
-        <!-- 评论 -->
-        <div class="commentIcon" @click="handleClickComment">
-          <i class="iconfont icon-pinglun"></i>
-          <div>{{ commentNum }}</div>
-        </div>
+            <!-- 评论 -->
+            <div class="commentIcon" @click="handleClickComment">
+              <i class="iconfont icon-pinglun"></i>
+              <div>{{ commentNum }}</div>
+            </div>
 
-        <!-- 收藏 -->
-        <!-- <div class="collect" @click="handleCollect">
+            <!-- 收藏 -->
+            <!-- <div class="collect" @click="handleCollect">
           <i
             class="iconfont icon-weishoucang"
             :class="{ CollectUper: CollectUper }"
           ></i>
           <div>{{ CollectUperNum }}</div>
-        </div> -->
+          </div> -->
 
-        <!-- 私密 -->
-        <div v-show="ifUserWork" @click="handlePrivate">
-          <i class="iconfont icon-guansuo" v-if="ifPrivate"></i>
-          <i class="iconfont icon-kaisuo" v-else></i>
-        </div>
+            <!-- 私密 -->
+            <div v-show="ifUserWork" @click="handlePrivate">
+              <i class="iconfont icon-guansuo" v-if="ifPrivate"></i>
+              <i class="iconfont icon-kaisuo" v-else></i>
+            </div>
 
-        <!-- 更多 -->
-        <div class="more">
-          <i class="iconfont icon-gengduo1" @click="handleMore"></i>
+            <!-- 更多 -->
+            <div class="more">
+              <i class="iconfont icon-gengduo1" @click="handleMore"></i>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -744,6 +766,11 @@ watch(
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- 底部提示信息 -->
+            <div class="commentBottom" v-show="commentList.length > 0">
+              评论到底啦~
             </div>
           </div>
 
@@ -900,6 +927,8 @@ watch(
   display: flex;
   flex-shrink: none;
   background-color: #ffffff18;
+  position: relative;
+  overflow: hidden;
 }
 .videoBox::before {
   content: '';
@@ -923,19 +952,26 @@ video {
   margin: 0 auto !important;
 }
 
+/* 视频上方遮罩层 */
+.videoHover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+
 /* 底部文字 */
 .topContainerBottom {
-  position: absolute;
+  position: relative;
   width: 60%;
-  height: 100px;
-  bottom: 10px;
-  left: 50px;
+  height: 15%;
+  bottom: -80%;
+  left: 5%;
   text-align: left;
   overflow-y: scroll;
   scrollbar-width: none;
   text-shadow: 2px 2px 3px #b5b4b4;
   color: #ffffffe0;
-
   z-index: 1;
 }
 .topContainerBottom > div:first-child {
@@ -963,11 +999,12 @@ video {
 /* 右侧图标 */
 .topContainerRight {
   z-index: 1;
-  position: absolute;
+  position: relative;
   width: 50px;
   height: 370px;
   color: #ffffff;
-  right: 50px;
+  left: 93%;
+  margin: auto 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1009,9 +1046,6 @@ video {
 .CollectUper {
   color: rgb(255, 184, 2) !important;
 }
-.topContainerRightMove {
-  left: 63%;
-}
 
 /* 抽屉 */
 .drawer {
@@ -1030,6 +1064,7 @@ video {
   left: 70%;
   padding: 0 1vw;
   z-index: 1;
+  overflow: hidden;
 }
 
 /* drawerTab */
@@ -1147,6 +1182,12 @@ video {
   border-radius: 2.5vh;
   margin: 1vh 0.5vw;
 }
+.commentBottom {
+  height: 10%;
+  font-size: 2.3vh;
+  text-align: center;
+  color: #555;
+}
 
 /* commentContainer */
 .comment {
@@ -1164,9 +1205,10 @@ video {
   height: 77%;
   width: 100%;
   overflow-y: scroll;
-  overflow-x: hidden;
   color: #eaeaea;
   background-color: transparent;
+  overscroll-behavior: contain; /* 阻止滚动传播到父元素 */
+  scroll-behavior: smooth;
 }
 
 /* 评论Box */

@@ -91,6 +91,9 @@ onMounted(() => {
         return
       }
 
+      // 若在评论抽屉中不滚动
+      // if()
+
       // 鼠标滚动切换视频
       if (timer1.value) {
         return

@@ -9,7 +9,7 @@ import {
   cancelLikeCommentService,
 } from '@/api/comment'
 import { useUserStore } from './user'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 
 export const useCommentList = defineStore('commentList', () => {
   // 评论列表
@@ -27,6 +27,9 @@ export const useCommentList = defineStore('commentList', () => {
   // 当前评论对应视频
   const currentComVideoId = ref()
 
+  // 每次获取评论的条数
+  const pageNum = ref(3)
+
   // 设置视频评论列表ID
   const setVideoComListId = (id) => {
     currentComVideoId.value = id
@@ -40,9 +43,8 @@ export const useCommentList = defineStore('commentList', () => {
 
     // 切换视频后清空原视频请求信息
     if (currentComVideoId.value !== vlogId) {
-      commentList.value = []
-      commentPage.value = 0
-      currentComVideoId.value = vlogId
+      console.log('清空评论')
+      clearComment()
     }
 
     const res = await getCommentListService(
@@ -54,15 +56,18 @@ export const useCommentList = defineStore('commentList', () => {
     console.log('评论列表', res)
 
     if (res.data.data.rows) {
-      commentList.value = res.data.data.rows
-      commentPage.value++
-      noMoreCom.value = false
-      return true
-    } else {
-      noMoreCom.value = true
-      ElMessage('没有更多评论了')
-      return false
+      console.log('请求的评论信息：', ...res.data.data.rows)
+      commentList.value.push(...res.data.data.rows)
     }
+
+    // 若当前页数已经是最后一页将 noMoreCom 置为真
+    if (commentPage.value === res.data.data.total - 1) {
+      console.log('没有更多评论了')
+      noMoreCom.value = true
+      return
+    }
+    commentPage.value++
+    return
   }
 
   // 获取视频评论数量
@@ -82,10 +87,10 @@ export const useCommentList = defineStore('commentList', () => {
     )
     console.log('删除评论返回值：', res)
 
-    commentPage.value = 0
+    clearComment()
 
     // 再次获取评论列表
-    getCommentList(vlogId, useUserStore().user.id, 10)
+    getCommentList(vlogId, useUserStore().user.id, pageNum.value)
 
     // 获取评论数量
     getCommentNum(vlogId)
@@ -103,10 +108,10 @@ export const useCommentList = defineStore('commentList', () => {
     const res = await commentPublicService(commentBO)
     console.log('发布评论的返回值', res)
 
-    commentPage.value = 0
+    clearComment()
 
     // 再次获取评论列表
-    getCommentList(vlogId, useUserStore().user.id, 10)
+    getCommentList(vlogId, useUserStore().user.id, pageNum.value)
 
     // 获取评论数量
     getCommentNum(vlogId)
@@ -126,7 +131,7 @@ export const useCommentList = defineStore('commentList', () => {
     commentPage.value = 0
 
     // 再次获取评论列表
-    getCommentList(vlogId, useUserStore().user.id, 10)
+    getCommentList(vlogId, useUserStore().user.id, pageNum.value)
   }
 
   // 取消评论点赞
@@ -140,15 +145,15 @@ export const useCommentList = defineStore('commentList', () => {
     commentPage.value = 0
 
     // 再次获取评论列表
-    getCommentList(vlogId, useUserStore().user.id, 10)
+    getCommentList(vlogId, useUserStore().user.id, pageNum.value)
   }
 
   // 清空评论有关信息
   const clearComment = () => {
-    commentList.value = ''
+    commentList.value = []
     commentNum.value = 0
     commentPage.value = 0
-    console.log(commentNum.value, commentPage.value)
+    noMoreCom.value = false
   }
 
   return {
