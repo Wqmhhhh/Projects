@@ -1,6 +1,8 @@
 <script setup></script>
 <template>
   <div class="container">
+    <div class="pic"></div>
+
     <div class="text">
       <slot name="text"></slot>
     </div>
@@ -8,8 +10,6 @@
     <!-- <div class="image">
       <slot name="image"></slot>
     </div> -->
-
-    <div class="pic"></div>
   </div>
 </template>
 <style scoped>
@@ -20,9 +20,9 @@
 }
 .container {
   width: 830px;
-  padding: 10px 15px;
+  padding: 5px 15px;
   display: flex;
-  justify-content: end;
+  justify-content: start;
   align-content: start;
 }
 .pic {
@@ -30,8 +30,8 @@
   height: 40px;
   border-radius: 40px;
   overflow: hidden;
-  margin-left: 10px;
-  background-image: url(../../../assets/pic2.png);
+  margin-right: 10px;
+  background-image: url(@/assets/pic2.png);
   background-size: cover;
   background-position: center;
 }

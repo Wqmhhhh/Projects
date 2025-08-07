@@ -42,7 +42,8 @@ onMounted(() => {
     @click="handleListActive"
   >
     <div class="img">
-      <img src="../../../assets/image.ico" alt="" />
+      <!-- TODO:改头像 -->
+      <img src="@/assets/image.ico" alt="" />
     </div>
 
     <div class="text">

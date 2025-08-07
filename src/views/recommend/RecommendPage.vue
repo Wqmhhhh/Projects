@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, createApp, h } from 'vue'
 import VideoBoxBig from '@/components/video/VideoBox-big.vue'
 import SideChangeButton from '@/components/video/SideChangeButton.vue'
 import { useVideo, useCommentList } from '@/stores'
@@ -11,10 +11,63 @@ const { recommendVideo } = storeToRefs(VideoStore)
 // 当前滚动量大小
 const currentVideoOffset = ref(0)
 
-// 当前视频下标
-const videoIndex = ref(0)
+// 当前视频列表
+const curVideoList = ref([])
 
+// 视频容器
 const boxRef = ref()
+
+// 当前视频下标
+const videoIndex = ref()
+
+// 视频列表中固定的视频数
+const MaxNum = 5
+
+// 添加结点
+const addVideo = (index) => {
+  const newNode = document.createElement('div')
+  newNode.className = 'video-mount'
+
+  // 创建新的Vue应用
+  const app = createApp({
+    render: () =>
+      h(VideoBoxBig, {
+        videoInfo: recommendVideo.value[index],
+      }),
+  })
+
+  // 添加到视频容器中
+  boxRef.value.appendChild(newNode)
+
+  // 挂载到结点上
+  app.mount(newNode)
+
+  // 添加到数组中
+  curVideoList.value.push({
+    index,
+    app,
+  })
+
+  console.log('添加新元素')
+}
+
+// 删除结点
+const delVideo = () => {
+  const firstNode = document.querySelector(`.box>div:first-child`)
+
+  if (!firstNode) {
+    console.log('没有视频列表首元素')
+    return
+  }
+
+  const app = curVideoList.value[0].app
+  app.unmount()
+  firstNode.remove()
+
+  curVideoList.value = curVideoList.value.filter((v) => v.index !== 0)
+
+  console.log('删除头部元素')
+}
 
 // 处理视频切换逻辑
 const handleChangeVideo = (e) => {
@@ -115,19 +168,7 @@ onMounted(() => {
 
 <template>
   <div class="container">
-    <div class="box" ref="boxRef">
-      <div
-        v-for="(item, index) in recommendVideo"
-        :key="item.vlogId"
-        class="boxRef"
-      >
-        <VideoBoxBig
-          :videoInfo="item"
-          :ifPlay="index === videoIndex"
-          :ifChangeVideo="index === videoIndex"
-        ></VideoBoxBig>
-      </div>
-    </div>
+    <div class="box" ref="boxRef"></div>
 
     <!-- 切换视频按钮 -->
     <SideChangeButton @changeVideo="handleChangeVideo"></SideChangeButton>

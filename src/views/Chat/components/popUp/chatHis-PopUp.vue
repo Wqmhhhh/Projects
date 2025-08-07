@@ -19,7 +19,7 @@ const name = 'wwwwww'
 const time = '09:05'
 const content =
   '111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111'
-const chatHis = ref([1, 1, 1, 1, 1])
+const chatHis = ref([1, 1, 1, 1, 1, 1, 1, 1, 1, , 1])
 </script>
 
 <template>
@@ -53,7 +53,7 @@ const chatHis = ref([1, 1, 1, 1, 1])
           <div class="chatHisList" v-if="chatHis.length > 0">
             <div class="each" v-for="(item, index) in chatHis" :key="index">
               <div class="eachLeft">
-                <img src="../../../assets/pic2.png" alt="头像" />
+                <img src="@/assets/pic2.png" alt="头像" />
               </div>
               <div class="eachRight">
                 <div class="eachRTop">
@@ -135,9 +135,11 @@ const chatHis = ref([1, 1, 1, 1, 1])
   width: 650px;
   overflow-y: scroll;
   scrollbar-width: none;
+  background-color: #e0e0e0;
+  padding: 0 1vw;
 }
 .each {
-  padding: 10px 0;
+  margin: 1vh 0;
   display: flex;
   width: 100%;
   justify-content: space-around;
@@ -148,13 +150,14 @@ const chatHis = ref([1, 1, 1, 1, 1])
   background-color: #000000;
   overflow: hidden;
   border-radius: 0.5vh;
+  margin-top: 1vh;
 }
 .eachLeft img {
   width: 100%;
   height: 100%;
 }
 .eachRight {
-  width: 590px;
+  width: 530px;
 }
 .eachRTop {
   display: flex;
@@ -177,13 +180,7 @@ const chatHis = ref([1, 1, 1, 1, 1])
 
 <style>
 .el-dialog-chatHis--container {
-  background: linear-gradient(
-    to bottom right,
-    rgb(194, 235, 225) 15%,
-    rgb(238, 238, 240) 30%,
-    rgb(238, 238, 240) 50%,
-    rgb(227, 194, 222) 85%
-  ) !important;
+  background-color: #e9e9e9;
   height: 450px;
   width: 650px;
   padding: 0;

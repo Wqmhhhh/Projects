@@ -1,7 +1,9 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import youBubble from './youBubble.vue'
-import myBubble from './myBubble.vue'
+import youBubble from './bubbles/youBubble.vue'
+import myBubble from './bubbles/myBubble.vue'
+import fileMsg from './bubbles/fileMsg.vue'
+import recallMsg from './bubbles/recallMsg.vue'
 
 import { useChatRoomInfo } from '@/stores'
 import { storeToRefs } from 'pinia'
@@ -100,7 +102,6 @@ const handleSend = () => {
   })
 
   // 发送后清空对话框
-  console.log('发送')
   textInput.value = ''
   textButtonActive.value = false
 }
@@ -160,7 +161,7 @@ const douyinId = ref('1111111111111111')
     <div class="chatList" ref="chatList">
       <div v-for="(item, index) in chatHisList" :key="index">
         <!-- 对方气泡 -->
-        <youBubble v-if="item.type == 2">
+        <youBubble v-if="item.type == 1">
           <template #text v-if="ifWords">
             {{ item.text }}
           </template>
@@ -170,7 +171,7 @@ const douyinId = ref('1111111111111111')
         </youBubble>
 
         <!-- 己方气泡 -->
-        <myBubble v-else-if="item.type == 1">
+        <myBubble v-else-if="item.type == 2">
           <template #text v-if="ifWords">
             {{ item.text }}
           </template>
@@ -178,6 +179,9 @@ const douyinId = ref('1111111111111111')
             <img :src="item.image" alt="" />
           </template>
         </myBubble>
+
+        <!-- TODO：区分一下自己和对方撤回的消息 -->
+        <recallMsg></recallMsg>
       </div>
     </div>
 

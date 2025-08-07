@@ -72,7 +72,7 @@ const handleSearch = () => {
     })
     return
   }
-  // TODO:将搜索内容传给后端
+  // 将搜索内容传给后端
   useVideo().getSearList(1, 20, searchInput.value)
 
   // 顶部Tab栏显示返回按钮、跳转页面
@@ -111,9 +111,8 @@ const handleMoney = () => {
 }
 
 // 点击私信跳转页面
-// TODO:需要手动刷新才能跳转
 const handleChat = () => {
-  router.push('/chat')
+  router.push('/chatLogin')
 }
 
 // 处理通知

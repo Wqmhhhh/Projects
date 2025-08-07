@@ -2,8 +2,8 @@
 import chatListComponent from './components/chatListComponent.vue'
 import chatView from './components/chatView.vue'
 import contextMenu from './components/contextMenu.vue'
-import chatHisPopUp from './components/chatHis-PopUp.vue'
-import settingBox from './components/settingBox.vue'
+import chatHisPopUp from './components/popUp/chatHis-PopUp.vue'
+import settingBox from './components/popUp/settingBox.vue'
 
 import { onMounted, ref } from 'vue'
 // import { ElMessageBox } from 'element-plus'
@@ -177,22 +177,13 @@ onMounted(() => {
               <i class="iconfont icon-friend"></i>
             </div>
 
-            <!-- 关注 -->
+            <!-- 新的朋友 -->
             <div
               class="follow"
               :class="{ followActive: naviBarIndex === 'follow' }"
               @click="handleFollowActive"
             >
-              <i class="iconfont icon-wodeguanzhu"></i>
-            </div>
-
-            <!-- 粉丝 -->
-            <div
-              class="fans"
-              :class="{ fansActive: naviBarIndex === 'fans' }"
-              @click="handleFansActive"
-            >
-              <i class="iconfont icon-fensi"></i>
+              <i class="iconfont icon-xindepengyou"></i>
             </div>
           </div>
 
