@@ -1,19 +1,31 @@
 import axios from 'axios'
+import { useUserStore } from '@/stores'
 
 // 设置api的基础URL
-const baseURL = ''
+// const baseURL = 'https://113.44.144.219:8084'
+const baseURL = '/api'
 
 // 创建 Axios 实例
 const instance = axios.create({
-  timeout: 5000,
+  timeout: 100,
   baseURL,
-  headers: {},
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
 
 // 请求拦截器
 instance.interceptors.request.use(
   // 发送请求前的操作
   (config) => {
+    // 除了login其他都添加token
+    const token = useUserStore().token
+    if (token) {
+      console.log('请求头添加token')
+      const token = useUserStore().token
+      config.headers['Authorization'] = 'Bearer ' + token
+    }
+
     return config
   },
   // 请求错误操作

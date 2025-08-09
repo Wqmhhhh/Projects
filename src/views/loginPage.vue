@@ -1,8 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { onUnmounted, ref } from 'vue'
+import { userRegister, userLogin, userChangePassword, userSendSmsCode } from '@/api/user'
 // import router from '@/router'
 
-// 登录1 注册2
+// 登录1 注册2 忘记密码3
 const option = ref(1)
 // 邮箱
 const email = ref()
@@ -25,83 +27,225 @@ const clearAll = () => {
 }
 
 // 处理登录、注册切换
-const handleChange = () => {
-  option.value = option.value === 1 ? 2 : 1
+const handleChange = (n) => {
+  option.value = n
   clearAll()
 }
 
+// 检测邮箱格式
+const checkEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  // 使用正则表达式测试邮箱地址
+  if (emailRegex.test(email)) {
+    return true
+  } else {
+    return false
+  }
+}
+
+// 检验密码位数
+const checkPassWord = () => {
+  if (passWord.value.length < 8) {
+    ElMessage('密码最少为8位')
+    passWord.value = ''
+    return false
+  } else if (passWord.value.length > 16) {
+    ElMessage('密码最多为16位')
+    passWord.value = ''
+    return false
+  } else {
+    return true
+  }
+}
+
+// 检验两次密码是否一致
+const checkSame = () => {
+  if (passWord.value !== repeatPassWord.value) {
+    passWord.value = ''
+    repeatPassWord.value = ''
+    ElMessage('两次密码输入不一致')
+  }
+}
+
+// 检测所有
+const checkAll = () => {
+  if (!email.value) {
+    ElMessage.error('邮箱不能为空')
+    return false
+  } else if (!smsCode.value) {
+    ElMessage.error('验证码不能为空')
+    return false
+  } else if (!passWord.value || !repeatPassWord.value) {
+    ElMessage.error('密码不能为空')
+    return false
+  }
+
+  if (!checkPassWord() || !checkSame()) {
+    return false
+  }
+
+  return true
+}
+
 // 处理注册
-const handleRegister = () => {
-  console.log('注册')
+const handleRegister = async () => {
+  if (!checkAll()) {
+    return
+  }
+
+  const res = await userRegister(email.value, smsCode.value, passWord.value)
+  console.log(res)
 }
 
 // 处理登录
-const handleLogin = () => {
-  console.log('登录')
+const handleLogin = async () => {
+  if (!email.value) {
+    ElMessage.error('邮箱不能为空')
+    return
+  } else if (!passWord.value) {
+    ElMessage.error('密码不能为空')
+    return
+  }
+
+  if (!checkPassWord()) {
+    return
+  }
+
+  // 发送请求
+  const res = await userLogin(email.value, passWord.value)
+  console.log(res)
+}
+
+// 处理修改密码
+const handleChangePassword = async () => {
+  if (!checkAll()) {
+    return
+  }
+
+  const res = await userChangePassword(email.value, smsCode.value, passWord.value)
+  console.log(res)
 }
 
 // 处理发送验证码
+let timer
+let num = 60
+const handleSendSmsCode = async () => {
+  if (!email.value) {
+    ElMessage.error('邮箱不能为空')
+    return
+  } else if (!checkEmail(email.value)) {
+    return
+  }
+
+  // 验证码按钮设为禁用
+  ifSmsCodeDisabled.value = true
+
+  // 调用接口
+  try {
+    const res = await userSendSmsCode(email.value)
+    console.log(res)
+    ElMessage.success('验证码发送成功')
+  } catch (e) {
+    ElMessage.error('验证码发送失败')
+    ifSmsCodeDisabled.value = false
+    console.log(e)
+    return
+  }
+
+  // 设置倒计时
+  timer = setInterval(() => {
+    if (num > 0) {
+      num--
+      smsCodeButton.value = `${num} 秒`
+    } else {
+      smsCodeButton.value = '获取验证码'
+      clearInterval(timer)
+      timer = null
+      num = 60
+      ifSmsCodeDisabled.value = false
+    }
+  }, 1000)
+}
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
+})
 </script>
 
 <template>
   <div class="container">
-    <div class="box">
+    <form class="box" @submit.prevent>
       <!-- 登录 or 注册 -->
       <div class="title">
         <div v-if="option === 1">登录</div>
         <div v-else-if="option === 2">注册</div>
+        <div v-else-if="option === 3">忘记密码</div>
       </div>
 
       <!-- 邮箱 -->
       <div>
         <div>
           <i class="iconfont icon-youxiang"></i>
-          <input type="email" placeholder="邮箱" v-model="email" />
+          <input type="email" placeholder="邮箱" v-model="email" autocomplete="email" />
         </div>
       </div>
 
       <!-- 邮箱验证码 -->
-      <div v-show="option === 2">
+      <div v-show="option === 2 || option === 3">
         <div class="smsCode">
           <i class="iconfont icon-yanzhengma"></i>
-          <input type="text" placeholder="验证码" v-model="smsCode" />
+          <input type="text" placeholder="验证码" v-model="smsCode" autocomplete="off" />
         </div>
-        <button @click="handleSmsCode" :disabled="ifSmsCodeDisabled">{{ smsCodeButton }}</button>
+        <button @click="handleSendSmsCode" :disabled="ifSmsCodeDisabled">
+          {{ smsCodeButton }}
+        </button>
       </div>
 
       <!-- 密码 -->
       <div>
         <div>
           <i class="iconfont icon-mima"></i>
-          <input type="password" placeholder="密码" v-model="passWord" />
+          <input
+            type="password"
+            placeholder="密码 (8-16位)"
+            v-model="passWord"
+            autocomplete="current-password"
+          />
         </div>
       </div>
 
       <!-- 再次输入密码 -->
-      <div v-show="option === 2">
+      <div v-show="option === 2 || option === 3">
         <div>
           <i class="iconfont icon-mima"></i>
-          <input type="password" placeholder="再次输入密码" v-model="repeatPassWord" />
+          <input
+            type="password"
+            placeholder="再次输入密码"
+            v-model="repeatPassWord"
+            autocomplete="new-password"
+          />
         </div>
       </div>
 
       <!-- 登录按钮 -->
-      <div class="button">
+      <button class="button" type="submit">
         <div v-if="option === 1" @click="handleLogin">登录</div>
-        <div v-else @click="handleRegister">注册</div>
-      </div>
+        <div v-else-if="option === 2" @click="handleRegister">注册</div>
+        <div v-else-if="option === 3" @click="handleChangePassword">修改</div>
+      </button>
 
       <!-- 忘记密码 -->
       <div>
-        <div v-show="option === 1" @click="handleChange">忘记密码</div>
+        <div v-show="option === 1" @click="handleChange(3)">忘记密码</div>
       </div>
 
       <!-- 注册账号 -->
       <div>
-        <div v-if="option === 1" @click="handleChange">注册</div>
-        <div v-else @click="handleChange">登录</div>
+        <div v-if="option === 1" @click="handleChange(2)">注册</div>
+        <div v-else @click="handleChange(1)">登录</div>
       </div>
-    </div>
+    </form>
   </div>
 </template>
 
@@ -181,6 +325,10 @@ const handleLogin = () => {
 
 /* 按钮 */
 .button {
+  width: 80%;
+  height: 13%;
+  border-radius: 100vh;
+  display: block;
   font-size: 1.5vw;
   background-color: #333 !important;
   color: #fff;

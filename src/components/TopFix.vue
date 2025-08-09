@@ -1,6 +1,9 @@
 <script setup>
-import { ref } from 'vue'
 import router from '@/router'
+import { useFlagStore } from '@/stores/modules/flagStore'
+import { storeToRefs } from 'pinia'
+
+const { ifLogin } = storeToRefs(useFlagStore())
 
 // 处理跳转到主页
 const handleMain = () => {
@@ -10,8 +13,6 @@ const handleMain = () => {
 // 处理登录
 const handleLogin = () => {
   router.push('/login')
-
-  console.log('点击登录')
 }
 // 处理报名
 const handleRegister = () => {
@@ -33,9 +34,6 @@ const handleContact = () => {
     behavior: 'smooth',
   })
 }
-
-// 暂时标志
-const ifLogin = ref(true)
 </script>
 
 <template>

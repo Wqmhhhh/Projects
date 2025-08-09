@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 // import { useUserStore } from '@/stores'
+// import { storeToRefs } from 'pinia'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -23,13 +24,16 @@ const router = createRouter({
   ],
 })
 
-// 登录访问拦截：默认直接放行。根据返回值决定访问或拦截
-// 返回值：undefined、true 直接放行，返回false拦回from地址页面，返回路径拦截到对应地址
 // router.beforeEach((to) => {
-//   const useStore = useUserStore()
-//   if (!useStore.token && to.path !== '/login') {
-//     return '/login'
+//   const { token } = storeToRefs(useUserStore())
+//   //   // 没有登录不能到报名页面
+//   if (!token.value && to.path !== '/login' && to.path !== '/') {
+//     return '/'
 //   }
 // })
+
+router.afterEach(() => {
+  window.scrollTo(0, 0)
+})
 
 export default router

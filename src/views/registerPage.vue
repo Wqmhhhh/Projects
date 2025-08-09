@@ -1,6 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import router from '@/router'
+import { applyGetInfo } from '@/api/apply'
+import { useFlagStore } from '@/stores/modules/flagStore'
+import { storeToRefs } from 'pinia'
+
+const { ifRegister, progress, ifSeconRegister } = storeToRefs(useFlagStore())
 
 // 处理截止时间
 const day = ref(0)
@@ -60,8 +65,23 @@ const handleRegister = () => {
 // 修改报名信息
 const handleChangeRegister = () => {}
 
+// 二面报名
+const handleSecond = () => {}
+
+// 修改二面报名信息
+const handleChangeSecond = () => {}
+
+// 获取报名信息
+const getApplyInfo = async () => {
+  const res = await applyGetInfo()
+  console.log(res)
+
+  // TODO：修改按钮（根据是否有二面时间决定二面按钮的效果）、报名进度
+}
+
 onMounted(() => {
   handleTime()
+  getApplyInfo()
 })
 
 onUnmounted(() => {
@@ -69,9 +89,7 @@ onUnmounted(() => {
 })
 
 // 暂时信息
-const ifRegister = ref(false)
-const registerProgress = ref(2)
-const processStatus = ref('process') // 二面失败显示 error
+const processStatus = ref('process') // TODO:二面失败显示 error
 </script>
 
 <template>
@@ -84,8 +102,15 @@ const processStatus = ref('process') // 二面失败显示 error
           <!-- 顶部加粗 -->
           <div class="bold">
             <div>欢迎加入软件科技协会！</div>
-            <button @click="handleChangeRegister" v-if="ifRegister">修改报名信息</button>
-            <button @click="handleRegister" v-else>报名</button>
+            <div v-show="progress <= 1">
+              <button @click="handleChangeRegister" v-if="ifRegister">修改报名信息</button>
+              <button @click="handleRegister" v-else>报名</button>
+            </div>
+
+            <div v-show="progress > 1">
+              <button @click="handleSecond" v-if="!ifSeconRegister">选择二面时间</button>
+              <button @click="handleChangeSecond" v-else>修改二面时间</button>
+            </div>
           </div>
 
           <!-- 倒计时、报名 -->
@@ -157,7 +182,7 @@ const processStatus = ref('process') // 二面失败显示 error
         <el-steps
           direction="vertical"
           finish-status="success"
-          :active="registerProgress"
+          :active="progress"
           :process-status="processStatus"
           align-center
         >
@@ -226,7 +251,7 @@ hr {
   font-weight: bold;
 }
 .bold button {
-  width: 10vw;
+  width: 13vw;
   height: 3vw;
   border-radius: 1.5vw;
   border: 0;
@@ -279,7 +304,7 @@ hr {
 /* 联系我们 */
 .official {
   width: 100%;
-  padding: 2vw 5%;
+  padding: 3vw 5%;
   padding-right: 25%;
   height: 50vh;
   background-color: rgb(245, 245, 247);
@@ -339,8 +364,8 @@ hr {
     font-size: 2vh;
   }
   .bold button {
-    width: 20vw;
-    height: 6vw;
+    width: 25vw;
+    height: 7vw;
     border-radius: 4vw;
     font-size: 1.5vh;
   }
@@ -374,7 +399,7 @@ hr {
   /* 联系我们 */
   .official {
     height: 25vh;
-    padding: 2vh 5%;
+    padding: 3vh 5%;
     padding-right: 20%;
   }
   .official h2 {
