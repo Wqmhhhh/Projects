@@ -7,7 +7,7 @@ const baseURL = '/api'
 
 // 创建 Axios 实例
 const instance = axios.create({
-  timeout: 100,
+  timeout: 5000,
   baseURL,
   headers: {
     'Content-Type': 'application/json',
@@ -19,11 +19,21 @@ instance.interceptors.request.use(
   // 发送请求前的操作
   (config) => {
     // 除了login其他都添加token
-    const token = useUserStore().token
+    if (config.url.includes('/user/passwordLogin')) {
+      return config
+    }
+
+    const userStore = useUserStore()
+    let token = userStore.authorization
+
+    if (config.url.includes('/user/refreshToken') && userStore.refreshToken) {
+      console.log('加refreshToken')
+      config.headers['refreshToken'] = userStore.refreshToken
+    }
+
     if (token) {
-      console.log('请求头添加token')
-      const token = useUserStore().token
-      config.headers['Authorization'] = 'Bearer ' + token
+      console.log('加Auth')
+      config.headers['Authorization'] = token
     }
 
     return config

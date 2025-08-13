@@ -1,8 +1,20 @@
 <script setup>
 import { ElMessage } from 'element-plus'
 import { onUnmounted, ref } from 'vue'
-import { userRegister, userLogin, userChangePassword, userSendSmsCode } from '@/api/user'
-// import router from '@/router'
+import {
+  userRegister,
+  userLogin,
+  userChangePassword,
+  userSendSmsCode,
+  userSendRegisterSmsCode,
+} from '@/api/user'
+import router from '@/router'
+
+import { useFlagStore, useUserStore } from '@/stores'
+const { ifLogin } = storeToRefs(useFlagStore())
+const { authorization, refreshToken } = storeToRefs(useUserStore())
+
+import { storeToRefs } from 'pinia'
 
 // 登录1 注册2 忘记密码3
 const option = ref(1)
@@ -46,17 +58,16 @@ const checkEmail = (email) => {
 
 // 检验密码位数
 const checkPassWord = () => {
-  if (passWord.value.length < 8) {
-    ElMessage('密码最少为8位')
-    passWord.value = ''
+  // 检查密码长度是否在 8 到 16 位之间
+  if (passWord.value.length < 8 || passWord.value.length > 16) {
     return false
-  } else if (passWord.value.length > 16) {
-    ElMessage('密码最多为16位')
-    passWord.value = ''
-    return false
-  } else {
-    return true
   }
+
+  // 检查密码是否包含至少一个字母和一个数字
+  const hasLetter = /[a-zA-Z]/.test(passWord.value)
+  const hasNumber = /[0-9]/.test(passWord.value)
+
+  return hasLetter && hasNumber
 }
 
 // 检验两次密码是否一致
@@ -68,34 +79,64 @@ const checkSame = () => {
   }
 }
 
-// 检测所有
-const checkAll = () => {
+// 单独验证函数
+const validateEmail = () => {
   if (!email.value) {
     ElMessage.error('邮箱不能为空')
     return false
-  } else if (!smsCode.value) {
-    ElMessage.error('验证码不能为空')
+  }
+  if (!checkEmail(email.value)) {
+    ElMessage.error('邮箱格式错误')
     return false
-  } else if (!passWord.value || !repeatPassWord.value) {
+  }
+  return true
+}
+
+const validatePassword = () => {
+  if (!passWord.value) {
     ElMessage.error('密码不能为空')
     return false
   }
-
-  if (!checkPassWord() || !checkSame()) {
+  if (!checkPassWord()) {
+    ElMessage.error('密码需8-16位且包含字母和数字')
     return false
   }
+  return true
+}
 
+const checkAll = () => {
+  if (!validateEmail()) return false
+  if (option.value !== 1 && !smsCode.value) {
+    ElMessage.error('验证码不能为空')
+    return false
+  }
+  if (!validatePassword()) return false
+  if (option.value !== 1 && !checkSame()) return false
   return true
 }
 
 // 处理注册
 const handleRegister = async () => {
+  console.log('点击注册')
+
   if (!checkAll()) {
     return
   }
 
-  const res = await userRegister(email.value, smsCode.value, passWord.value)
-  console.log(res)
+  try {
+    const res = await userRegister(email.value, smsCode.value, passWord.value)
+    console.log('注册返回', res)
+    if (res.status !== 200) {
+      ElMessage.error(res.data.message)
+      clearAll()
+      return
+    }
+
+    ElMessage.success('注册成功')
+    handleChange(1)
+  } catch {
+    ElMessage.error('注册失败！请再次尝试')
+  }
 }
 
 // 处理登录
@@ -113,18 +154,50 @@ const handleLogin = async () => {
   }
 
   // 发送请求
-  const res = await userLogin(email.value, passWord.value)
-  console.log(res)
+  try {
+    console.log('login', email.value, passWord.value)
+    const res = await userLogin(email.value, passWord.value)
+    console.log('登录返回值', res)
+
+    if (res.status !== 200) {
+      ElMessage.error(res.data.message)
+      clearAll()
+      return
+    }
+    ElMessage.success('登录成功！')
+
+    ifLogin.value = true
+    authorization.value = res.data.data.authorization
+    refreshToken.value = res.data.data.refreshToken
+
+    router.push('/')
+  } catch (e) {
+    console.log(e)
+    ElMessage.error('登录失败！请再次尝试')
+  }
 }
 
 // 处理修改密码
 const handleChangePassword = async () => {
-  if (!checkAll()) {
+  // if (!checkAll()) {
+  //   return
+  // }
+
+  try {
+    const res = await userChangePassword(email.value, smsCode.value, passWord.value)
+    console.log('修改密码返回', res)
+    if (res.status !== 200) {
+      ElMessage.error(res.data.message)
+      clearAll()
+      return
+    }
+    ElMessage.success('修改密码成功！')
+    handleChange(1)
+  } catch (e) {
+    console.log('修改密码失败', e)
+    ElMessage.error('修改密码失败，请稍后再试！')
     return
   }
-
-  const res = await userChangePassword(email.value, smsCode.value, passWord.value)
-  console.log(res)
 }
 
 // 处理发送验证码
@@ -143,7 +216,12 @@ const handleSendSmsCode = async () => {
 
   // 调用接口
   try {
-    const res = await userSendSmsCode(email.value)
+    let res
+    if (option.value === 3) {
+      res = await userSendSmsCode(email.value)
+    } else if (option.value === 2) {
+      res = await userSendRegisterSmsCode(email.value)
+    }
     console.log(res)
     ElMessage.success('验证码发送成功')
   } catch (e) {
@@ -166,6 +244,17 @@ const handleSendSmsCode = async () => {
       ifSmsCodeDisabled.value = false
     }
   }, 1000)
+}
+
+// 处理点击提交按钮
+const handleButton = () => {
+  if (option.value === 1) {
+    handleLogin()
+  } else if (option.value === 2) {
+    handleRegister()
+  } else {
+    handleChangePassword()
+  }
 }
 
 onUnmounted(() => {
@@ -208,7 +297,7 @@ onUnmounted(() => {
           <i class="iconfont icon-mima"></i>
           <input
             type="password"
-            placeholder="密码 (8-16位)"
+            placeholder="8-16位包含字母、数字"
             v-model="passWord"
             autocomplete="current-password"
           />
@@ -229,11 +318,11 @@ onUnmounted(() => {
       </div>
 
       <!-- 登录按钮 -->
-      <button class="button" type="submit">
-        <div v-if="option === 1" @click="handleLogin">登录</div>
-        <div v-else-if="option === 2" @click="handleRegister">注册</div>
-        <div v-else-if="option === 3" @click="handleChangePassword">修改</div>
-      </button>
+      <div class="button" @click="handleButton">
+        <span v-if="option === 1">登录</span>
+        <span v-else-if="option === 2">注册</span>
+        <span v-else-if="option === 3">修改</span>
+      </div>
 
       <!-- 忘记密码 -->
       <div>
@@ -318,6 +407,8 @@ onUnmounted(() => {
   width: 40%;
   height: 90%;
   font-size: 1vw;
+  border: 0;
+  background-color: transparent;
 }
 .smsCode + button:hover {
   cursor: pointer;
@@ -328,7 +419,7 @@ onUnmounted(() => {
   width: 80%;
   height: 13%;
   border-radius: 100vh;
-  display: block;
+  /* display: block; */
   font-size: 1.5vw;
   background-color: #333 !important;
   color: #fff;

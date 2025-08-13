@@ -23,7 +23,12 @@ export const userChangePassword = (email, code, password) => {
   return request.put('/user/changePassword', { email, code, password })
 }
 
-// 发送验证码
+// 发送修改密码验证码
 export const userSendSmsCode = (email) => {
   return request.post(`/email/password?email=${email}`)
+}
+
+// 发送注册验证码
+export const userSendRegisterSmsCode = (email) => {
+  return request.post(`/email/register?email=${email}`)
 }

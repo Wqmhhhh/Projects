@@ -122,6 +122,10 @@ onUnmounted(() => {})
 
         <hr />
 
+        <div class="PS">学习路线指路：QQ频道搜索 "西安邮电大学 | 西邮码农"</div>
+
+        <hr />
+
         <!-- 优势 -->
         <div class="advantage">
           <h1>加入我们，你将得到 ——</h1>
@@ -291,7 +295,8 @@ hr {
   margin-bottom: 2vw;
 }
 .intro > div span,
-.intro > div div {
+.intro > div div,
+.PS {
   font-size: 1.5vw;
   line-height: 3vw;
 }
@@ -424,7 +429,8 @@ hr {
     font-size: 2vh;
   }
   .intro > div span,
-  .intro > div div {
+  .intro > div div,
+  .PS {
     font-size: 1.3vh;
     line-height: 2vh;
   }
@@ -450,8 +456,8 @@ hr {
   .front h2,
   .go h2,
   .java h2 {
-    height: 35%;
-    font-size: 1.8vh;
+    height: 40%;
+    font-size: 2vh;
   }
   .front div,
   .go div,
@@ -491,6 +497,11 @@ hr {
     height: 3vh;
     line-height: 3vh;
     font-size: 1vh;
+  }
+
+  hr {
+    transform: scaleY(0.5);
+    margin: 2vh 0;
   }
 }
 </style>

@@ -1,15 +1,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { applyAdd, applyGetInfo, applySecond } from '@/api/apply'
+import { applyAdd, applySecond, applyGetTime, applyUpdate } from '@/api/apply'
 import router from '@/router'
 import { ElMessage } from 'element-plus'
 import { useFlagStore } from '@/stores'
 import { storeToRefs } from 'pinia'
 
-const { ifRegister, progress } = storeToRefs(useFlagStore())
+const { registerInfo } = storeToRefs(useFlagStore())
 
 // 面试时间
-const Times = ['9月12日 9:00', '9月13日 9:00', '9月14日 9:00']
+const Times = ref([])
 
 // 意向
 const intentions = ['前端', 'GO', 'Java']
@@ -19,12 +19,13 @@ const number = ref()
 const name = ref()
 const majorClass = ref()
 const telephone = ref()
-const intention = ref(intentions[0])
-const comTime = ref(Times[0])
+const intention = ref()
+const comTime = ref()
 
 // 检验信息
 const check = () => {
   if (!telephone.value) {
+    ElMessage.error('手机号不能为空！')
     return false
   }
 
@@ -32,6 +33,7 @@ const check = () => {
   const phoneRegex = /^1[3-9]\d{9}$/
   if (!phoneRegex.test(telephone.value)) {
     ElMessage.error('手机号格式不正确')
+    telephone.value = ''
     return false
   }
 
@@ -45,60 +47,95 @@ const handleSubmit = async () => {
   }
 
   try {
-    const res = await applyAdd(
-      number.value,
-      name.value,
-      majorClass.value,
-      telephone.value,
-      comTime.value,
-      intention.value
-    )
-    console.log(res)
-    ElMessage.success('报名成功！')
+    let res
+
+    if (registerInfo.value.status === 2) {
+      res = await applySecond(comTime.value)
+      console.log('选择二面时间', res)
+      ElMessage.success('选择二面时间成功')
+    } else if (registerInfo.value.status === 1) {
+      console.log(telephone.value)
+      res = await applyUpdate(
+        number.value,
+        name.value,
+        majorClass.value,
+        telephone.value,
+        comTime.value,
+        intention.value
+      )
+      console.log('修改报名信息返回值', res)
+      if (res.data.code !== 200) {
+        ElMessage.warning(res.data.message)
+        return
+      }
+    } else {
+      res = await applyAdd(
+        number.value,
+        name.value,
+        majorClass.value,
+        telephone.value,
+        comTime.value,
+        intention.value
+      )
+      console.log('报名返回值', res)
+      if (res.data.code !== 200) {
+        ElMessage.warning(res.data.message)
+        return
+      }
+      ElMessage.success('报名成功')
+    }
+
+    router.push('./register')
   } catch (e) {
     console.log(e)
     ElMessage.error('提交失败，请再次尝试')
     return
   }
-
-  ifRegister.value = true
-
-  // 成功后返回报名页面
-  router.push('./register')
-  location.reload()
-}
-
-// 初始化信息
-const initialInfo = async () => {
-  try {
-    const res = await applyGetInfo()
-    console.log(res)
-  } catch {
-    ElMessage.error('获取报名信息失败')
-  }
-
-  // TODO:获取报名信息后决定获取第几次的面试时间
-  getTimes(1)
-
-  // TODO：给信息赋值
 }
 
 // 获取面试时间
 const getTimes = async (n) => {
   try {
-    const res = await applySecond(n)
-    console.log(res)
+    const res = await applyGetTime(n)
+    console.log('获取面试时间', res)
+    Times.value = [...res.data.data]
   } catch (e) {
-    console.log(e)
-    ElMessage.error('获取面试时间失败')
+    console.log('获取面试时间失败', e)
     router.push('./register')
     return
+  }
+
+  initialInfo()
+}
+
+// 初始化信息
+const initialInfo = () => {
+  if (registerInfo.value.status > 0) {
+    name.value = registerInfo.value.name
+    number.value = registerInfo.value.number
+    majorClass.value = registerInfo.value.majorClass
+    telephone.value = registerInfo.value.telephone
+    intention.value = registerInfo.value.intention
+
+    // 时间赋值
+    if (registerInfo.value.status === 1) {
+      comTime.value = registerInfo.value.firstTime
+    } else if (registerInfo.value.status === 2) {
+      comTime.value = registerInfo.value.secondTime
+    }
+  } else {
+    // 默认值
+    console.log(Times.value)
+    comTime.value = Times.value[0].id
+    intention.value = intentions[0]
   }
 }
 
 onMounted(() => {
-  if (progress.value < 1) {
-    initialInfo()
+  if (registerInfo.value.status === 0 || registerInfo.value.status === 1) {
+    getTimes(1)
+  } else if (registerInfo.value.status === 2) {
+    getTimes(2)
   }
 })
 </script>
@@ -118,14 +155,20 @@ onMounted(() => {
             placeholder="学号"
             v-model="number"
             required
-            :disabled="progress > 1"
+            :disabled="registerInfo.status > 1"
           />
         </div>
       </div>
 
       <div>
         <div>
-          <input type="text" placeholder="姓名" v-model="name" required :disabled="progress > 1" />
+          <input
+            type="text"
+            placeholder="姓名"
+            v-model="name"
+            required
+            :disabled="registerInfo.status > 1"
+          />
         </div>
       </div>
 
@@ -136,7 +179,7 @@ onMounted(() => {
             placeholder="专业班级"
             v-model="majorClass"
             required
-            :disabled="progress > 1"
+            :disabled="registerInfo.status > 1"
           />
         </div>
       </div>
@@ -148,7 +191,7 @@ onMounted(() => {
             placeholder="手机号"
             v-model="telephone"
             required
-            :disabled="progress > 1"
+            :disabled="registerInfo.status > 1"
           />
         </div>
       </div>
@@ -157,14 +200,14 @@ onMounted(() => {
         <div class="time">
           面试时间：
           <select name="time" id="" v-model="comTime">
-            <option :value="item" v-for="(item, index) in Times" :key="index">
-              {{ item }}
+            <option :value="item.id" v-for="item in Times" :key="item.id">
+              {{ item.time }}
             </option>
           </select>
         </div>
       </div>
 
-      <div v-show="progress <= 1">
+      <div v-show="registerInfo.status <= 1">
         <div class="intention">
           意向方向：
           <select name="intention" id="" v-model="intention">
@@ -239,11 +282,11 @@ onMounted(() => {
 }
 .intention,
 .time {
-  width: 90% !important;
+  width: 100% !important;
   justify-content: start;
 }
 select {
-  width: 50%;
+  width: 70%;
   background-color: transparent;
   border: 0;
   outline: none;
@@ -287,7 +330,7 @@ select {
     font-size: 2vh;
   }
   select {
-    width: 50%;
+    width: 70%;
     font-size: 1.8vh;
   }
   .box input {

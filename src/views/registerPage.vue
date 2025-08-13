@@ -5,14 +5,21 @@ import { applyGetInfo } from '@/api/apply'
 import { useFlagStore } from '@/stores/modules/flagStore'
 import { storeToRefs } from 'pinia'
 
-const { ifRegister, progress, ifSeconRegister } = storeToRefs(useFlagStore())
+const { progress, registerInfo } = storeToRefs(useFlagStore())
 
 // 处理截止时间
 const day = ref(0)
 const hour = ref(0)
 const min = ref(0)
+
+// TODO：设置报名截止时间
 const finalTime = new Date(2025, 7, 25, 0, 0)
 const ifTimeout = ref(false)
+
+// 报名按钮文字
+const buttonText = ref('')
+const ifButtonShow = ref(true)
+
 // 时间线结点类型
 let timeSpots = [
   {
@@ -32,6 +39,9 @@ let timeSpots = [
     status: 'success',
   },
 ]
+
+// 终止时间图标
+const processStatus = ref('process')
 
 // 处理倒计时
 const handleTime = () => {
@@ -57,26 +67,70 @@ const timer = setInterval(() => {
   handleTime()
 }, 60000)
 
-// 报名
-const handleRegister = () => {
+// 跳转表格页
+const handleRegisterTable = () => {
   router.push('/registerTable')
 }
 
-// 修改报名信息
-const handleChangeRegister = () => {}
+// 处理按钮文字、时间线进度、图标
+const handleButtonText = () => {
+  if (registerInfo.value.status === 0) {
+    progress.value = 0
 
-// 二面报名
-const handleSecond = () => {}
+    buttonText.value = '报名'
+    ifButtonShow.value = true
+  } else if (registerInfo.value.status === 1) {
+    if (registerInfo.value.message === '已报名') {
+      progress.value = 1
+      processStatus.value = 'process'
 
-// 修改二面报名信息
-const handleChangeSecond = () => {}
+      buttonText.value = '修改报名信息'
+      ifButtonShow.value = true
+    } else {
+      progress.value = 1
+      processStatus.value = 'error'
+
+      ifButtonShow.value = false
+    }
+  } else if (registerInfo.value.status === 2) {
+    if (registerInfo.value.message === '一面通过') {
+      progress.value = 2
+      processStatus.value = 'process'
+
+      buttonText.value = '选择二面时间'
+      ifButtonShow.value = true
+    } else {
+      progress.value = 2
+      processStatus.value = 'error'
+
+      ifButtonShow.value = false
+    }
+  } else if (registerInfo.value.status === 3) {
+    progress.value = 3
+    processStatus.value = 'success'
+    ifButtonShow.value = false
+  }
+}
 
 // 获取报名信息
 const getApplyInfo = async () => {
-  const res = await applyGetInfo()
-  console.log(res)
+  try {
+    const res = await applyGetInfo()
+    console.log('获取报名信息', res)
+    if (res.data.data) {
+      registerInfo.value = res.data.data
+      progress.value = registerInfo.value.status
+    } else {
+      registerInfo.value = {
+        status: 0,
+        message: '未报名',
+      }
+    }
 
-  // TODO：修改按钮（根据是否有二面时间决定二面按钮的效果）、报名进度
+    handleButtonText()
+  } catch (e) {
+    console.log('获取报名信息失败', e)
+  }
 }
 
 onMounted(() => {
@@ -87,9 +141,6 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(timer)
 })
-
-// 暂时信息
-const processStatus = ref('process') // TODO:二面失败显示 error
 </script>
 
 <template>
@@ -102,22 +153,18 @@ const processStatus = ref('process') // TODO:二面失败显示 error
           <!-- 顶部加粗 -->
           <div class="bold">
             <div>欢迎加入软件科技协会！</div>
-            <div v-show="progress <= 1">
-              <button @click="handleChangeRegister" v-if="ifRegister">修改报名信息</button>
-              <button @click="handleRegister" v-else>报名</button>
-            </div>
-
-            <div v-show="progress > 1">
-              <button @click="handleSecond" v-if="!ifSeconRegister">选择二面时间</button>
-              <button @click="handleChangeSecond" v-else>修改二面时间</button>
-            </div>
+            <button @click="handleRegisterTable" v-show="ifButtonShow">{{ buttonText }}</button>
           </div>
 
           <!-- 倒计时、报名 -->
-          <div class="regLeftBottom" v-show="!ifTimeout">
+          <div class="regLeftBottom">
             <div class="timer">
-              <div>报名结束倒计时：</div>
-              <div>{{ day }} 天 {{ hour }} 时 {{ min }} 分</div>
+              <div v-if="!ifTimeout">
+                <div>报名结束倒计时：</div>
+                <div>{{ day }} 天 {{ hour }} 时 {{ min }} 分</div>
+              </div>
+
+              <div v-else>报名已结束</div>
             </div>
           </div>
         </div>
@@ -182,8 +229,8 @@ const processStatus = ref('process') // TODO:二面失败显示 error
         <el-steps
           direction="vertical"
           finish-status="success"
-          :active="progress"
           :process-status="processStatus"
+          :active="progress"
           align-center
         >
           <el-step :title="item.content" v-for="(item, index) in timeSpots" :key="index" />
@@ -216,7 +263,7 @@ hr {
 
 /* 左侧信息 */
 .info {
-  width: 60vw;
+  width: 70vw;
   padding: 0 5%;
 }
 

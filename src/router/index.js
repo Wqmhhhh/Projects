@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-// import { useUserStore } from '@/stores'
-// import { storeToRefs } from 'pinia'
+import { useUserStore } from '@/stores'
+import { storeToRefs } from 'pinia'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -24,13 +24,13 @@ const router = createRouter({
   ],
 })
 
-// router.beforeEach((to) => {
-//   const { token } = storeToRefs(useUserStore())
-//   //   // 没有登录不能到报名页面
-//   if (!token.value && to.path !== '/login' && to.path !== '/') {
-//     return '/'
-//   }
-// })
+router.beforeEach((to) => {
+  const { authorization } = storeToRefs(useUserStore())
+  //   // 没有登录不能到报名页面
+  if (!authorization.value && to.path !== '/login' && to.path !== '/') {
+    return '/'
+  }
+})
 
 router.afterEach(() => {
   window.scrollTo(0, 0)

@@ -3,32 +3,34 @@ import { ElConfigProvider } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 // import { useRouter } from 'vue-router'
 
-// import { onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import TopFix from './components/TopFix.vue'
-// import loading from './components/loadingPage.vue'
-// import router from './router'
+import loading from './components/loadingPage.vue'
+import router from './router'
 
 // 转场动画
-// const Loading = ref()
-// const checkLoading = () => {
-//   const timer = setInterval(() => {
-//     if (document.readyState === 'complete') {
-//       clearInterval(timer)
-//       Loading.value.outAni()
-//     }
-//   }, 300)
-// }
+const Loading = ref()
 
-// onMounted(() => {
-//   checkLoading()
-//   router.beforeEach((to, from, next) => {
-//     Loading.value.inAi(next)
-//   })
-// })
+function checkLoading() {
+  const timer = setInterval(() => {
+    if (document.readyState === 'complete') {
+      clearInterval(timer)
+      Loading.value.outLoading()
+    }
+  }, 300)
+}
 
-// const router = useRouter()
-// router.push('/main')
+onMounted(() => {
+  checkLoading()
+  router.beforeEach((to, from, next) => {
+    Loading.value.inLoading(next)
+  })
+})
+
+defineExpose({
+  checkLoading,
+})
 </script>
 
 <template>
@@ -37,7 +39,7 @@ import TopFix from './components/TopFix.vue'
     <TopFix></TopFix>
 
     <!-- LOADING动画 -->
-    <!-- <loading ref="Loading"></loading> -->
+    <loading ref="Loading" :checkLoading="checkLoading"></loading>
 
     <router-view></router-view>
   </el-config-provider>
