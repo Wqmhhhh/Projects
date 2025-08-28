@@ -124,6 +124,7 @@ const getApplyInfo = async () => {
       registerInfo.value = {
         status: 0,
         message: '未报名',
+        // message: '一面通过',
       }
     }
 
@@ -153,7 +154,9 @@ onUnmounted(() => {
           <!-- 顶部加粗 -->
           <div class="bold">
             <div>欢迎加入软件科技协会！</div>
-            <button @click="handleRegisterTable" v-show="ifButtonShow">{{ buttonText }}</button>
+            <button @click="handleRegisterTable" v-show="ifButtonShow" :disabled="ifTimeout">
+              {{ buttonText }}
+            </button>
           </div>
 
           <!-- 倒计时、报名 -->
@@ -164,7 +167,7 @@ onUnmounted(() => {
                 <div>{{ day }} 天 {{ hour }} 时 {{ min }} 分</div>
               </div>
 
-              <div v-else>报名已结束</div>
+              <div v-else>报名未开始</div>
             </div>
           </div>
         </div>

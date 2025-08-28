@@ -125,7 +125,6 @@ const initialInfo = () => {
     }
   } else {
     // 默认值
-    console.log(Times.value)
     comTime.value = Times.value[0].id
     intention.value = intentions[0]
   }

@@ -36,7 +36,7 @@ export const applyGetInfo = () => {
 // 二面时间
 export const applySecond = (timeId) => {
   useUserStore().refresh()
-  return request.put(`/selectSecond/${timeId}`)
+  return request.put(`/enroll/selectSecond/${timeId}`)
 }
 
 // 获取面试时间
