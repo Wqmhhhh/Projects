@@ -33,8 +33,7 @@ const router = createRouter({
               children: [
                 {
                   path: 'works',
-                  component: () =>
-                    import('@/views/my/components/worksPage.vue'),
+                  component: () => import('@/views/my/components/worksPage.vue'),
                 },
                 {
                   path: 'like',
@@ -42,8 +41,7 @@ const router = createRouter({
                 },
                 {
                   path: 'private',
-                  component: () =>
-                    import('@/views/my/components/privatePage.vue'),
+                  component: () => import('@/views/my/components/privatePage.vue'),
                 },
               ],
             },

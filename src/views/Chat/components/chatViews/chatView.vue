@@ -1,29 +1,32 @@
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
-import youBubble from './bubbles/youBubble.vue'
-import myBubble from './bubbles/myBubble.vue'
-import fileMsg from './bubbles/fileMsg.vue'
-import recallMsg from './bubbles/recallMsg.vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
+import youBubble from '../bubbles/youBubble.vue'
+import myBubble from '../bubbles/myBubble.vue'
 
 import { useChatRoomInfo } from '@/stores'
 import { storeToRefs } from 'pinia'
-import { useShowFlags } from '@/stores'
+import { useShowFlags, useSocketStore } from '@/stores'
 
 const flagStore = useShowFlags()
 const { ifChatHisShow } = storeToRefs(flagStore)
+
+const socketIO = useSocketStore()
+
+// 导入接口
+import { updateMuteStatus, updateTopStatus, updateRemarkName } from '@/api/chat'
 
 // emoji库
 import data from 'emoji-mart-vue-fast/data/all.json'
 import 'emoji-mart-vue-fast/css/emoji-mart.css'
 import { Picker, EmojiIndex } from 'emoji-mart-vue-fast/src'
+import { ElMessage } from 'element-plus'
 
 const chatRoom = useChatRoomInfo()
-const { chatHisList } = storeToRefs(chatRoom)
+const { chatHisList, chatFriendInfo } = storeToRefs(chatRoom)
 
 const textButtonActive = ref(false)
 const textInput = ref('')
 const textContainer = ref()
-const ifWords = ref(true)
 
 const chatList = ref()
 const emojiPicker = ref()
@@ -34,6 +37,10 @@ const moreRef = ref()
 
 const ifMuted = ref(false)
 const ifPinTop = ref(false)
+
+// 是否编辑昵称
+const ifEditRemarkName = ref(false)
+const editRemarkName = ref('')
 
 // emoji
 const emojiOpen = ref(false)
@@ -87,29 +94,74 @@ const handleInput = () => {
 
 // 发送信息
 const handleSend = () => {
-  // type1为自己信息，type2为对方信息
-  // 暂定id=1111
-  const id = 1111
-  chatRoom.addChatHis(1, '../../../assets/pic2.png', id, textInput.value)
+  // 去除首尾换行符
+  textInput.value = textInput.value.trim()
+  if (textInput.value.length === 0) {
+    return
+  }
 
-  // 发送后将聊天内容滚动到最下方
-  nextTick(() => {
-    if (chatList.value) {
-      chatList.value.scrollTop = chatList.value.scrollHeight
-      console.log(chatList.value.scrollHeight)
-      textContainer.value.blur()
-    }
-  })
+  // 调用接口发消息
+  socketIO.sendMsg(chatFriendInfo.value.relation_id, btoa(encodeURIComponent(textInput.value)))
 
   // 发送后清空对话框
   textInput.value = ''
   textButtonActive.value = false
 }
 
+// 处理换行符
+const handleEnter = (e) => {
+  // 单独按下 Enter 键 : 发送消息
+  if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+    e.preventDefault() // 阻止默认的换行行为
+    handleSend()
+  }
+  // Ctrl+Enter 或 Command+Enter (Mac) - 换行
+  else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    // 允许默认的换行行为
+    textInput.value += '\n'
+  }
+  // Shift+Enter - 换行
+  else if (e.shiftKey && e.key === 'Enter') {
+    // 允许默认的换行行为
+    textInput.value += '\n'
+  }
+}
+
+// 发送图片
+const onUploadImage = () => {}
+
+// 发送文件
+const onUploadFile = () => {}
+
 // 处理聊天界面抽屉开闭
 const handleChatViewDrawer = () => {
   ifDrawerShow.value = !ifDrawerShow.value
-  console.log('显示抽屉')
+}
+
+// 处理修改备注
+const handleEditBegin = () => {
+  ifEditRemarkName.value = true
+  editRemarkName.value = chatFriendInfo.value.nick_name || chatFriendInfo.value.friend_info.name
+}
+
+const handleEditFinish = async () => {
+  if (editRemarkName.value.length === 0) {
+    ElMessage.error('备注不能为空！')
+    ifEditRemarkName.value = false
+    return
+  }
+
+  try {
+    const res = await updateRemarkName(chatFriendInfo.value.relation_id, editRemarkName.value)
+    console.log('修改备注返回值', res)
+
+    chatFriendInfo.value.nick_name = editRemarkName.value
+    ifEditRemarkName.value = false
+
+    ElMessage.success('修改备注成功！')
+  } catch (e) {
+    console.log('修改备注错误', e)
+  }
 }
 
 // 判断鼠标点击是否处在抽屉区域内
@@ -119,15 +171,12 @@ const onClickOutside = (e) => {
     return
   }
   // 点击非抽屉区域抽屉收回
-  if (
-    ifDrawerShow.value &&
-    drawerRef.value &&
-    !drawerRef.value.contains(e.target)
-  ) {
+  if (ifDrawerShow.value && drawerRef.value && !drawerRef.value.contains(e.target)) {
     ifDrawerShow.value = false
   }
 }
 
+// 抽屉是否显示
 watch(ifDrawerShow, () => {
   if (ifDrawerShow.value) {
     document.addEventListener('mousedown', onClickOutside)
@@ -136,10 +185,52 @@ watch(ifDrawerShow, () => {
   }
 })
 
-// 暂时信息
-const remarkName = ref('乌漆抹黑嘿嘿嘿')
-const nickName = ref('嘿嘿嘿')
-const douyinId = ref('1111111111111111')
+// 免打扰
+watch(ifMuted, async () => {
+  try {
+    const res = await updateMuteStatus(chatFriendInfo.value.relation_id, ifMuted.value)
+    console.log('设置免打扰返回值', res)
+  } catch (e) {
+    console.log('设置免打扰失败', e)
+  }
+})
+
+// 置顶
+watch(ifPinTop, async () => {
+  try {
+    const res = await updateTopStatus(chatFriendInfo.value.relation_id, ifPinTop.value)
+    console.log('设置置顶返回值', res)
+  } catch (e) {
+    console.log('设置置顶失败', e)
+  }
+})
+
+// 监听消息列表更新
+watch(
+  [chatHisList],
+  () => {
+    nextTick(() => {
+      console.log('触发watch,滚动', chatList.value)
+      if (chatList.value) {
+        chatList.value.scrollTop = chatList.value.scrollHeight
+      } else {
+        console.log('chatList容器未正确绑定')
+      }
+    })
+  },
+  { immediate: true, deep: true }
+)
+
+onMounted(() => {
+  nextTick(() => {
+    if (chatList.value) {
+      chatList.value.scrollTop = chatList.value.scrollHeight
+    } else {
+      console.log('聊天记录容器绑定错误')
+    }
+  })
+  textContainer.value.focus()
+})
 </script>
 
 <template>
@@ -148,7 +239,7 @@ const douyinId = ref('1111111111111111')
     <div class="fixTop">
       <!-- 名称 -->
       <div>
-        {{ remarkName }}
+        {{ chatFriendInfo.nick_name || chatFriendInfo.friend_info.name }}
       </div>
 
       <!-- 更多 -->
@@ -159,29 +250,31 @@ const douyinId = ref('1111111111111111')
 
     <!-- 聊天内容 -->
     <div class="chatList" ref="chatList">
-      <div v-for="(item, index) in chatHisList" :key="index">
+      <div v-for="item in chatHisList" :key="item.id">
         <!-- 对方气泡 -->
-        <youBubble v-if="item.type == 1">
-          <template #text v-if="ifWords">
-            {{ item.text }}
-          </template>
-          <template #image v-else>
-            <img :src="item.image" alt="" />
-          </template>
+        <youBubble
+          v-if="item.type == 2"
+          :type="item.msg_type"
+          :imgSrc="item.image"
+          :text="item.msg_content"
+          :file="[item.fileName, item.fileType, item.fileSize]"
+          :avatar="item.account_avatar"
+        >
         </youBubble>
 
         <!-- 己方气泡 -->
-        <myBubble v-else-if="item.type == 2">
-          <template #text v-if="ifWords">
-            {{ item.text }}
-          </template>
-          <template #image v-else>
-            <img :src="item.image" alt="" />
-          </template>
+        <myBubble
+          v-else-if="item.type == 1"
+          :type="item.msg_type"
+          :imgSrc="item.image"
+          :text="item.msg_content"
+          :file="[item.fileName, item.fileType, item.fileSize]"
+          :avatar="item.account_avatar"
+        >
         </myBubble>
 
         <!-- TODO：区分一下自己和对方撤回的消息 -->
-        <recallMsg></recallMsg>
+        <!-- <recallMsg></recallMsg> -->
       </div>
     </div>
 
@@ -205,8 +298,26 @@ const douyinId = ref('1111111111111111')
             @blur="emojiOpen = false"
           />
         </span>
-        <i class="iconfont icon-tupian"></i>
-        <i class="iconfont icon-wenjian"></i>
+
+        <el-upload
+          class=""
+          :auto-upload="false"
+          :show-file-list="false"
+          :on-change="onUploadImage"
+          name="image"
+        >
+          <i class="iconfont icon-tupian" @click="handleImg"></i>
+        </el-upload>
+
+        <el-upload
+          class=""
+          :auto-upload="false"
+          :show-file-list="false"
+          :on-change="onUploadFile"
+          name="file"
+        >
+          <i class="iconfont icon-wenjian" @click="handleFile"></i>
+        </el-upload>
       </div>
 
       <div class="text">
@@ -219,7 +330,7 @@ const douyinId = ref('1111111111111111')
           rows="6"
           @input="handleInput"
           v-model="textInput"
-          @keyup.enter="handleSend"
+          @keydown="handleEnter"
         ></textarea>
         <button
           class="textButton"
@@ -236,16 +347,22 @@ const douyinId = ref('1111111111111111')
       <!-- 头像及名称 -->
       <div class="drawerTop">
         <div class="drawerFace">
-          <img src="../../../assets/pic2.png" alt="" />
+          <img :src="chatFriendInfo.friend_info.avatar" alt="" />
         </div>
 
         <div class="drawerName">
           <!-- 备注名称 -->
-          <div class="remarkName">{{ remarkName }}</div>
+          <div v-if="ifEditRemarkName">
+            <input type="text" v-model="editRemarkName" @keyup.enter="handleEditFinish" />
+          </div>
+          <div class="remarkName" v-else @click="handleEditBegin">
+            {{ chatFriendInfo.nick_name || chatFriendInfo.friend_info.name }}
+          </div>
+
           <!-- 昵称 -->
-          <div class="nickname">昵称：{{ nickName }}</div>
+          <div class="nickname">昵称：{{ chatFriendInfo.friend_info.name }}</div>
           <!-- 抖音号 -->
-          <div class="douyinId">抖音号：{{ douyinId }}</div>
+          <div class="douyinId">抖音号：{{ chatFriendInfo.friend_info.account_id }}</div>
         </div>
       </div>
 
@@ -304,7 +421,7 @@ const douyinId = ref('1111111111111111')
 /* 文字条 */
 .chatList {
   width: 842px;
-  height: 55%;
+  height: 337px;
   overflow-y: scroll;
 }
 
@@ -321,6 +438,8 @@ const douyinId = ref('1111111111111111')
   height: 35px;
   line-height: 35px;
   position: relative;
+  display: flex;
+  justify-content: start;
 }
 .iconfont {
   font-family: 'iconfont' !important;
@@ -436,9 +555,19 @@ textarea::-webkit-scrollbar-track,
 .drawerName {
   width: 170px;
 }
+.drawerName > div:first-child,
+.drawerName > div:nth-child(2) {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 .drawerName .remarkName {
   font-size: 17px;
   color: #d6d3d3;
+  margin-bottom: 5px;
+}
+.drawerName input {
+  font-size: 17px;
   margin-bottom: 5px;
 }
 .drawerName div:not(:first-child) {

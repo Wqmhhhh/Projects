@@ -33,6 +33,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), // 可选，用于重写请求路径
       },
+      '/chatApi': {
+        // target: 'http://192.168.3.225:8888',
+        target: 'http://8.137.23.88:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/chatApi/, ''), // 可选，用于重写请求路径
+      },
       onProxyReq(proxyReq) {
         proxyReq.removeHeader('origin')
       },

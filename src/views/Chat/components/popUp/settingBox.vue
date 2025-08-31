@@ -1,12 +1,15 @@
 <script setup>
-import { ref, reactive, nextTick } from 'vue'
-import { useChatUserInfo, useShowFlags } from '@/stores'
+import { reactive } from 'vue'
+import { useChatUserInfo, useShowFlags, useChatRoomInfo } from '@/stores'
 import { storeToRefs } from 'pinia'
-import { accountDelete, updateAccountInfo } from '@/api/chat'
 import { ElMessage } from 'element-plus'
 
-const { name, gender, signature, avatar, id } = storeToRefs(useChatUserInfo())
+const { name, gender, avatar, id, accountList, ifHaveAccount } = storeToRefs(useChatUserInfo())
 const { ifSettingShow } = storeToRefs(useShowFlags())
+
+// 导入接口
+import { accountDelete, updateAccountInfo, getAllAccounts } from '@/api/chat'
+import router from '@/router'
 
 // 编辑状态
 const isEditing = reactive({
@@ -15,80 +18,61 @@ const isEditing = reactive({
 })
 
 // 性别选择相关
-const isGenderDropdownOpen = ref(false)
 const genderOptions = ['女', '男', '武装直升机', '沃尔玛购物袋']
 
 // 编辑
 const startEditing = (field) => {
   isEditing[field] = true
   // 下一个tick聚焦输入框
-  nextTick(() => {
-    const inputRef =
-      field === 'name' ? nameInputRef.value : signatureInputRef.value
-    inputRef?.focus()
-  })
 }
 
 const finishEditing = (field) => {
   isEditing[field] = false
 }
 
-// 切换性别
-const toggleGenderDropdown = () => {
-  isGenderDropdownOpen.value = !isGenderDropdownOpen.value
-}
+// 获取用户的所有账号
+const getUserAccounts = async () => {
+  try {
+    const res = await getAllAccounts()
+    console.log('获取用户所有账号返回值', res)
 
-const selectGender = (gender) => {
-  userData.gender = gender
-  isGenderDropdownOpen.value = false
-}
-
-// 头像上传
-// const triggerAvatarUpload = () => {
-//   avatarInputRef.value?.click()
-// }
-
-// const handleAvatarChange = (event) => {
-//   const target = event.target
-//   if (target.files && target.files[0]) {
-//     const reader = new FileReader()
-//     reader.onload = (e) => {
-//       if (e.target?.result) {
-//         userData.avatar = e.target.result
-//       }
-//     }
-//     reader.readAsDataURL(target.files[0])
-//   }
-// }
-// 更新头像
-let file
-const onUploadFile = async (e) => {
-  file = e.raw
-  // 此处为选中，还未上传，上传在提交按钮处
-  avatar.value = URL.createObjectURL(e.raw)
+    accountList.value = [...res.data.data.list]
+    if (accountList.value.length > 0) {
+      ifHaveAccount.value = true
+    }
+  } catch (e) {
+    console.log('获取用户所有账号失败', e)
+  }
 }
 
 // 注销账号
 const confirmAccountDeletion = async () => {
   if (confirm('确定要注销账号吗？此操作不可恢复')) {
-    const res = await accountDelete(id)
+    const res = await accountDelete(id.value)
     console.log('注销账号返回', res)
+
+    ifSettingShow.value = false
+
+    router.push('/chatSelect')
+    getUserAccounts()
   }
 }
 
 // 关闭弹框
 const handleExit = async () => {
-  // TODO:提交所有更改,库中的信息手动更新
-  // const res = await updateAccountInfo(
-  //   id.value,
-  //   name.value,
-  //   gender.value,
-  //   signature.value
-  // )
-  // console.log('修改账号信息返回', res)
+  const res = await updateAccountInfo(name.value, gender.value, '签名占位')
+  console.log('修改账号信息返回', res)
 
   ElMessage.success('修改账户信息成功！')
   ifSettingShow.value = false
+}
+
+// 退出登录
+const handleLogOut = async () => {
+  useChatUserInfo().clearSome()
+  ifSettingShow.value = false
+  useChatRoomInfo().clearAll()
+  router.push('/chatSelect')
 }
 </script>
 
@@ -112,16 +96,8 @@ const handleExit = async () => {
         <div class="info-content" @click="triggerAvatarUpload">
           <!-- 隐藏的文件上传输入 -->
           <div class="userPic">
-            <el-upload
-              class=""
-              :auto-upload="false"
-              :show-file-list="false"
-              :on-change="onUploadFile"
-              name="image"
-            >
-              <img v-if="avatar" :src="avatar" class="avatar" />
-              <div v-else><i class="iconfont icon-24px"></i></div>
-            </el-upload>
+            <img v-if="avatar" :src="avatar" class="avatar" />
+            <div v-else><i class="iconfont icon-24px"></i></div>
           </div>
         </div>
       </div>
@@ -129,11 +105,7 @@ const handleExit = async () => {
       <!-- 用户名信息项 -->
       <div class="info-item flex">
         <span class="info-label">名称</span>
-        <div
-          class="info-content user-name"
-          @click="startEditing('name')"
-          v-if="!isEditing.name"
-        >
+        <div class="info-content user-name" @click="startEditing('name')" v-if="!isEditing.name">
           {{ name }}
         </div>
         <input
@@ -156,28 +128,6 @@ const handleExit = async () => {
         </select>
       </div>
 
-      <!-- 个性签名信息项 -->
-      <div class="info-item">
-        <span class="info-label">个性签名</span>
-        <div
-          class="info-content user-signature"
-          @click="startEditing('signature')"
-          v-if="!isEditing['signature']"
-        >
-          {{ signature }}
-        </div>
-
-        <input
-          v-else
-          type="text"
-          v-model="signature"
-          @keyup.enter="finishEditing('signature')"
-          @blur="finishEditing('signature')"
-          class="signature-input"
-          ref="signatureInputRef"
-        />
-      </div>
-
       <!-- 用户ID信息项（不可编辑） -->
       <div class="info-item">
         <span class="info-label">ID</span>
@@ -188,6 +138,7 @@ const handleExit = async () => {
     </div>
 
     <!-- 底部操作按钮 -->
+    <div class="dialog-footer logout" @click="handleLogOut">退出登录</div>
     <div class="dialog-footer" @click="confirmAccountDeletion">注销账号</div>
   </el-dialog>
 </template>
@@ -219,15 +170,17 @@ const handleExit = async () => {
   aspect-ratio: 1;
   border: 2px dashed rgba(0, 0, 0, 0.247);
   justify-content: center;
-  border-radius: 2vh;
+  align-items: start;
+  border-radius: 1vh;
   overflow: hidden;
 }
 .userPic img {
-  height: calc(15vh * 0.8);
+  height: 12vh;
 }
 .iconfont {
   font-family: 'iconfont';
   font-size: 5vh;
+  line-height: 12vh;
 }
 
 /* select */
@@ -262,7 +215,6 @@ select {
 .info-item:hover:not(:last-of-type) {
   background-color: #00000028;
 }
-
 .dialog-footer {
   height: 10vh;
   font-size: 3vh;
@@ -272,6 +224,9 @@ select {
 }
 .dialog-footer:hover {
   cursor: pointer;
+}
+.logout {
+  color: #000;
 }
 </style>
 

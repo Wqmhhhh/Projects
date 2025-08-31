@@ -1,11 +1,13 @@
 import axios from 'axios'
 
 // 导入库
-import { useUserStore } from '@/stores'
+import { useChatUserInfo } from '@/stores'
+
+// 导入加载动画
+import { storeToRefs } from 'pinia'
 
 // 基础地址：后端服务器的API接口
-// const baseURL = 'http://192.168.3.76:8080'
-const baseURL = '/api'
+const baseURL = '/chatApi'
 
 // 创建 Axios 实例
 const instance = axios.create({
@@ -23,23 +25,14 @@ const instance = axios.create({
 instance.interceptors.request.use(
   // 发送请求前的操作
   (config) => {
-    const UserStore = useUserStore()
-    const { user, token } = UserStore
+    const UserStore = useChatUserInfo()
+    const { emailToken, accountToken } = storeToRefs(UserStore)
 
     // 需要请求头的路径数组
-    const specificPath = ['/userInfo/modifyUserInfo', '/userInfo/modifyImage']
+    if (!(config.url.includes('/user/register') || config.url.includes('/user/login'))) {
+      let token = accountToken.value ? accountToken.value : emailToken.value
 
-    if (specificPath.some((path) => config.url.includes(path))) {
-      // 在请求头中添加认证信息字段
-      config.headers['headerUserId'] = user.id
-      config.headers['headerUserToken'] = token
-      console.log('添加请求头', user.id, token)
-    }
-
-    if (config.url.includes('/userInfo/modifyImage') || config.url.includes('/vlog/publish1')) {
-      config.headers['Content-Type'] = 'multipart/form-data'
-    } else {
-      config.headers['Content-Type'] = 'application/json'
+      config.headers['Authorization'] = 'Bearer ' + token
     }
 
     console.log('Content-Type', config.headers['Content-Type'])

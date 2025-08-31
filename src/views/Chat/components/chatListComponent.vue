@@ -4,30 +4,33 @@ import { useChatRoomInfo } from '@/stores/modules/chatListInfo'
 import { storeToRefs } from 'pinia'
 
 const chatStore = useChatRoomInfo()
-const { chatListActiveIndex } = storeToRefs(chatStore)
+const { chatListActiveID, naviBarIndex, newFriActiveID } = storeToRefs(chatStore)
 
 const props = defineProps({
-  information: Object,
+  information: {
+    type: Object,
+  },
+  message: {
+    type: String,
+  },
 })
-const info = ref(props.information)
+
+const msgShow = ref('')
+const nameShow = ref('')
 
 // 处理文字过长
 const handleText = () => {
-  info.value.name =
-    info.value.name.length > 10
-      ? info.value.name.substring(0, 7) + '...'
-      : info.value.name
-  if (info.value.msg) {
-    info.value.msg =
-      info.value.msg.length > 10
-        ? info.value.msg.substring(0, 10) + '...'
-        : info.value.msg
-  }
-}
+  // 名称
+  nameShow.value =
+    props.information.name.length > 10
+      ? props.information.name.substring(0, 7) + '...'
+      : props.information.name
 
-// 处理点击列表元素
-const handleListActive = () => {
-  chatStore.setChatListActiveIndex(info.value.id)
+  // 信息
+  if (props.message) {
+    msgShow.value =
+      props.message.length > 10 ? props.message.substring(0, 10) + '...' : props.message
+  }
 }
 
 onMounted(() => {
@@ -38,22 +41,24 @@ onMounted(() => {
 <template>
   <div
     class="box"
-    :class="{ BoxActive: chatListActiveIndex === info.id }"
-    @click="handleListActive"
+    :class="{
+      BoxActive:
+        (naviBarIndex === 'newFri' && newFriActiveID === props.information.account_id_1) ||
+        (naviBarIndex === 'chat' && chatListActiveID === props.information.account_id),
+    }"
   >
     <div class="img">
-      <!-- TODO:改头像 -->
-      <img src="@/assets/image.ico" alt="" />
+      <img :src="props.information.avatar" alt="" />
     </div>
 
     <div class="text">
-      <div>{{ info.name }}</div>
-      <div class="grey" v-if="info.msg">{{ info.msg }}</div>
+      <div>{{ nameShow }}</div>
+      <div class="grey" v-if="msgShow">{{ msgShow }}</div>
     </div>
 
-    <div class="icon" v-if="info.time">
-      <div class="grey">{{ info.time }}</div>
-      <div v-show="info.ifMuted">
+    <div class="icon" v-if="props.information.time">
+      <div class="grey">{{ props.information.time }}</div>
+      <div v-show="props.information.ifMuted">
         <el-icon class="grey"><MuteNotification /></el-icon>
       </div>
     </div>

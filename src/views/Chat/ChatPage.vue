@@ -1,16 +1,18 @@
 <script setup>
 import chatListComponent from './components/chatListComponent.vue'
-import chatView from './components/chatView.vue'
+import chatView from './components/chatViews/chatView.vue'
+import applyView from './components/chatViews/applyView.vue'
+import readApply from './components/chatViews/readApply.vue'
+
 import contextMenu from './components/contextMenu.vue'
+
 import chatHisPopUp from './components/popUp/chatHis-PopUp.vue'
 import settingBox from './components/popUp/settingBox.vue'
 
-import { onMounted, ref } from 'vue'
-// import { ElMessageBox } from 'element-plus'
+import { onMounted, onUnmounted, ref } from 'vue'
 
-import { Search, Close } from '@element-plus/icons-vue'
-import { useChatRoomInfo } from '@/stores/modules/chatListInfo'
-import { useShowFlags } from '@/stores'
+import { Search } from '@element-plus/icons-vue'
+import { useShowFlags, useChatRoomInfo, useChatUserInfo, useSocketStore } from '@/stores'
 
 import { storeToRefs } from 'pinia'
 import router from '@/router'
@@ -24,16 +26,27 @@ const { ifSettingShow } = storeToRefs(flagStore)
 const chatStore = useChatRoomInfo()
 const {
   naviBarIndex,
+
+  newFriActiveID,
+
   chatList,
   friendsList,
-  followList,
-  fansList,
+  newFriList,
+
   ifHaveChatList,
+  ifHaveNewFriList,
   ifHaveFriendList,
-  ifHaveFollowList,
-  ifHaveFansList,
-  ifHaveView,
+
+  viewIndex,
+
+  chatFriendInfo,
 } = storeToRefs(chatStore)
+
+// socketIO
+const sockIO = useSocketStore()
+
+// 导入接口
+import { getAllApplications, getAllFriends, getHomeRelations } from '@/api/chat'
 
 // 搜索
 const search = ref()
@@ -42,24 +55,36 @@ const searchInput = ref('')
 // 搜索视图是否显示
 const ifSearchViewShow = ref(false)
 
+// 聊天列表下拉框
+const menuPosition = ref({ x: 0, y: 0 })
+const activeMenuId = ref(null)
+
 // 置顶聊天
 const pinTop = () => {
   console.log('置顶聊天')
+
+  activeMenuId.value = null
 }
 
 // 标记未读信息
 const markAsNoRead = () => {
   console.log('标记未读聊天')
+
+  activeMenuId.value = null
 }
 
 // 消息免打扰
 const muted = () => {
   console.log('消息免打扰')
+
+  activeMenuId.value = null
 }
 
 // 删除聊天
 const deleteChat = () => {
   console.log('删除聊天')
+
+  activeMenuId.value = null
 }
 
 // 右键操作
@@ -85,24 +110,46 @@ const menuItems = [
 // 处理导航栏图标切换对应视图
 const handleChatActive = () => {
   ifSearchViewShow.value = false
+  handleBlur()
   chatStore.changeFlag('chat')
 }
-const handleFriendActive = () => {
+
+// 获取好友列表
+const handleFriendActive = async () => {
   ifSearchViewShow.value = false
+  handleBlur()
   chatStore.changeFlag('friend')
-}
-const handleFollowActive = () => {
-  ifSearchViewShow.value = false
-  chatStore.changeFlag('follow')
-}
-const handleFansActive = () => {
-  ifSearchViewShow.value = false
-  chatStore.changeFlag('fans')
+
+  try {
+    const res = await getAllFriends()
+    console.log('获取好友列表', res)
+    if (res.data.data.list) friendsList.value = [...res.data.data.list]
+    if (friendsList.value.length > 0) {
+      ifHaveFriendList.value = true
+    }
+  } catch (e) {
+    console.log('获取好友列表失败', e)
+  }
 }
 
-// 返回视频页面
+// 获取好友申请列表
+const handleNewFriActive = async () => {
+  const res = await getAllApplications()
+  console.log('好友申请列表', res)
+  if (res.data.data.list) newFriList.value = [...res.data.data.list]
+
+  ifSearchViewShow.value = false
+  handleBlur()
+  chatStore.changeFlag('newFri')
+
+  newFriActiveID.value = null
+}
+
+// 返回选择账号页面
 const handleBack = () => {
-  router.push('/main/recommend')
+  useChatUserInfo().clearSome()
+  router.push('/chatSelect')
+  useChatRoomInfo().clearAll()
 }
 
 // 点击搜索显示对应效果
@@ -120,7 +167,7 @@ const handleBlur = () => {
 
 const handleSearchClose = () => {
   ifSearchViewShow.value = false
-  search.value.blur()
+  handleBlur()
 }
 
 // 点击设置显示编辑信息
@@ -138,12 +185,115 @@ const handleQues = () => {
 }
 
 // 右键点击聊天列表显示下拉框进行操作
-const onRightClick = () => {
-  console.log('点击右键')
+const onRightClick = (e) => {
+  // 判断是否为子元素
+  let chatItem = null
+  let target = e.target
+  for (let i = 0; i < 5; i++) {
+    if (target.hasAttribute('data-id') && target.hasAttribute) {
+      chatItem = target
+    }
+    target = target.parentNode
+  }
+
+  if (!chatItem) {
+    return
+  }
+
+  // 根据子元素状态修改menuItems的值
+
+  // 传入position
+  menuPosition.value = {
+    x: e.clientX,
+    y: e.clientY,
+  }
+
+  // 子元素的Id赋值
+  activeMenuId.value = chatItem.getAttribute('data-id')
+}
+
+// 聊天记录列表左键显示对应聊天记录
+const handleGetChatView = (e) => {
+  // 判断是否为子元素
+  let chatItem = null
+  let target = e.target
+  for (let i = 0; i < 5; i++) {
+    if (target.hasAttribute('data-id') && target.hasAttribute) {
+      chatItem = target
+    }
+    target = target.parentNode
+  }
+
+  if (!chatItem) {
+    return
+  }
+
+  // TODO:获取消息
+}
+
+// 处理申请好友视图
+const handleSendApply = () => {
+  viewIndex.value = 3
+  newFriActiveID.value = null
+}
+
+// 处理好友申请视图
+const emitItem = ref()
+const handleReadApply = (item) => {
+  emitItem.value = item
+  viewIndex.value = 4
+
+  newFriActiveID.value = item.account_id_1
+}
+
+// 处理选择好友聊天
+const handleChatWithFriend = (e) => {
+  // 查找聊天列表中是否有该元素
+  const index = chatList.value.findIndex((item) => item.relation_id === e.relation_id)
+  if (index !== -1) {
+    chatList.value.splice(index, 1)
+  }
+  chatList.value.unshift(e)
+
+  // 跳转聊天视口
+  viewIndex.value = 2
+  handleChatActive()
+
+  // 添加好友信息到当前正在聊天
+  chatFriendInfo.value = e
+
+  chatStore.chatHisList = []
+  // 获取聊天记录
+  chatStore.setChatListActive(e.friend_info.account_id, e.relation_id)
+}
+
+// 初始化
+const initial = async () => {
+  // 建立WebSocket
+  sockIO.connect()
+
+  // 获取首页聊天列表
+  try {
+    const res = await getHomeRelations()
+    console.log('获取首页聊天列表', res)
+    chatList.value = [...res.data.data.list]
+    ifHaveChatList.value = true
+  } catch (e) {
+    console.log('获取首页聊天列表失败', e)
+  }
 }
 
 onMounted(() => {
-  chatStore.changeFlag(naviBarIndex.value)
+  initial()
+
+  window.addEventListener('click', () => {
+    // 聊天记录列表左键失焦下拉框消失
+    activeMenuId.value = null
+  })
+})
+
+onUnmounted(() => {
+  sockIO.disconnect()
 })
 </script>
 
@@ -180,8 +330,8 @@ onMounted(() => {
             <!-- 新的朋友 -->
             <div
               class="follow"
-              :class="{ followActive: naviBarIndex === 'follow' }"
-              @click="handleFollowActive"
+              :class="{ followActive: naviBarIndex === 'newFri' }"
+              @click="handleNewFriActive"
             >
               <i class="iconfont icon-xindepengyou"></i>
             </div>
@@ -190,10 +340,7 @@ onMounted(() => {
           <div class="FixBottom">
             <!-- 设置 -->
             <div class="setting">
-              <i
-                class="iconfont icon-shezhi"
-                @click="handleChangeUserInfor"
-              ></i>
+              <i class="iconfont icon-shezhi" @click="handleChangeUserInfor"></i>
             </div>
 
             <!-- 更多 -->
@@ -224,9 +371,7 @@ onMounted(() => {
               v-model="searchInput"
             >
               <template #suffix>
-                <el-icon @click.stop="handleSearchClose" class="searchClose"
-                  ><Close
-                /></el-icon>
+                <el-icon @click.stop="handleSearchClose" class="searchClose"><Close /></el-icon>
               </template>
             </el-input>
           </div>
@@ -234,49 +379,63 @@ onMounted(() => {
           <!-- 列表视图 -->
           <div class="List">
             <!-- 聊天列表 -->
-            <div v-if="naviBarIndex === 'chat'">
-              <div v-if="!ifHaveChatList" class="listDefault">
-                聊天记录为空
-                <br />
-                快去找人聊天吧！
+            <div
+              v-if="naviBarIndex === 'chat'"
+              @contextmenu.prevent="onRightClick"
+              @click="handleGetChatView"
+            >
+              <div v-if="!ifHaveChatList" class="listDefault">聊天记录为空</div>
+
+              <div
+                v-for="item in chatList"
+                :key="item.friend_info.account_id"
+                :data-id="item.friend_info.account_id"
+                v-else
+                @click="handleChatWithFriend(item)"
+              >
+                <chatListComponent :information="item.friend_info"></chatListComponent>
               </div>
 
-              <div v-for="item in chatList" :key="item.id" v-else>
-                <contextMenu :items="menuItems">
-                  <chatListComponent
-                    :information="item"
-                    @contextmenu.prevent="onRightClick"
-                  ></chatListComponent
-                ></contextMenu>
-              </div>
+              <!-- 下拉选项框 -->
+              <contextMenu
+                v-if="activeMenuId"
+                :visible="Boolean(activeMenuId)"
+                :items="menuItems"
+                :position="menuPosition"
+                @close="activeMenuId === null"
+              ></contextMenu>
             </div>
 
             <!-- 朋友列表 -->
             <div v-if="naviBarIndex === 'friend'">
-              <div v-if="!ifHaveFriendList" class="listDefault">
-                帅到没朋友吗 有点意思
-              </div>
-              <div v-for="item in friendsList" :key="item.id" v-else>
-                <chatListComponent :information="item"></chatListComponent>
+              <div v-if="!ifHaveFriendList" class="listDefault">没朋友吗？ 找呀找呀找朋友</div>
+
+              <div
+                v-for="item in friendsList"
+                :key="item.friend_info.account_id"
+                v-else
+                @click="handleChatWithFriend(item)"
+              >
+                <chatListComponent :information="item.friend_info"></chatListComponent>
               </div>
             </div>
 
-            <!-- 关注列表 -->
-            <div v-if="naviBarIndex === 'follow'">
-              <div v-if="!ifHaveFollowList" class="listDefault">
-                竟然一个关注的人都没有吗!
+            <!-- 新朋友列表 -->
+            <div v-if="naviBarIndex === 'newFri'">
+              <!-- 顶部搜索好友 -->
+              <div class="sendApply" @click="handleSendApply">
+                <i class="iconfont icon-xindepengyou"></i>
+                添加新朋友
               </div>
-              <div v-for="item in followList" :key="item.id" v-else>
-                <chatListComponent :information="item"></chatListComponent>
-              </div>
-            </div>
 
-            <!-- 粉丝列表 -->
-            <div v-if="naviBarIndex === 'fans'">
-              <div v-if="!ifHaveFansList" class="listDefault">
-                0个人是你的粉丝
-              </div>
-              <div v-for="item in fansList" :key="item.id" v-else>
+              <div v-if="!ifHaveNewFriList" class="listDefault">0个人找你交朋友</div>
+
+              <div
+                v-for="item in newFriList"
+                :key="item.account_id_1"
+                v-else
+                @click="handleReadApply(item)"
+              >
                 <chatListComponent :information="item"></chatListComponent>
               </div>
             </div>
@@ -288,12 +447,21 @@ onMounted(() => {
 
         <!-- 视图栏 -->
         <el-col :span="18" class="column columnView">
-          <div v-if="!ifHaveView" class="ViewDefault">
+          <div v-if="viewIndex === 1" class="ViewDefault">
             <i class="iconfont icon-yinfu2"></i>
             <span>抖音·记录美好生活</span>
           </div>
-          <div v-else>
+
+          <div v-else-if="viewIndex === 2">
             <chatView></chatView>
+          </div>
+
+          <div v-else-if="viewIndex === 3">
+            <applyView></applyView>
+          </div>
+
+          <div v-else-if="viewIndex === 4">
+            <readApply :item="emitItem"></readApply>
           </div>
         </el-col>
       </el-row>
@@ -474,5 +642,27 @@ onMounted(() => {
   margin: 25% auto;
   text-align: center;
   user-select: none;
+}
+
+/* 添加朋友 */
+.sendApply {
+  width: 100%;
+  height: 70px;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  user-select: none;
+  font-size: 17px;
+  background-color: rgba(22, 24, 35, 0.583);
+  color: #ffffffda;
+}
+.sendApply .iconfont {
+  font-size: 30px;
+  margin-right: 5px;
+}
+.sendApply:hover {
+  background-color: rgb(22, 24, 35);
+  cursor: pointer;
 }
 </style>

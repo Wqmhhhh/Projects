@@ -1,26 +1,62 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useChatUserInfo = defineStore('ChatUser', () => {
-  const emailToken = ref()
+export const useChatUserInfo = defineStore(
+  'ChatUser',
+  () => {
+    const emailToken = ref()
 
-  const accountToken = ref()
+    const accountToken = ref()
 
-  const id = ref('111111111111')
-  const email = ref('3105324129@qq.com')
-  const name = ref('乌漆抹黑嘿嘿嘿')
-  const gender = ref('沃尔玛购物袋')
-  const signature = ref('地球online的一名NPC')
-  const avatar = ref()
+    const accountList = ref([])
+    const ifHaveAccount = ref(false)
 
-  return {
-    emailToken,
-    accountToken,
-    id,
-    email,
-    name,
-    gender,
-    signature,
-    avatar,
-  }
-})
+    const id = ref()
+    const email = ref()
+    const name = ref()
+    const gender = ref()
+    const signature = ref()
+    const avatar = ref()
+
+    const clearAll = () => {
+      accountList.value = []
+
+      emailToken.value = ''
+      accountToken.value = ''
+      id.value = ''
+      email.value = ''
+      name.value = ''
+      gender.value = ''
+      avatar.value = ''
+
+      ifHaveAccount.value = false
+    }
+
+    const clearSome = () => {
+      accountToken.value = ''
+      id.value = ''
+      name.value = ''
+      gender.value = ''
+      avatar.value = ''
+    }
+
+    return {
+      accountList,
+
+      emailToken,
+      accountToken,
+      id,
+      email,
+      name,
+      gender,
+      signature,
+      avatar,
+
+      ifHaveAccount,
+
+      clearAll,
+      clearSome,
+    }
+  },
+  { persist: true },
+)

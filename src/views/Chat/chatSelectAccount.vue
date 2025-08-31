@@ -3,21 +3,27 @@ import { ref, onMounted } from 'vue'
 import { getAllAccounts, accountCreate, getAccountToken } from '@/api/chat'
 import { ElMessage } from 'element-plus'
 
+import router from '@/router'
+
+// 导入库
+import { useChatUserInfo } from '@/stores'
+import { storeToRefs } from 'pinia'
+const userChat = useChatUserInfo()
+const {
+  accountList,
+  ifHaveAccount,
+  accountToken,
+  id: storeId,
+  name: storeName,
+  gender: storeGender,
+  avatar: storeAvatar,
+} = storeToRefs(userChat)
+
 // 显示创建账号
 const createAccountShow = ref(false)
 
 // 性别
 const genders = ['女', '男', '武装直升机', '沃尔玛购物袋']
-
-// 账号列表
-const accountList = ref([
-  {
-    id: '1111',
-    name: 'wqmhhhh',
-    avatar: '',
-    gender: '女',
-  },
-])
 
 // 账号列表父元素
 const listRef = ref()
@@ -42,34 +48,62 @@ const handleCreate = async () => {
     return
   }
 
-  const res = await accountCreate(name, gender, signature)
-  console.log('创建账号返回', res)
+  try {
+    const res = await accountCreate(name.value, gender.value, signature.value)
+    console.log('创建账号返回', res)
 
-  if (res.status === 200) {
-    ElMessage.success('创建账号成功')
+    ElMessage.success('创建账号成功！')
+
+    // 获取账号列表、跳转回原账号列表
+    getUserAccounts()
+    createAccountShow.value = false
+  } catch (e) {
+    ElMessage.error('创建账号失败，请稍后再试')
+    console.log('创建账号失败', e)
+    return
   }
-
-  // 获取账号列表、跳转回原账号列表
-  getUserAccounts()
-  createAccountShow.value = false
 }
 
 // 获取用户的所有账号
 const getUserAccounts = async () => {
-  const res = await getAllAccounts()
-  console.log('获取用户所有账号返回值', res)
-  // TODO:填充账号列表信息
+  try {
+    const res = await getAllAccounts()
+    console.log('获取用户所有账号返回值', res)
+
+    accountList.value = [...res.data.data.list]
+    if (accountList.value.length > 0) {
+      ifHaveAccount.value = true
+    }
+  } catch (e) {
+    console.log('获取用户所有账号失败', e)
+  }
 }
 
 // 选择账号登录
 const handleSelect = async (item) => {
-  const res = await getAccountToken(item.id)
-  console.log('获取账号token', res)
+  try {
+    const res = await getAccountToken(item.id)
+    console.log('获取账号token', res)
 
-  // TODO:store库里存用户信息
-  // TODO:获取信息列表
+    accountToken.value = res.data.data.account_token.token
+    storeName.value = item.name
+    storeAvatar.value = item.avatar
+    storeGender.value = item.gender
+    storeId.value = item.id
+    ElMessage.success('登录成功！')
+  } catch (e) {
+    ElMessage.error('登录失败，请稍后再试')
+    console.log('获取账号token失败', e)
+    return
+  }
 
   router.push('/chat')
+}
+
+// 退出登录
+const backLogin = () => {
+  userChat.clearAll()
+  router.push('chatLogin')
 }
 
 onMounted(() => {
@@ -96,11 +130,7 @@ onMounted(() => {
           <div class="time">
             性别：
             <select name="gender" id="" v-model="gender">
-              <option
-                :value="item"
-                v-for="(item, index) in genders"
-                :key="index"
-              >
+              <option :value="item" v-for="(item, index) in genders" :key="index">
                 {{ item }}
               </option>
             </select>
@@ -124,15 +154,16 @@ onMounted(() => {
           class="accountEach"
           @click="handleSelect(item)"
         >
-          <img src="../../assets/pic2.png" alt="" />
+          <img :src="item.avatar" alt="" />
           <div>{{ item.name }}</div>
         </div>
 
-        <div v-show="accountList.length === 0" class="default">暂无账号</div>
+        <div v-show="!ifHaveAccount" class="default">暂无账号</div>
       </div>
 
       <!-- 创建账号 -->
-      <div @click="handleChange">
+      <div @click="handleChange" class="bottomText">
+        <div @click="backLogin">退出登录</div>
         <div v-if="createAccountShow">账号列表</div>
         <div v-else>创建账号</div>
       </div>
@@ -143,7 +174,8 @@ onMounted(() => {
 <style scoped>
 /* flex */
 .container,
-.create > div {
+.create > div,
+.bottomText {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -175,6 +207,9 @@ onMounted(() => {
   font-size: 2vw;
   font-weight: normal;
 }
+.box > div:nth-child(2) {
+  justify-content: start;
+}
 .box > div:last-child {
   color: #333;
   font-size: 1.1vw;
@@ -188,6 +223,7 @@ onMounted(() => {
 .create {
   width: 90%;
   height: 60%;
+  justify-content: space-between !important;
 }
 .create > div {
   box-sizing: border-box;
@@ -288,5 +324,10 @@ select {
   font-size: 3.5vh;
   color: #ffffff83;
   line-height: 20vh;
+}
+
+.bottomText {
+  width: 60%;
+  justify-content: space-between;
 }
 </style>

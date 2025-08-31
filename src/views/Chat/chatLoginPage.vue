@@ -1,14 +1,15 @@
 <script setup>
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
-import {
-  userRegister,
-  userLogin,
-  userUpdatePassword,
-  emailSendCode,
-} from '@/api/chat'
+import { userRegister, userLogin, userUpdatePassword, emailSendCode } from '@/api/chat'
 import router from '@/router'
 // import router from '@/router'
+
+// 导入库
+import { useChatUserInfo } from '@/stores'
+import { storeToRefs } from 'pinia'
+const userChat = useChatUserInfo()
+const { emailToken, email: storeEmail } = storeToRefs(userChat)
 
 // 登录1 注册2 忘记密码3
 const option = ref(1)
@@ -74,7 +75,7 @@ const checkSame = () => {
   }
 }
 
-// 检测所有
+// TODO：检测所有:有问题
 const checkAll = () => {
   if (!email.value) {
     ElMessage.error('邮箱不能为空')
@@ -96,12 +97,20 @@ const checkAll = () => {
 
 // 处理注册
 const handleRegister = async () => {
-  if (!checkAll()) {
+  // if (!checkAll()) {
+  //   return
+  // }
+
+  try {
+    const res = await userRegister(email.value, passWord.value, smsCode.value)
+    console.log('注册返回', res)
+    ElMessage.success('注册成功！')
+  } catch (e) {
+    console.log('注册错误', e)
+    ElMessage.error('注册失败，请稍后再试')
+    clearAll()
     return
   }
-
-  const res = await userRegister(email.value, passWord.value, smsCode.value)
-  console.log('注册返回', res)
 
   // 注册成功跳转登录
   handleChange(1)
@@ -122,11 +131,22 @@ const handleLogin = async () => {
   }
 
   // 发送请求
-  const res = await userLogin(email.value, passWord.value)
-  console.log('登录返回', res)
+  try {
+    const res = await userLogin(email.value, passWord.value)
+    console.log('登录返回', res)
+    ElMessage.success('登录成功！')
+
+    emailToken.value = res.data.data.token.access_token
+    storeEmail.value = res.data.data.param_user_info.email
+  } catch (e) {
+    console.log('登录错误', e)
+    ElMessage.error('登录失败，请稍后再试')
+    clearAll()
+    return
+  }
 
   // 登录成功跳转chat页面
-  router.push('/chat')
+  router.push('/chatSelect')
 }
 
 // 处理修改密码
@@ -157,8 +177,15 @@ const handleSendSmsCode = async () => {
   ifSmsCodeDisabled.value = true
 
   // 调用接口
-  const res = await emailSendCode(email.value)
-  console.log('验证码返回', res)
+  try {
+    const res = await emailSendCode(email.value)
+    console.log('验证码返回', res)
+    ElMessage.success('验证码发送成功！')
+  } catch (e) {
+    console.log('验证码错误', e)
+    ElMessage.error('验证码发送失败')
+    ifSmsCodeDisabled.value = false
+  }
 
   // 设置倒计时
   timer = setInterval(() => {
@@ -178,7 +205,7 @@ const handleSendSmsCode = async () => {
 
 <template>
   <div class="container">
-    <form class="box">
+    <form class="box" @submit.prevent>
       <!-- 登录 or 注册 -->
       <div class="title">
         <div v-if="option === 1">登录</div>
@@ -189,24 +216,14 @@ const handleSendSmsCode = async () => {
       <!-- 邮箱 -->
       <div>
         <div>
-          <input
-            type="email"
-            placeholder="邮箱"
-            v-model="email"
-            autocomplete="email"
-          />
+          <input type="email" placeholder="邮箱" v-model="email" autocomplete="email" />
         </div>
       </div>
 
       <!-- 邮箱验证码 -->
       <div v-show="option === 2 || option === 3">
         <div class="smsCode">
-          <input
-            type="text"
-            placeholder="验证码"
-            v-model="smsCode"
-            autocomplete="off"
-          />
+          <input type="text" placeholder="验证码" v-model="smsCode" autocomplete="off" />
         </div>
         <button @click="handleSendSmsCode" :disabled="ifSmsCodeDisabled">
           {{ smsCodeButton }}

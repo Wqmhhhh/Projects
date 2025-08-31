@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { getMessagesBefore } from '@/api/chat'
+import { useChatUserInfo } from './chatUserInfo'
 
 // 列表信息
 export const useChatRoomInfo = defineStore('useChatList', () => {
@@ -9,136 +11,40 @@ export const useChatRoomInfo = defineStore('useChatList', () => {
   // 列表栏是否存在视图
   const ifHaveChatList = ref(false)
   const ifHaveFriendList = ref(false)
-  const ifHaveFollowList = ref(false)
-  const ifHaveFansList = ref(false)
+  const ifHaveNewFriList = ref(false)
 
-  // 视图栏是否存在视图
-  const ifHaveView = ref(true)
+  // 视图栏显示 1：默认视图 2：聊天视图 3：申请好友（发送）视图 4：申请好友视图
+  const viewIndex = ref(1)
+
   // 聊天列表激活选项
-  const chatListActiveIndex = ref()
+  const chatListActiveID = ref()
+
+  // 新朋友列表激活
+  const newFriActiveID = ref()
+
+  // 聊天好友信息
+  const chatFriendInfo = ref({})
 
   // 聊天列表
   const chatList = ref([
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      time: '13:53',
-      msg: '啊啊地哦啊囧1111111111111111111111111111',
-      ifMuted: false,
-      id: 2,
-    },
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      time: '12:23',
-      msg: '啊啊地哦啊囧1111111111111111111111111111',
-      ifMuted: false,
-      id: 1,
-    },
-
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      time: '13:53',
-      msg: '啊啊地哦啊囧1111111111111111111111111111',
-      ifMuted: true,
-      id: 3,
-    },
-
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      time: '13:53',
-      msg: '啊啊地哦啊囧1111111111111111111111111111',
-      ifMuted: true,
-      id: 4,
-    },
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      time: '13:53',
-      msg: '啊啊地哦啊囧1111111111111111111111111111',
-      ifMuted: true,
-      id: 5,
-    },
+    // {
+    //   pic: '../../../assets/image.png',
+    //   name: '这是一个标题1111111111111111111',
+    //   time: '13:53',
+    //   msg: '啊啊地哦啊囧1111111111111111111111111111',
+    //   ifMuted: false,
+    //   id: 2,
+    // },
   ])
 
   // 好友列表
-  const friendsList = ref([
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      id: 1,
-    },
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      id: 2,
-    },
-  ])
+  const friendsList = ref([])
 
-  // 关注列表
-  const followList = ref([
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      id: 1,
-    },
-    {
-      pic: '../../../assets/image.png',
-      name: '这是一个标题1111111111111111111',
-      id: 2,
-    },
-  ])
+  // 新朋友
+  const newFriList = ref([])
 
-  // 粉丝列表
-  const fansList = ref([])
-
-  // 聊天列表
-  const chatHisList = ref([
-    {
-      type: 1,
-      image: '../../../assets/pic2.png',
-      id: '1111',
-      text: 'kie1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
-    },
-    {
-      type: 1,
-      image: '../../../assets/pic2.png',
-      id: '1111',
-      text: 'kie1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
-    },
-    {
-      type: 2,
-      image: '../../../assets/pic1.png',
-      id: '1111',
-      text: 'kie1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
-    },
-    {
-      type: 2,
-      image: '../../../assets/pic1.png',
-      id: '1111',
-      text: 'kie1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
-    },
-  ])
-
-  // 添加聊天记录
-  const addChatHis = (type, image, id, text) => {
-    const obj = {
-      type,
-      image,
-      id,
-      text,
-    }
-    chatHisList.value.push(obj)
-
-    // 发送成功返回值
-    return true
-  }
-
-  // 撤回聊天记录
-
-  // 删除聊天记录
+  // 聊天记录列表
+  const chatHisList = ref([])
 
   // 设置列表默认显示
   const changeFlag = (index) => {
@@ -155,41 +61,92 @@ export const useChatRoomInfo = defineStore('useChatList', () => {
       ifHaveFriendList.value = false
     }
 
-    if (naviBarIndex.value === 'follow' && followList.value.length !== 0) {
-      ifHaveFollowList.value = true
+    if (naviBarIndex.value === 'newFri' && newFriList.value.length !== 0) {
+      ifHaveNewFriList.value = true
     } else {
-      ifHaveFollowList.value = false
-    }
-
-    if (naviBarIndex.value === 'fans' && fansList.value.length !== 0) {
-      ifHaveFansList.value = true
-    } else {
-      ifHaveFansList.value = false
+      ifHaveNewFriList.value = false
     }
   }
 
   // 设置聊天列表激活选项
-  const setChatListActiveIndex = (id) => {
-    chatListActiveIndex.value = id
+  const setChatListActive = async (accountid, id, page = 1) => {
+    chatListActiveID.value = accountid
 
-    // 调用接口请求数据
+    const currentTime = Date.now()
+
+    // 调用请求聊天接口请求数据
+    try {
+      const res = await getMessagesBefore(id, currentTime, page, 30)
+      console.log('获取聊天记录返回值', res)
+
+      let decodedList = res.data.data.list.map((item) => {
+        const type = item.account_id === useChatUserInfo().id ? 1 : 2
+
+        return {
+          ...item, // 保留其他字段
+          msg_content: decodeURIComponent(item.msg_content), // 解码消息内容
+          type, // 聊天气泡归属：1自己2对方
+        }
+      })
+
+      decodedList.reverse()
+
+      chatHisList.value.unshift(...decodedList)
+    } catch (e) {
+      console.log('获取聊天记录失败', e)
+    }
+  }
+
+  // 添加聊天记录
+  const addChatHis = (e) => {
+    e.msg_content = decodeURIComponent(e.msg_content)
+    e['type'] = e.account_id === useChatUserInfo().id ? 1 : 2
+
+    chatHisList.value.push(e)
+  }
+
+  // 撤回聊天记录
+
+  // 删除聊天记录
+
+  const clearAll = () => {
+    chatFriendInfo.value = {}
+    chatList.value = {}
+    friendsList.value = {}
+    newFriList.value = {}
+    chatHisList.value = {}
+
+    chatListActiveID.value = ''
+    newFriActiveID.value = ''
+
+    ifHaveChatList.value = false
+    ifHaveNewFriList.value = false
+    ifHaveFriendList.value = false
   }
 
   return {
+    chatFriendInfo,
+
     chatList,
     friendsList,
-    followList,
-    chatListActiveIndex,
-    ifHaveChatList,
-    ifHaveFollowList,
-    ifHaveFriendList,
-    ifHaveFansList,
-    ifHaveView,
-    naviBarIndex,
+    newFriList,
     chatHisList,
 
+    chatListActiveID,
+    newFriActiveID,
+
+    ifHaveChatList,
+    ifHaveNewFriList,
+    ifHaveFriendList,
+
+    viewIndex,
+
+    naviBarIndex,
+
     changeFlag,
-    setChatListActiveIndex,
+    setChatListActive,
     addChatHis,
+
+    clearAll,
   }
 })

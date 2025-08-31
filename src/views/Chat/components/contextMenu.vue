@@ -1,29 +1,40 @@
 <script setup>
 import { ref } from 'vue'
 
-defineProps({
+const props = defineProps({
   items: {
     type: Array,
     required: true,
   },
+  position: {
+    type: Object,
+    required: true,
+  },
+  visible: {
+    type: Boolean,
+    required: true,
+  },
 })
 
-const visible = ref(false)
-
-function openContextMenu(e) {
-  e.preventDefault()
-  visible.value = true
-  document.addEventListener('click', closeContextMenu, { once: true })
-}
-
-function closeContextMenu() {
-  visible.value = false
-}
+const virtualRef = ref({
+  getBoundingClientRect: () => ({
+    x: props.position.x,
+    y: props.position.y,
+    width: 0,
+    height: 0,
+    top: props.position.y,
+    right: props.position.x,
+    bottom: props.position.y,
+    left: props.position.x,
+  }),
+})
 </script>
 
 <template>
   <el-popover
-    trigger="contextmenu"
+    trigger="manual"
+    virtual-triggering
+    :virtual-ref="virtualRef"
     :visible="visible"
     placement="bottom"
     @contextmenu.prevent
@@ -35,11 +46,16 @@ function closeContextMenu() {
         {{ item.label }}
       </li>
     </ul>
-    <template #reference>
-      <div @contextmenu="openContextMenu">
-        <slot></slot>
-      </div>
-    </template>
+
+    <!-- <template #reference>
+      <div
+        :style="{
+          top: `${position.y}px`,
+          left: `${position.x}px`,
+        }"
+        class="refer"
+      ></div>
+    </template> -->
   </el-popover>
 </template>
 
@@ -60,6 +76,9 @@ function closeContextMenu() {
 }
 .context-menu li:last-child {
   color: rgb(215, 25, 25);
+}
+.refer {
+  position: fixed;
 }
 </style>
 
