@@ -1,9 +1,25 @@
 <script setup>
-import { onUnmounted, onMounted } from 'vue'
+import { onMounted } from 'vue'
+import { useUserStore, useFlagStore } from '@/stores'
+import { storeToRefs } from 'pinia'
 
-onMounted(() => {})
+const flagStore = useFlagStore()
+const userStore = useUserStore()
+const { ifLogin } = storeToRefs(flagStore)
+const { authorization, refreshToken } = storeToRefs(userStore)
 
-onUnmounted(() => {})
+onMounted(() => {
+  if (authorization.value && refreshToken.value) {
+    const res = userStore.refresh()
+    if (res.PromiseResult === false) {
+      ifLogin.value = false
+      return
+    }
+    ifLogin.value = true
+  } else {
+    ifLogin.value = false
+  }
+})
 </script>
 
 <template>

@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import router from '@/router'
 import { applyGetInfo } from '@/api/apply'
 import { useFlagStore } from '@/stores/modules/flagStore'
 import { storeToRefs } from 'pinia'
+import { ElMessage } from 'element-plus'
 
 const { progress, registerInfo } = storeToRefs(useFlagStore())
 
@@ -11,136 +12,171 @@ const { progress, registerInfo } = storeToRefs(useFlagStore())
 const day = ref(0)
 const hour = ref(0)
 const min = ref(0)
+const sec = ref(0)
 
-// TODO：设置报名截止时间
-const finalTime = new Date(2025, 7, 25, 0, 0)
+// ✅ 报名开始 & 截止时间（注意月份 0 = 一月）
+const startTime = new Date(2025, 9, 13, 0, 0) // 9月20日
+const finalTime = new Date(2025, 9, 17, 0, 0) // 10月9日
 const ifTimeout = ref(false)
+const ifNotStarted = ref(false)
 
-// 报名按钮文字
+// 报名按钮文字 & 是否显示
 const buttonText = ref('')
-const ifButtonShow = ref(true)
+const ifButtonShow = ref(false)
 
-// 时间线结点类型
-let timeSpots = [
-  {
-    content: '报名',
-    status: 'wait',
-  },
-  {
-    content: '一面',
-    status: 'process',
-  },
-  {
-    content: '二面',
-    status: 'error',
-  },
-  {
-    content: '通过',
-    status: 'success',
-  },
+// 时间线结点
+const timeSpots = [
+  { content: '报名' },
+  { content: '一面' },
+  { content: '二面' },
+  { content: '通过' },
 ]
 
-// 终止时间图标
+// 步骤条状态
 const processStatus = ref('process')
 
-// 处理倒计时
+// 倒计时
 const handleTime = () => {
-  const date = new Date()
-  const diff = finalTime - date
-  if (diff > 0) {
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const now = new Date()
 
-    day.value = days
-    hour.value = hours
-    min.value = minutes
-  } else {
-    day.value = 0
-    hour.value = 0
-    min.value = 0
-    clearInterval(timer)
-    ifTimeout.value = true
+  if (now < startTime) {
+    ifNotStarted.value = true
+    ifTimeout.value = false
+    ifButtonShow.value = false
+    return
   }
+
+  const diff = finalTime - now
+  if (diff <= 0) {
+    ifButtonShow.value = false
+    ifTimeout.value = true
+    ifNotStarted.value = false
+
+    if (timer) {
+      clearInterval(timer)
+      timer = null
+    }
+    return
+  }
+
+  ifNotStarted.value = false
+  ifTimeout.value = false
+  ifButtonShow.value = true
+
+  day.value = Math.floor(diff / (1000 * 60 * 60 * 24))
+  hour.value = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  min.value = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  sec.value = Math.floor((diff % (1000 * 60)) / 1000)
 }
-const timer = setInterval(() => {
-  handleTime()
-}, 60000)
+
+let timer = null
 
 // 跳转表格页
 const handleRegisterTable = () => {
   router.push('/registerTable')
 }
 
-// 处理按钮文字、时间线进度、图标
+// 处理按钮文字、进度、状态
 const handleButtonText = () => {
-  if (registerInfo.value.status === 0) {
-    progress.value = 0
-
-    buttonText.value = '报名'
-    ifButtonShow.value = true
-  } else if (registerInfo.value.status === 1) {
-    if (registerInfo.value.message === '已报名') {
-      progress.value = 1
-      processStatus.value = 'process'
-
-      buttonText.value = '修改报名信息'
-      ifButtonShow.value = true
-    } else {
-      progress.value = 1
-      processStatus.value = 'error'
-
-      ifButtonShow.value = false
-    }
-  } else if (registerInfo.value.status === 2) {
-    if (registerInfo.value.message === '一面通过') {
-      progress.value = 2
-      processStatus.value = 'process'
-
-      buttonText.value = '选择二面时间'
-      ifButtonShow.value = true
-    } else {
-      progress.value = 2
-      processStatus.value = 'error'
-
-      ifButtonShow.value = false
-    }
-  } else if (registerInfo.value.status === 3) {
-    progress.value = 3
-    processStatus.value = 'success'
-    ifButtonShow.value = false
+  const map = {
+    0: {
+      progress: 0,
+      status: 'wait',
+      buttonText: '报名',
+      show: true,
+    },
+    1: {
+      已报名: {
+        progress: 1,
+        status: 'process',
+        buttonText: '修改报名信息',
+        show: true,
+      },
+      default: {
+        progress: 1,
+        status: 'error',
+        buttonText: '',
+        show: false,
+      },
+    },
+    2: {
+      一面通过: {
+        progress: 2,
+        status: 'process',
+        buttonText: '选择二面时间',
+        show: true,
+      },
+      default: {
+        progress: 2,
+        status: 'error',
+        buttonText: '',
+        show: false,
+      },
+    },
+    3: {
+      progress: 3,
+      status: 'success',
+      buttonText: '',
+      show: false,
+    },
   }
+
+  const status = registerInfo.value.status
+  const message = registerInfo.value.message
+
+  let config = map[status]
+  if (!config) return
+
+  if (typeof config[message] !== 'undefined') {
+    config = config[message]
+  } else if (config.default) {
+    config = config.default
+  }
+
+  progress.value = config.progress
+  processStatus.value = config.status
+  buttonText.value = config.buttonText
+  ifButtonShow.value = config.show
 }
 
 // 获取报名信息
 const getApplyInfo = async () => {
   try {
     const res = await applyGetInfo()
-    console.log('获取报名信息', res)
+    console.log('报名信息', res)
     if (res.data.data) {
       registerInfo.value = res.data.data
-      progress.value = registerInfo.value.status
     } else {
       registerInfo.value = {
         status: 0,
         message: '未报名',
-        // message: '一面通过',
       }
     }
-
     handleButtonText()
   } catch (e) {
+    ElMessage.error('获取报名信息失败，请稍后再试！')
     console.log('获取报名信息失败', e)
+    router.push('/')
   }
 }
+
+watch(progress, () => {
+  handleButtonText()
+})
 
 onMounted(() => {
   handleTime()
   getApplyInfo()
+  if (registerInfo.value) {
+    timer = setInterval(handleTime, 1000)
+  }
 })
 
 onUnmounted(() => {
-  clearInterval(timer)
+  if (timer) {
+    clearInterval(timer)
+    timer = null
+  }
 })
 </script>
 
@@ -154,7 +190,7 @@ onUnmounted(() => {
           <!-- 顶部加粗 -->
           <div class="bold">
             <div>欢迎加入软件科技协会！</div>
-            <button @click="handleRegisterTable" v-show="ifButtonShow" :disabled="ifTimeout">
+            <button v-if="ifButtonShow" @click="handleRegisterTable">
               {{ buttonText }}
             </button>
           </div>
@@ -162,12 +198,12 @@ onUnmounted(() => {
           <!-- 倒计时、报名 -->
           <div class="regLeftBottom">
             <div class="timer">
-              <div v-if="!ifTimeout">
-                <div>报名结束倒计时：</div>
-                <div>{{ day }} 天 {{ hour }} 时 {{ min }} 分</div>
+              <div v-if="ifNotStarted">二面报名尚未开始</div>
+              <div v-else-if="ifTimeout">二面已结束</div>
+              <div v-else>
+                <div>二面结束倒计时：</div>
+                <div>{{ day }} 天 {{ hour }} 时 {{ min }} 分 {{ sec }} 秒</div>
               </div>
-
-              <div v-else>报名未开始</div>
             </div>
           </div>
         </div>
@@ -200,7 +236,7 @@ onUnmounted(() => {
       <!-- 面试地点 -->
       <div class="place">
         <h1>面试地点</h1>
-        <span>长安校区逸夫楼fz106</span>
+        <span>长安校区逸夫楼ff106</span>
       </div>
     </div>
 
@@ -254,10 +290,6 @@ onUnmounted(() => {
   align-items: center;
 }
 
-.iconfont {
-  font-family: 'iconfont';
-}
-
 hr {
   width: 70vw;
   border: 1px solid #dadada;
@@ -266,7 +298,7 @@ hr {
 
 /* 左侧信息 */
 .info {
-  width: 70vw;
+  width: 80vw;
   padding: 0 5%;
 }
 
@@ -387,8 +419,6 @@ hr {
 }
 
 @media (max-width: 768px) {
-  /* 信息 */
-  /* 报名 */
   .progress {
     top: 15%;
   }
@@ -420,7 +450,6 @@ hr {
     font-size: 1.5vh;
   }
 
-  /* 要求 */
   .reqirement,
   .place {
     padding: 2vh 0;
@@ -446,7 +475,6 @@ hr {
     font-size: 2vh;
   }
 
-  /* 联系我们 */
   .official {
     height: 25vh;
     padding: 3vh 5%;

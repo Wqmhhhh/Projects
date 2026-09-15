@@ -1,9 +1,11 @@
 <script setup>
 import router from '@/router'
-import { useFlagStore } from '@/stores/modules/flagStore'
+import { useFlagStore, useUserStore } from '@/stores/index'
+import { ElMessage } from 'element-plus'
 import { storeToRefs } from 'pinia'
 
 const { ifLogin } = storeToRefs(useFlagStore())
+const { authorization, refreshToken } = storeToRefs(useUserStore())
 
 // 处理跳转到主页
 const handleMain = () => {
@@ -34,12 +36,21 @@ const handleContact = () => {
     behavior: 'smooth',
   })
 }
+
+// 退出登录
+const handleLogout = () => {
+  authorization.value = ''
+  refreshToken.value = ''
+  ifLogin.value = false
+  router.push('/')
+  ElMessage.success('退出登录成功！')
+}
 </script>
 
 <template>
   <div class="space"></div>
   <div class="top">
-    <div class="topRight">
+    <div class="topRight" :class="{ iflogin: ifLogin }">
       <!-- 主页 -->
       <div @click="handleMain">主页</div>
 
@@ -51,6 +62,9 @@ const handleContact = () => {
 
       <!-- 登录 -->
       <div class="login" @click="handleLogin" v-if="!ifLogin">登录</div>
+
+      <!-- 退出登录 -->
+      <div class="logout" @click="handleLogout" v-show="ifLogin">退出登录</div>
     </div>
 
     <div class="logo"></div>
@@ -78,11 +92,13 @@ const handleContact = () => {
   padding: 0 3%;
   border-bottom: 2px solid #dadada;
   z-index: 999;
+  user-select: none;
 }
 .topRight {
   width: 25%;
   font-size: 1.5vw;
   color: #000;
+  flex-wrap: nowrap;
 }
 .topRight div:hover {
   cursor: pointer;
@@ -92,6 +108,9 @@ const handleContact = () => {
   aspect-ratio: 1;
   background-image: url('../assets/logo.jpg');
   background-size: contain;
+}
+.iflogin {
+  width: 35%;
 }
 
 @media (max-width: 768px) {
@@ -103,8 +122,11 @@ const handleContact = () => {
     height: 7vh;
   }
   .topRight {
-    width: 50%;
+    width: 60%;
     font-size: 2vh;
+  }
+  .iflogin {
+    width: 80%;
   }
 }
 </style>

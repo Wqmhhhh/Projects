@@ -13,6 +13,7 @@ function inLoading(next) {
     props.checkLoading()
   }, 1000)
 }
+
 function outLoading() {
   let conainer = document.getElementById('loading')
   conainer.classList.add('loading_out')

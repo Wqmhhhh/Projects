@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores'
 // 设置api的基础URL
 // const baseURL = 'https://113.44.144.219:8084'
 const baseURL = '/api'
+// const baseURL = import.meta.env.VITE_API_BASE
 
 // 创建 Axios 实例
 const instance = axios.create({
@@ -11,6 +12,7 @@ const instance = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
 })
 

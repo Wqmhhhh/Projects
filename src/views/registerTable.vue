@@ -54,20 +54,20 @@ const handleSubmit = async () => {
       console.log('选择二面时间', res)
       ElMessage.success('选择二面时间成功')
     } else if (registerInfo.value.status === 1) {
-      console.log(telephone.value)
       res = await applyUpdate(
         number.value,
         name.value,
         majorClass.value,
         telephone.value,
         comTime.value,
-        intention.value
+        intention.value,
       )
       console.log('修改报名信息返回值', res)
       if (res.data.code !== 200) {
         ElMessage.warning(res.data.message)
         return
       }
+      ElMessage.success('修改报名信息成功！')
     } else {
       res = await applyAdd(
         number.value,
@@ -75,7 +75,7 @@ const handleSubmit = async () => {
         majorClass.value,
         telephone.value,
         comTime.value,
-        intention.value
+        intention.value,
       )
       console.log('报名返回值', res)
       if (res.data.code !== 200) {
@@ -101,7 +101,7 @@ const getTimes = async (n) => {
     Times.value = [...res.data.data]
   } catch (e) {
     console.log('获取面试时间失败', e)
-    router.push('./register')
+    router.push('/register')
     return
   }
 
@@ -125,7 +125,8 @@ const initialInfo = () => {
     }
   } else {
     // 默认值
-    comTime.value = Times.value[0].id
+    console.log('时间id', typeof Times.value[0].id, Times.value[0].id)
+    comTime.value = Times.value.length > 0 ? Times.value[0].id : null
     intention.value = intentions[0]
   }
 }
@@ -146,7 +147,7 @@ onMounted(() => {
     </div>
 
     <!-- 报名信息 -->
-    <form class="box" @submit.prevent>
+    <form class="box" @submit.prevent="handleSubmit">
       <div>
         <div>
           <input
@@ -217,7 +218,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <button class="button" type="submit" @click="handleSubmit">
+      <button class="button" type="submit">
         <div>提交</div>
       </button>
     </form>

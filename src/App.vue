@@ -1,8 +1,6 @@
 <script setup>
 import { ElConfigProvider } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-// import { useRouter } from 'vue-router'
-
 import { onMounted, ref } from 'vue'
 
 import TopFix from './components/TopFix.vue'

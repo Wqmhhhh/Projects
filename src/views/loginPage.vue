@@ -10,11 +10,11 @@ import {
 } from '@/api/user'
 import router from '@/router'
 
+import { storeToRefs } from 'pinia'
+
 import { useFlagStore, useUserStore } from '@/stores'
 const { ifLogin } = storeToRefs(useFlagStore())
 const { authorization, refreshToken } = storeToRefs(useUserStore())
-
-import { storeToRefs } from 'pinia'
 
 // 登录1 注册2 忘记密码3
 const option = ref(1)
@@ -36,6 +36,17 @@ const clearAll = () => {
   smsCode.value = ''
   passWord.value = ''
   repeatPassWord.value = ''
+
+  // 重置验证码按钮
+  smsCodeButton.value = '获取验证码'
+  ifSmsCodeDisabled.value = false
+
+  // 清除倒计时
+  if (timer) {
+    clearInterval(timer)
+    timer = null
+  }
+  num = 60
 }
 
 // 处理登录、注册切换
@@ -58,8 +69,8 @@ const checkEmail = (email) => {
 
 // 检验密码位数
 const checkPassWord = () => {
-  // 检查密码长度是否在 8 到 16 位之间
-  if (passWord.value.length < 8 || passWord.value.length > 16) {
+  // 检查密码长度是否在 8 到 20 位之间
+  if (passWord.value.length < 8) {
     return false
   }
 
@@ -75,11 +86,13 @@ const checkSame = () => {
   if (passWord.value !== repeatPassWord.value) {
     passWord.value = ''
     repeatPassWord.value = ''
-    ElMessage('两次密码输入不一致')
+    ElMessage.error('两次密码输入不一致')
+    return false
   }
+  return true
 }
 
-// 单独验证函数
+// 验证邮箱合法
 const validateEmail = () => {
   if (!email.value) {
     ElMessage.error('邮箱不能为空')
@@ -92,33 +105,41 @@ const validateEmail = () => {
   return true
 }
 
+// 验证密码合法
 const validatePassword = () => {
   if (!passWord.value) {
     ElMessage.error('密码不能为空')
     return false
   }
+
   if (!checkPassWord()) {
-    ElMessage.error('密码需8-16位且包含字母和数字')
+    ElMessage.error('密码需8-20位且包含字母和数字')
+    passWord.value = ''
+    repeatPassWord.value = ''
     return false
   }
+
   return true
 }
 
+// 检查所有输入
 const checkAll = () => {
   if (!validateEmail()) return false
+
   if (option.value !== 1 && !smsCode.value) {
     ElMessage.error('验证码不能为空')
     return false
   }
+
   if (!validatePassword()) return false
+
   if (option.value !== 1 && !checkSame()) return false
+
   return true
 }
 
 // 处理注册
 const handleRegister = async () => {
-  console.log('点击注册')
-
   if (!checkAll()) {
     return
   }
@@ -134,8 +155,9 @@ const handleRegister = async () => {
 
     ElMessage.success('注册成功')
     handleChange(1)
-  } catch {
-    ElMessage.error('注册失败！请再次尝试')
+  } catch (e) {
+    console.log('注册失败返回值', e)
+    ElMessage.error('注册失败！请稍后再试')
   }
 }
 
@@ -144,27 +166,22 @@ const handleLogin = async () => {
   if (!email.value) {
     ElMessage.error('邮箱不能为空')
     return
-  } else if (!passWord.value) {
-    ElMessage.error('密码不能为空')
-    return
-  }
-
-  if (!checkPassWord()) {
+  } else if (!validatePassword()) {
     return
   }
 
   // 发送请求
   try {
-    console.log('login', email.value, passWord.value)
     const res = await userLogin(email.value, passWord.value)
     console.log('登录返回值', res)
 
-    if (res.status !== 200) {
+    if (res.data.code !== 200) {
       ElMessage.error(res.data.message)
-      clearAll()
+      passWord.value = ''
       return
+    } else {
+      ElMessage.success('登录成功！')
     }
-    ElMessage.success('登录成功！')
 
     ifLogin.value = true
     authorization.value = res.data.data.authorization
@@ -172,16 +189,16 @@ const handleLogin = async () => {
 
     router.push('/')
   } catch (e) {
-    console.log(e)
+    console.log('登录失败返回值', e)
     ElMessage.error('登录失败！请再次尝试')
   }
 }
 
 // 处理修改密码
 const handleChangePassword = async () => {
-  // if (!checkAll()) {
-  //   return
-  // }
+  if (!checkAll()) {
+    return
+  }
 
   try {
     const res = await userChangePassword(email.value, smsCode.value, passWord.value)
@@ -222,12 +239,23 @@ const handleSendSmsCode = async () => {
     } else if (option.value === 2) {
       res = await userSendRegisterSmsCode(email.value)
     }
-    console.log(res)
-    ElMessage.success('验证码发送成功')
+    console.log('发送验证码返回值', res)
+
+    if (res.data.code === 200) {
+      ElMessage.success('验证码发送成功')
+      ElMessage.warning({
+        message: '找不到邮件可以看下垃圾箱里~',
+        duration: 5000,
+      })
+    } else {
+      ElMessage.warning(res.data.message)
+      ifSmsCodeDisabled.value = false
+      return
+    }
   } catch (e) {
+    console.log('验证码发送失败返回值', e)
     ElMessage.error('验证码发送失败')
     ifSmsCodeDisabled.value = false
-    console.log(e)
     return
   }
 
@@ -247,18 +275,39 @@ const handleSendSmsCode = async () => {
 }
 
 // 处理点击提交按钮
+const clickNum = ref(0)
+let submitTimer = null
 const handleButton = () => {
-  if (option.value === 1) {
-    handleLogin()
-  } else if (option.value === 2) {
-    handleRegister()
-  } else {
-    handleChangePassword()
+  // 一些没有意义的抖机灵
+  clickNum.value++
+  if (clickNum.value === 3) {
+    ElMessage.success('三连决胜')
+  } else if (clickNum.value === 5) {
+    ElMessage.success('五连绝世')
+    clickNum.value = 0
   }
+
+  // 若存在定时器，则取消之前的定时器重新计时
+  if (submitTimer) {
+    clearTimeout(submitTimer)
+    submitTimer = null
+  }
+  // 设置定时器
+  submitTimer = setTimeout(() => {
+    if (option.value === 1) {
+      handleLogin()
+    } else if (option.value === 2) {
+      handleRegister()
+    } else {
+      handleChangePassword()
+    }
+  }, 200)
 }
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+
+  clickNum.value = 0
 })
 </script>
 
@@ -286,7 +335,7 @@ onUnmounted(() => {
           <i class="iconfont icon-yanzhengma"></i>
           <input type="text" placeholder="验证码" v-model="smsCode" autocomplete="off" />
         </div>
-        <button @click="handleSendSmsCode" :disabled="ifSmsCodeDisabled">
+        <button @click="handleSendSmsCode" :disabled="ifSmsCodeDisabled" type="button">
           {{ smsCodeButton }}
         </button>
       </div>
@@ -297,9 +346,10 @@ onUnmounted(() => {
           <i class="iconfont icon-mima"></i>
           <input
             type="password"
-            placeholder="8-16位包含字母、数字"
+            placeholder="8-20位包含字母、数字"
             v-model="passWord"
             autocomplete="current-password"
+            maxlength="20"
           />
         </div>
       </div>
@@ -313,6 +363,7 @@ onUnmounted(() => {
             placeholder="再次输入密码"
             v-model="repeatPassWord"
             autocomplete="new-password"
+            maxlength="20"
           />
         </div>
       </div>

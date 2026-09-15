@@ -26,7 +26,7 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const { authorization } = storeToRefs(useUserStore())
-  //   // 没有登录不能到报名页面
+  // 没有登录不能到报名页面
   if (!authorization.value && to.path !== '/login' && to.path !== '/') {
     return '/'
   }
