@@ -6,3 +6,7 @@
 
 # NaXin
 纳新官网
+
+# Practices
+学习过程中的一些练习项目，包括：
+html、css、js、vue、Node.js ... ...
