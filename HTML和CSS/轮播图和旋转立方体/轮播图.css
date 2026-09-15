@@ -1,0 +1,182 @@
+/* 自动轮播图 */
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.outer,.outer1{
+    width: 800px;
+    height: 480px;
+    background-color: #e3e4e5;
+    margin: 0 auto;  
+    margin-top: 80px;
+    padding-top: 30px;
+}
+.box,.box1{
+    width: 700px;
+    height: 500px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+.pic{
+    /* 设置足够宽度使图片横向排列 */
+    width: 3500px;
+    /* 设置滚动时间、动画效果 */
+    transition-duration: 3s;
+    transition-property: all;
+    animation: 12s img infinite ease-out;
+}
+img{
+    float: left;
+    width: 700px;
+    height: 392px;
+}
+@keyframes img{
+    /* 根据图片宽度设置关键帧  */
+    0%{
+        margin-left: -300px;
+    }
+    15%{
+        margin-left: -700px;
+    }
+    20%{
+        margin-left: -700px;
+    }
+    55%{
+        margin-left: -1400px;
+    }
+    78%{
+        margin-left: -2100px;
+    }
+    100%{
+        margin-left: -2800px;
+    }
+
+}
+.spot{
+    position: absolute;
+    top: 455px;
+    left: 40%;
+    width: 135px;
+    height: 10px;
+    color: transparent;
+}
+.dot,.red{
+    vertical-align: top;
+    display: inline-block;
+    width: 30px;
+    height: 10px;
+    background-color: #999;
+    border: #666464;
+    border-radius: 5px;
+}
+.red{
+    position: absolute;
+    left: 0;
+    background-color: rgb(209, 102, 102);
+    transition-duration: 3s;
+    transition-property: all;
+    animation: 12s red infinite ease;
+}
+.red1{
+    transition-duration: 3s;
+    transition-property: all;
+    animation: 15s red1 infinite;
+    position: absolute;
+    left: 0;
+    background-color: rgb(209, 102, 102);
+    opacity: 0;
+}
+@keyframes red{
+    /* 根据源点宽度设置关键帧 */
+    5%{
+        left: 0;
+    }
+    20%{
+        left: 0;
+    }
+    55%{
+        left: 35px;
+    }
+    78%{
+        left: 70px;
+    }
+    100%{
+        left: 105px;
+    }
+}
+
+
+/* 淡入淡出轮播图 */
+.img1,.img2,.img3,.img4{
+    position: absolute;
+    opacity: 0;
+    transition-duration: 3s;
+    transition-property: all;
+}
+.before1{
+    position: absolute;
+    opacity: 0.5;
+    transition-duration: 2s;
+    animation: 15s before1 infinite;
+}
+.img1{
+   animation: 15s img1 infinite;
+}
+.img2{
+    animation: 15s img2 infinite;
+}
+.img3{
+    animation: 15s img3 infinite;
+}
+.img4{
+    animation: 15s img4 infinite;
+}
+@keyframes before1 {
+    0%{
+        opacity: 1;
+    }
+    10%{
+        opacity: 0.8;
+    }
+}
+@keyframes  img1{
+    0%{
+        opacity: 0;
+    }
+    35%{
+        opacity: 1;
+    }
+}
+@keyframes  img2{
+    0%{
+        opacity: 0;
+    }
+    35%{
+        opacity: 0;
+    }
+    60%{
+        opacity: 1;
+    }
+}@keyframes  img3{
+    0%{
+        opacity: 0;
+    }
+    60%{
+        opacity: 0;
+    }
+    85%{
+        opacity: 1;
+    }
+}@keyframes  img4{
+    0%{
+        opacity: 0;
+    }
+    85%{
+        opacity: 0;
+    }
+    99%{
+        opacity: 1;
+    }
+}

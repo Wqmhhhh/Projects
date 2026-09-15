@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../Normalize.css">
+  <title>计算器</title>
+  <style>
+    *{
+    box-sizing: border-box;
+    }
+    .box{
+      width: 400px;
+      height: 700px;
+      margin: 0 auto;
+      background-color: black;
+      margin-top: 50px;
+    }
+    .symbol{
+      width: 90px;
+      height: 90px;
+      font-size: 40px;
+      text-align: center;
+      line-height: 90px;
+      background-color: rgb(66, 64, 64);
+      color: rgb(39, 79, 212);
+    }
+    .number{
+      width: 90px;
+      height: 90px;
+      border-radius: 2px;
+      font-size: 40px;
+      text-align: center;
+      line-height: 90px;
+      background-color: rgb(66, 64, 64);
+      color: rgba(255, 255, 255, 0.712);
+    }
+    .equl{
+      height: 190px;
+      width: 90px;
+      font-size: 40px;
+      text-align: center;
+      line-height: 190px;
+      background-color:rgb(39, 79, 212) ;
+      color: rgba(255, 255, 255, 0.712);
+    }
+    .up{
+      width: 400px;
+      height: 200px;
+      display: block;
+      background-color: black;
+      border: 0;
+      padding-top: 70px;
+      font-size: 40px;
+      text-align: right;
+      text-wrap: nowrap;
+      overflow: hidden;
+      color: rgba(255, 255, 255, 0.712);
+    }
+    .symbol,.equl,.number{
+      border-radius: 13px;
+      display: inline-block;
+      margin-bottom: 10px;
+      user-select: none;
+    }
+    .symbol:hover,.equl:hover,.number:hover{
+      cursor: pointer;
+    }
+    .symbol:active,.number:active{
+      background-color: rgba(43, 42, 42, 0.539);;
+    }
+    .equl:active{
+      background-color:rgb(19, 67, 224) 
+    }
+    .down{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+    .more{
+      position: relative;
+      bottom: 100px;
+      left: 5px;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="up"></div>
+    <div class="down">
+      <div class="symbol" data-id="c">C</div>
+      <div class="symbol" data-id="/">÷</div>
+      <div class="symbol" data-id="*">×</div>
+      <div class="symbol" data-id="_">＜</div>
+      <div class="number" data-id="7">7</div>
+      <div class="number" data-id="8">8</div>
+      <div class="number" data-id="9">9</div>  
+      <div class="symbol" data-id="-">﹣</div>
+      <div class="number" data-id="4">4</div>
+      <div class="number" data-id="5">5</div>
+      <div class="number" data-id="6">6</div>
+      <div class="symbol" data-id="+">+</div>
+      <div class="number" data-id="1">1</div>
+      <div class="number" data-id="2">2</div>
+      <div class="number" data-id="3">3</div> 
+      <div class="equl" data-id="=">=</div>
+    </div>
+    <div class="symbol more" data-id="%">%</div>
+    <div class="number more" data-id="0">0</div>
+    <div class="symbol more" data-id=".">.</div>
+  </div>
+  <script>
+    const box=document.querySelector('.box')
+    // const down=document.querySelector('.down')
+    const up=document.querySelector('.up')
+    let arr=[]
+    // 计算结果
+    function compute(){
+      let num=''
+      for(let n=0;n<arr.length;n++){
+       num+=arr[n]
+      }  
+      arr=[]
+      num=String(eval(num))
+      for(let n=num.length-1;n>=0;n--){
+        arr[n]=num[n]
+      }
+      return num
+    }
+    box.addEventListener('click',function(e){
+      // 没有数字无法输入符号
+      if((e.target.dataset.id==='-'||e.target.dataset.id==='+'||e.target.dataset.id==='%'||e.target.dataset.id==='.'||e.target.dataset.id==='*'||e.target.dataset.id==='/')&&arr.length===0)
+      {
+        up.innerHTML='错误！'
+        return
+      }
+      if(arr.length===0||arr.join('')==='Infinity'||arr[0]==='0'){
+        up.innerHTML=''
+        arr=[]
+      }
+      // 根据点击输入文本到输入框
+      if(e.target.dataset.id ==='c'){
+        up.innerHTML=''
+        arr=[]
+      }
+      else if((e.target.dataset.id>=0 && e.target.dataset.id<=9)||e.target.dataset.id==='-'||e.target.dataset.id==='+'||e.target.dataset.id==='%'||e.target.dataset.id==='.')
+      {
+        up.innerHTML+=e.target.dataset.id
+        arr.push(e.target.dataset.id)
+      }
+      else if(e.target.dataset.id==='/'){
+        up.innerHTML+='÷'
+        arr.push(e.target.dataset.id)
+      }
+      else if(e.target.dataset.id==='*'){
+        up.innerHTML+='×'
+        arr.push(e.target.dataset.id)
+      }
+      // 退格消除最后一位
+      else if(e.target.dataset.id ==='_'){
+        arr.pop()
+        up.innerHTML=''
+        for(let k=0;k<arr.length;k++){
+          if(arr[k]==='/'){
+                up.innerHTML+='÷'
+            }
+          else if(arr[k]==='*'){
+            up.innerHTML+='×'
+          }
+          else{
+            up.innerHTML+=arr[k]
+          }
+        }
+      }
+      // 计算结果
+      else{
+        up.innerHTML=compute()
+      }
+    })
+  </script>
+</body>
+</html>

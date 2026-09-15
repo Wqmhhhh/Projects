@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    img{
+      width: 30vw;
+    }
+  </style>
+</head>
+<body>
+  <div class="pic">
+    <button @click="index--" v-show="index>0">上一个</button>
+    <img :src="list[index]" alt="">
+    <button @click="index++" v-show="index<list.length-1">下一个</button>
+  </div>
+  <script src=" https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script>
+    const pic=new Vue({
+      el:'.pic',
+      data:{
+        index:0,
+        list:[
+          '../pic1.png',
+          '../pic2.png',
+          '../pic3.png',
+          '../pic4.png'
+        ]
+      },
+    })
+  </script>
+</body>
+</html>

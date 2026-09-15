@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+  <button id="btnGET">GET</button>
+  <button id="btnPOST">POST</button>
+  <button id="btnDELETE">DELETE</button>
+  <button id="btnJSONP">JSONP</button>
+
+  <script>
+    // 测试GET接口
+    $(function(){
+      $('#btnGET').on('click',function(){
+        $.ajax({
+          type:'GET',
+          url:'http://127.0.0.1/api/get',
+          data:{name:'wzy',age:20},
+          success:function(res){
+            console.log(res)
+          },
+        })
+      })
+    })
+    // 测试POST接口
+    $(function(){
+      $('#btnPOST').on('click',function(){
+        $.ajax({
+          type:'POST',
+          url:'http://127.0.0.1/api/post',
+          data:{hhh:'ni'},
+          success:function(res){
+            console.log(res)
+          },
+        })
+      })
+    })
+    
+    // 为JSONP按钮绑定点击事件处理函数
+    $(function(){
+      $('#btnJSONP').on('click',function(){
+        $.ajax({
+          type:'GET',
+          url:'http://127.0.0.1/get/jsonp',
+         
+          dataType:'jsonp',
+          success:function(res){
+            console.log(res)
+          },
+        })
+      })
+    })
+  </script>
+</body>
+</html>

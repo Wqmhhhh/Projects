@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>弹幕</title>
+  <style>
+    .box{
+      width: 90%;
+      margin: 0 auto;
+      height: 95%;
+      display: block;
+      overflow: hidden;
+    }
+    .up{
+      display: block;
+      width: 100%;
+      height: 670px;
+      margin: 0 auto;
+      font-size: 17px;
+      background-color: rgba(255, 192, 203, 0.379);
+    }
+    form{
+      background-color: rgba(255, 192, 203, 0.612);
+      text-align: center;
+    }
+    input{
+      width: 800px;
+      height: 30px;
+    }
+    button{
+      height: 30px;
+    }
+    input,button{
+      margin: 10px 0;
+    }
+    li{
+      display: inline-block;
+      left: -1000px;
+      position: relative;
+      list-style: none;
+      text-wrap: nowrap;
+      animation-duration: 5s;
+      animation-name: li;
+      animation-timing-function: linear;
+    }
+    @keyframes li{
+        0%{
+          left: 1400px;
+        }
+        100%{
+          left: -500px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="up">
+      <ul>
+      </ul>
+    </div>
+    <form class="dowm">
+      <input type="text">
+      <button>biu~发送</button>
+    </form>
+  </div>
+  <script>
+    const form=document.querySelector('form')
+    const input=document.querySelector('input')
+    const ul=document.querySelector('ul')
+    const button=document.querySelector('button')
+    const text=[]
+    let i=0
+    form.addEventListener('submit',function(e){
+      e.preventDefault()  //防止表单提交刷新页面
+      const word=input.value
+      text.push(word)
+      const li=document.createElement('li')
+      li.innerHTML=text[i]
+      // 赋值语句正确写法
+      li.style.top=Math.round(Math.random()*550)+'px'
+      input.value=''
+      i++
+      ul.appendChild(li)
+    })
+
+    //回车发送弹幕
+    input.addEventListener('keyup',function(e){
+      if(e.key === 'enter')
+    {
+      button.type="submit"
+    }
+    })
+  </script>
+</body>
+</html>

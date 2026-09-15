@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      font-size: 2vmin;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    .container {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .faultText {
+      width: 40vw;
+      text-align: center;
+      position: absolute;
+      font-family: Impact, sans-serif;
+      font-size: 5rem;
+      color: #fff;
+      letter-spacing: 0.5rem;
+      user-select: none;
+      text-wrap: none;
+    }
+
+    .faultText_fault::before,
+    .faultText_fault::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      /* screen:屏幕混合模式 */
+      mix-blend-mode: screen;
+      text-align: center;
+      width: 40vw;
+    }
+
+    .faultText_fault::after {
+      color: rgb(255, 0, 0);
+      transform: translateX(1%);
+    }
+
+    .faultText_fault::before {
+      color: #0000ff;
+      transform: translateX(-1%);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" onclick="faultText.fault()">
+    <p class="faultText" data-text="乌漆抹黑嘿嘿嘿">乌漆抹黑嘿嘿嘿</p>
+    <p class="faultText" data-text="乌漆抹黑嘿嘿嘿">乌漆抹黑嘿嘿嘿</p>
+    <p class="faultText" data-text="乌漆抹黑嘿嘿嘿">乌漆抹黑嘿嘿嘿</p>
+    <p class="faultText" data-text="乌漆抹黑嘿嘿嘿">乌漆抹黑嘿嘿嘿</p>
+  </div>
+
+  <script>
+    const faultText = {
+      player: {},
+      texts: [],
+      init() {
+        this.texts = [...document.querySelectorAll(".faultText")]
+      },
+      fault() {
+        setTimeout(() => {
+          clearInterval(this.player)
+          this.texts.forEach((text)=>{
+            text.classList.remove('faultText_fault')
+            text.style.transform=''
+            text.style.clipPath=''
+          })
+        }, 1500);
+        this.player = setInterval(() => {
+          this.texts.forEach((text) => {
+            // 颜色分离：mix-blend-mode
+            text.classList.add('faultText_fault')
+            // 图像抖动:transform实现
+            text.style.transform = `translate(${Math.random() * 60 - 30}%,${Math.random() * 60 - 30}%)`
+            // 错位图块：clip-path 裁剪可视区
+            let x = Math.random() * 100
+            let y = Math.random() * 100
+            let h = Math.random() * 50 + 50
+            let w = Math.random() * 40 + 10
+            // ploygon 属性：给定一定次序的坐标，按顺序使用直线连接形成闭合图形
+            text.style.clipPath = `polygon(${x}% ${y}%,${x + w}% ${y}%,${x + w}% ${y + h}%,${x}% ${y + h}%)`
+          }, 50)
+        })
+      }
+    }
+    faultText.init()
+
+  </script>
+</body>
+
+</html>

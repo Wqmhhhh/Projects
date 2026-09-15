@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>迷宫</title>
+  <style>
+    *{
+      box-sizing: border-box;
+    }
+    .box{
+      width: 1300px;
+      height: 700px;
+      margin: 0px auto;
+      background-color: rgba(255, 192, 203, 0.253);
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      padding: 50px 30px;
+    }
+    .maze{
+      width: 600px;
+      height: 600px;
+      background-color: rgba(206, 152, 211, 0.226);
+      display: inline-block;
+      border-radius: 20px;
+      padding: 37.5px;
+    }
+    .return,.begin{
+      display:block;
+      width: 150px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      background-color: rgba(206, 152, 211, 0.226);
+      border-radius: 25px;
+      font-size: 20px;
+      position: relative;
+      top: 430px;
+      left: 0px;
+      color: rgb(87, 87, 87);
+    }
+    .begin{
+      top: 330px;
+      left: 200px;
+    }
+    .reset{
+      top: 230px;
+      left: -200px;
+    }
+    .return:hover,.begin:hover{
+      cursor: pointer;
+      background-color: rgba(206, 152, 211, 0.4);
+    }
+    .spot{
+      width: 1055px;
+      height: 525px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="maze">
+      <canvas class="spot"></canvas>
+    </div>
+    <div class="begin">GO ！</div>
+    <div class="return">返回选项卡</div>
+    <div class="return reset">刷新地图</div>
+  </div>
+  <script>
+    const returnTo=document.querySelector(".return")
+    const maze_box=document.querySelector(".maze")
+    const reset=document.querySelector(".reset")
+    reset.addEventListener('click',()=>{
+      location.reload()
+    })
+    returnTo.addEventListener('click',()=>{
+      location.href='选项卡.html'
+    })
+    if(document.referrer=='选项卡.html'){
+      let n=document.cookie.split(';')
+      n=n[0].split('=')[1]
+    }
+
+    // 迷宫生成器
+    function generateMaze(width, height) {
+    // 确保宽度和高度大于等于 3
+    if (width < 3 || height < 3 || width % 2 === 0 || height % 2 === 0) {
+        throw new Error("Width and height must be odd numbers greater than or equal to 3.");
+    }
+
+    // 创建初始的迷宫数组
+    let maze = Array.from({ length: height }, () => Array(width).fill(1));
+
+    // 随机化方向
+    const directions = [
+        [0, 2],   // 向右
+        [0, -2],  // 向左
+        [2, 0],   // 向下
+        [-2, 0]   // 向上
+    ];
+
+    // 随机洗牌函数
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // 递归生成迷宫
+    function carve(x, y) {
+        maze[y][x] = 0; // 设置当前单元为通路
+        shuffle(directions); // 随机化方向
+        for (const [dx, dy] of directions) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (ny >= 0 && ny < height && nx >= 0 && nx < width && maze[ny][nx] === 1) {
+                // 在两个单元之间打通通路，确保不会越界
+                maze[y + dy / 2][x + dx / 2] = 0;
+                carve(nx, ny);
+            }
+        }
+    }
+
+    // 从起点开始生成迷宫
+    carve(1, 1);
+
+    // 设置入口和出口
+    maze[1][0] = 0; // 入口
+    maze[height - 2][width - 1] = 0; // 出口
+
+    return maze;  
+  }
+
+    // 生成迷宫
+    let n=document.cookie.split(';')
+    n=n[0].split('=')[1]
+    n=Number(n)
+    let maze = generateMaze(n, n)
+
+    // 绘制迷宫
+    const canvas=document.querySelector(".spot")
+    const ctx = canvas.getContext('2d')
+    let size=canvas.height/n
+    const col=canvas.width/size
+    function drawMaze() {
+      for (let r = 0; r < n; r++){
+        for (let c = 0; c < n; c++) {
+            if (maze[r][c] === 1) {
+                ctx.fillStyle = 'rgba(110, 154, 235, 1)';
+            } else if(maze[r][c]===0) {
+                ctx.fillStyle = 'white';
+            }else if(maze[r][c]===3){
+              ctx.fillStyle='green'
+            }else if(maze[r][c]===2){
+              ctx.fillStyle='rgba(255, 0, 0, 0.507)'
+            }
+            ctx.fillRect(c * size, r * size, size, size);
+        }
+      }
+      ctx.lineWidth=0
+    }
+    drawMaze()
+
+    // 路径算法：0为通路，1为墙壁，2为走过的不通的路,3为最终可以走的路
+    let road=[]
+    let no=[]
+    let x=1,y=0,flag=1
+    const go=document.querySelector(".begin")
+    go.addEventListener("click",()=>{
+      while(1){ 
+        setTimeout(()=>{
+
+        },1000)
+        if(x===n-2&&y===n-1){  //找到出口，退出
+          road.push([x,y])
+          maze[x][y]=3 
+          break
+        }
+        if (x < 0 || x >= n || y < 0 || y >= n) {
+          console.log('越界',x,y)
+          break
+        }
+        if(maze[x][y]===0){   //是通路，入栈 
+          flag=1
+          maze[x][y]=3 
+        }
+        else if(maze[x][y]===1||maze[x][y]==2){
+          switch(flag){
+            case 1:y--;road.pop();break;
+            case 2:x--;road.pop();break;
+            case 3:y++;road.pop();break;
+            case 4:x++;road.pop();break;
+          }
+          flag++
+        }
+        else if(maze[x][y]===3){
+          switch(flag){
+            case 1:y--;road.pop();break;
+            case 2:x--;road.pop();break;
+            case 3:y++;road.pop();break;
+            case 4:x++;road.pop();break;
+          }
+          flag++
+        }
+        if(flag>4&&road.length>0){
+            maze[x][y]=2
+            const no=road.pop()
+            switch(no){
+              case 1:y--;break;
+              case 2:x--;break;
+              case 3:y++;break;
+              case 4:x++;break;
+            }
+            flag=1
+          }
+        switch(flag){
+          case 1:y++;road.push(1);break
+          case 2:x++;road.push(2);break
+          case 3:y--;road.push(3);break
+          case 4:x--;road.push(4);break
+        }
+        if(flag>4){
+          console.log('flag越界',x,y)
+          break
+        }
+        console.log(flag)
+      }
+      drawMaze()   // 绘制迷宫
+    })
+  </script>
+</body>
+</html>

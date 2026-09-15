@@ -1,0 +1,194 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.box{
+    perspective: 1800px;
+    /* 设置透视点位置 */
+    perspective-origin: center -150px;
+}
+ul{
+    width: 300px;
+    height: 300px;
+    /* background-color: blanchedalmond; */
+    margin: 500px auto;
+    position: relative;
+    list-style: none;
+    /* 给旋转立方体的父元素设置3D效果 */
+    transform-style: preserve-3d;
+    animation: 4s rotate infinite ease-in-out;
+    animation: 4s rotate1 infinite ease-in-out;
+    /* 设置旋转原点 */
+    transform-origin: 150px -150px 150px;
+}
+.p1,.p2,.p3,.p4,.p5,.p6,.out1,.out2,.out3m,.out4,.out5,.out6{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background-color: rgb(157, 117, 194);
+    opacity: 0.8;
+    border: 1px solid rgb(118, 56, 118);
+    font-size: 60px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    line-height: 300px;
+
+}
+.out1,.out2,.out3m,.out4,.out5,.out6{
+    margin: 100px;
+    width: 100px;
+    height: 100px;
+    opacity: 1;
+}
+.p1{
+    background-color: rgb(180, 102, 102);
+    transform: translateZ(300px) rotateY(90deg);
+    transform-origin: left;
+    animation: 4s p1 infinite ease-in-out;
+}
+@keyframes p1 {
+    0%{
+        transform: translateX(0px) translateZ(300px) rotateY(90deg);
+    }
+    50%{
+        transform: translateX(-500px) translateZ(300px) rotateY(90deg);
+    }
+    100%{
+        transform: translateX(0px) translateZ(300px) rotateY(90deg);
+    }
+    
+}
+.p2{
+    background-color: rgb(104, 170, 170);
+    animation: 4s p2 infinite ease-in-out;
+}
+@keyframes p2 {
+
+     0%{
+        transform: translateZ(0px);
+    }
+    50%{
+        transform: translateZ(-500px);
+    }
+    100%{
+        transform: translateZ(0px);
+    }
+}
+.p3{
+    transform: translateY(300px) rotateX(90deg);
+    transform-origin: top;
+    background-color: rgb(112, 156, 51);
+    animation: 4s p3 infinite ease-in-out;
+}
+@keyframes p3 {
+
+    0%{
+       transform: translateY(0px) translateY(300px) rotateX(90deg);
+   }
+   50%{
+       transform: translateY(500px) translateY(300px) rotateX(90deg);
+   }
+   100%{
+       transform: translateY(0px) translateY(300px) rotateX(90deg);
+   }
+}
+.p4{
+    transform: translateY(-300px) rotateX(-90deg);
+    transform-origin: bottom;
+    background-color: rgb(212, 153, 99);
+    animation: 4s p4 infinite ease-in-out;
+}
+@keyframes p4 {
+
+    0%{
+       transform: translateY(0px) translateY(-300px) rotateX(-90deg);
+   }
+   50%{
+       transform: translateY(-500px) translateY(-300px) rotateX(-90deg);
+   }
+   100%{
+       transform: translateY(0px) translateY(-300px) rotateX(-90deg);
+   }
+}
+.p5{
+    transform: translateX(300px) rotateY(-90deg);
+    transform-origin: left;
+    background-color: rgb(163, 77, 132);
+    animation: 4s p5 infinite ease-in-out;
+}
+@keyframes p5 {
+
+    0%{
+       transform: translateX(0px) translateX(300px) rotateY(-90deg);
+   }
+   50%{
+       transform: translateX(800px) translateX(300px) rotateY(-90deg);
+   }
+   100%{
+       transform: translateX(0px) translateX(300px) rotateY(-90deg);
+   }
+}
+.p6{
+    transform: translateZ(300px);
+    animation: 4s p6 infinite ease-in-out;
+}
+@keyframes p6 {
+
+    0%{
+       transform: translatez(0px) translateZ(300pxz);
+   }
+   50%{
+       transform: translatez(800px) ;
+   }
+   100%{
+       transform: translatez(0px) translateZ(300pxz);
+   }
+}
+@keyframes rotate {
+    from{
+        transform: rotateY(0deg);
+
+    }
+    to{
+        transform: rotateY(360deg);
+    }
+}
+
+.out1{
+    background-color: rgb(180, 102, 102);
+    transform: translateZ(100px) rotateY(90deg);
+    transform-origin: left;
+}
+.out2{
+    background-color: rgb(104, 170, 170);
+}
+.out3{
+    transform: translateY(100px) rotateX(90deg);
+    transform-origin: top;
+    background-color: rgb(112, 156, 51);
+}
+.out4{
+    transform: translateY(-100px) rotateX(-90deg);
+    transform-origin: bottom;
+    background-color: rgb(212, 153, 99);
+}
+.out5{
+    transform: translateX(100px) rotateY(-90deg);
+    transform-origin: left;
+    background-color: rgb(163, 77, 132);
+}
+.out6{
+    transform: translateZ(100px);
+}
+
+@keyframes rotate1 {
+    from{
+        transform: rotateY(0deg);
+
+    }
+    to{
+        transform: rotateY(360deg);
+    }
+}

@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_4670611_hj50b5v0gt.css"
+    />
+    <link rel="stylesheet" href="../../Normalize.css" />
+    <title>博客详情</title>
+    <style>
+      * {
+        box-sizing: content-box;
+      }
+      body {
+        background-image: url("../../pics/pic4.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        overflow: auto;
+        background-attachment: fixed;
+        background-position: center;
+      }
+      .box {
+        width: 1200px;
+        margin: 0 auto;
+        position: relative;
+      }
+      .detail {
+        color: rgb(115, 115, 116);
+      }
+      .detail,
+      .top,
+      .bottom,
+      .comment-box {
+        width: 900px;
+        height: 40px;
+        font-size: 30px;
+        line-height: 40px;
+        background-color: rgba(240, 248, 255, 0.712);
+        border-radius: 20px;
+        padding-left: 40px;
+        position: relative;
+        top: 50px;
+        margin-bottom: 30px;
+      }
+      .top,
+      .bottom {
+        height: auto;
+        padding: 20px;
+      }
+      .title {
+        font-size: 25px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .message {
+        font-size: 20px;
+        margin-bottom: 30px;
+      }
+      .iconfont {
+        font-size: 27px;
+        font-weight: bold;
+        display: inline-block;
+        margin-left: 20px;
+        position: relative;
+        left: 770px;
+      }
+      .pic {
+        width: 80px;
+        height: 80px;
+        border-radius: 80px;
+        background-image: url("../../pics/pic2.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin: 0 auto;
+        margin-bottom: 20px;
+      }
+      .under {
+        background-color: rgba(240, 248, 255, 0.63);
+        width: 150px;
+        height: 45px;
+        line-height: 45px;
+        border-radius: 20px;
+        margin: 0 auto;
+        font-size: 18px;
+        margin-top: 30px;
+        text-align: center;
+      }
+      .under:hover {
+        cursor: pointer;
+        background-color: rgba(188, 189, 190, 0.74);
+      }
+      .right {
+        width: 180px;
+        height: 230px;
+        position: absolute;
+        top: 50px;
+        left: 1000px;
+        background-color: rgba(240, 248, 255, 0.39);
+        text-align: center;
+        border-radius: 20px;
+        padding: 20px;
+      }
+      textarea {
+        line-height: 20px;
+        width: 840px;
+        height: 80px;
+        resize: none;
+        font-size: 17px;
+        padding: 20px;
+        border-radius: 20px;
+        position: relative;
+        background-color: rgba(240, 248, 255, 0.651);
+        border-width: 0;
+        outline: none;
+      }
+      .iconfont:hover {
+        color: rgb(82, 81, 81);
+        cursor: pointer;
+      }
+      button {
+        width: 60px;
+        font-size: 17px;
+        height: 30px;
+        position: relative;
+        left: 810px;
+        border-radius: 7px;
+        border: 0;
+        background-color: rgba(126, 128, 128, 0.322);
+      }
+      .name {
+        font-size: 20px;
+      }
+      .comment-box {
+        height: auto;
+      }
+      .comment {
+        width: 880px;
+        font-size: 17px;
+        display: block;
+        padding: 15px;
+        padding-right: 20px;
+        height: auto;
+        margin: 0;
+      }
+      .comment-delete {
+        width: 60px;
+        height: 30px;
+        font-size: 15px;
+        line-height: 30px;
+        text-align: center;
+        background-color: rgba(126, 128, 128, 0.322);
+        border-radius: 10px;
+        position: relative;
+        top: 15px;
+        left: 800px;
+      }
+      .comment-delete:hover,
+      button:hover {
+        cursor: pointer;
+        background-color: rgba(126, 128, 128, 0.539);
+      }
+      hr {
+        width: 850px;
+        position: relative;
+        left: -20px;
+      }
+      .user-name {
+        font-size: 20px;
+        position: relative;
+        top: 10px;
+        left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div class="left">
+        <div class="detail">DETAILS</div>
+        <div class="top">
+          <div class="content">
+            <div class="title">这是文章的标题</div>
+            <div class="message">这是文章的描述</div>
+          </div>
+          <div class="like iconfont icon-good"></div>
+          <div class="collect iconfont icon-shoucang"></div>
+        </div>
+        <div class="bottom">
+          <textarea placeholder="留下你的评论吧~"></textarea>
+          <button>发送</button>
+        </div>
+        <div class="comment-box"></div>
+      </div>
+      <div class="right">
+        <div class="pic"></div>
+        <div class="name">游客</div>
+        <div class="under main">返回主页</div>
+      </div>
+    </div>
+
+    <script>
+      const name = document.querySelector(".name");
+      const cookies = document.cookie.split(";");
+      let like = document.querySelector(".like");
+      let collect = document.querySelector(".collect");
+      const main = document.querySelector(".main");
+      const users = JSON.parse(localStorage.getItem("infor"));
+      const blogs = JSON.parse(localStorage.getItem("blog"));
+      const textarea = document.querySelector("textarea");
+      const send = document.querySelector("button");
+      const commentBox = document.querySelector(".comment-box");
+
+      // 加载用户信息
+      let m = -1;
+      for (let i = 0; i < cookies.length; i++) {
+        let p = cookies[i].split("=");
+        if (p[0] == "UserNum" || p[0] == " UserNum") {
+          m = p[1];
+        }
+      }
+      if (m === -1) {
+        throw new Error("UserNum = -1");
+      }
+      name.innerHTML = `${users[m][2]}`;
+      // 点击返回个人页面
+      main.addEventListener("click", () => {
+        localStorage.setItem("blog", JSON.stringify(blogs));
+        console.log(JSON.parse(localStorage.getItem("blog")));
+        location.href = "主页.html";
+      });
+
+      //添加评论
+      function AddComment(user_name, value, rand) {
+        const comment = document.createElement("div");
+        comment.innerHTML = `
+          <div class="comment">${user_name}:  ${value}
+          <div class="comment-delete" data-num="${rand}">删除</div>
+          </div>
+          <hr>
+        `;
+        commentBox.appendChild(comment);
+      }
+
+      // 主页查看细节
+      if (
+        document.referrer ==
+        "http://127.0.0.1:5500/JavaScript/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/%E4%B8%BB%E9%A1%B5.html"
+      ) {
+        const content = document.querySelector(".content");
+        const detailnum = localStorage.getItem("detailNum");
+        document.body.style.backgroundImage = `url(${blogs[detailnum[0]][detailnum[2]]["pic"]})`;
+        content.innerHTML = `
+        <div class="title">${blogs[detailnum[0]][detailnum[2]]["title"]}</div>
+        <div class="message">${blogs[detailnum[0]][detailnum[2]]["message"]}</div>
+      `;
+        if (blogs[detailnum[0]][detailnum[2]]["comment"].length > 0) {
+          for (
+            let i = 0;
+            i < blogs[detailnum[0]][detailnum[2]]["comment"].length;
+            i++
+          ) {
+            let num = blogs[detailnum[0]][detailnum[2]]["comment"][i][1];
+            AddComment(
+              users[num][2],
+              blogs[detailnum[0]][detailnum[2]]["comment"][i][0],
+              i,
+            );
+          }
+        }
+
+        // 点赞、收藏
+        like.addEventListener("click", () => {
+          if (like.style.color === "pink") {
+            blogs[detailnum[0]][detailnum[2]]["like"]--;
+            like.style.color = "black";
+          } else {
+            like.style.color = "pink";
+            blogs[detailnum[0]][detailnum[2]]["like"]++;
+          }
+        });
+        collect.addEventListener("click", () => {
+          if (collect.style.color == "rgb(235, 199, 39)") {
+            collect.style.color = "black";
+            blogs[detailnum[0]][detailnum[2]]["collect"]--;
+          } else {
+            collect.style.color = "rgb(235, 199, 39)";
+            blogs[detailnum[0]][detailnum[2]]["collect"]++;
+          }
+        });
+
+        //评论
+        send.addEventListener("click", () => {
+          if (textarea.value == "") {
+            alert("请先评论后发送");
+            return;
+          }
+          let text_arr = [textarea.value, m];
+          blogs[detailnum[0]][detailnum[2]]["comment"].push(text_arr);
+          AddComment(
+            users[m][2],
+            textarea.value,
+            blogs[detailnum[0]][detailnum[2]]["comment"].length - 1,
+          );
+          textarea.value = "";
+        });
+        // 删除评论
+        commentBox.addEventListener("click", (e) => {
+          if (e.target.className !== "comment-delete") {
+            return;
+          } else {
+            let i = e.target.getAttribute("data-num");
+            console.log(blogs[detailnum[0]][detailnum[2]]["comment"][i]);
+            if (m !== blogs[detailnum[0]][detailnum[2]]["comment"][i][1]) {
+              alert("这不是你的评论，不可以删除哦~");
+              return;
+            }
+            blogs[detailnum[0]][detailnum[2]]["comment"].splice(i, 1);
+            commentBox.innerHTML = "";
+            if (blogs[detailnum[0]][detailnum[2]]["comment"].length > 0) {
+              for (
+                let i = 0;
+                i < blogs[detailnum[0]][detailnum[2]]["comment"].length;
+                i++
+              ) {
+                let num = blogs[detailnum[0]][detailnum[2]]["comment"][i][1];
+                AddComment(
+                  users[num][2],
+                  blogs[detailnum[0]][detailnum[2]]["comment"][i][0],
+                  i,
+                );
+              }
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

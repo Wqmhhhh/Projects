@@ -1,0 +1,20 @@
+// 按需导入组件
+import Vue from 'vue'
+import { Tabs, Tab, Checkbox, Button, Tabbar, TabbarItem, NavBar, Toast, Search, Dialog, Swipe, Grid, GridItem, SwipeItem, icon, rate, ActionSheet } from 'vant'
+Vue.use(Tabs)
+Vue.use(Tab)
+Vue.use(Checkbox)
+Vue.use(Dialog)
+Vue.use(ActionSheet)
+Vue.use(rate)
+Vue.use(icon)
+Vue.use(Search)
+Vue.use(Swipe)
+Vue.use(SwipeItem)
+Vue.use(Grid)
+Vue.use(GridItem)
+Vue.use(Toast)
+Vue.use(NavBar)
+Vue.use(Tabbar)
+Vue.use(TabbarItem)
+Vue.use(Button)

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../Normalize.css">
+  <link rel="stylesheet" href="//at.alicdn.com/t/c/font_4670611_hj50b5v0gt.css">
+  <title>主页</title>
+  <style>
+    *{
+      box-sizing: border-box;
+    }
+    .head{
+      width: 100%;
+      overflow: hidden;
+      contain: content;
+      background-repeat: no-repeat;
+    }
+    .head img{
+      width: 100%;
+    }
+    .icon-hanbaocaidan{
+      font-size: 40px;
+      color: #c1d1c7;
+      position: absolute;
+      top: 3%;
+      right: 3%;
+      z-index: 10;
+    }
+    .icon-hanbaocaidan:hover{
+      cursor: pointer;
+      color: #7e817f;
+    }
+    .ham{
+      position: absolute;
+      top: 4%;
+      right: 3%;
+      font-size: 20px;
+      z-index: 3;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: none;
+    }
+    .ham li{
+      width: 110px;
+      height: 40px;
+      background-color: rgb(171, 173, 172);
+      border-radius: 25px;
+      margin-bottom: 20px;
+      text-align: center;
+      line-height: 40px;
+    }
+    .ham li:hover{
+      cursor: pointer;
+      background-color: rgb(139, 139, 139);;
+    }
+    .type{
+      width: 100%;
+      height: 150px;
+      display: flex;
+      justify-content: space-around;
+      list-style: none;
+      padding-top: 20px;
+      margin: 0;
+    }
+    .type li:not(:first-child){
+      width: 100px;
+      height: 100px;
+      font-size: 20px;
+      border-radius: 100px;
+      text-align: center;
+      line-height: 100px;
+      background-color: rgba(117, 182, 161, 0.5);
+      color: rgb(12, 126, 17);
+    }
+    .type li:hover{
+      cursor: pointer;
+      background-color: rgba(117, 182, 161, 0.815);
+    }
+    .all{
+      width: 100px;
+      height: 100px;
+      font-size: 20px;
+      border-radius: 100px;
+      text-align: center;
+      line-height: 100px;
+      color: rgb(12, 126, 17);
+      background-color: rgba(117, 182, 161, 0.815);
+    }
+    .search{
+      width: 800px;
+      margin: 0 auto;
+      margin-bottom: 50px;
+    }
+    input{
+      width: 700px;
+      height: 40px;
+      border-radius: 10px;
+      margin-right: 10px;
+      padding: 0 20px;
+    }
+    .search button{
+      width: 70px;
+      height: 40px;
+      font-size: 20px;
+      background-color: rgba(117, 182, 161, 0.5);
+      border: 0;
+      border-radius: 13px;
+      color: rgb(61, 61, 61);
+    }
+    .search button:hover{
+      cursor: pointer;
+      background-color: rgba(117, 182, 161, 0.733);
+    }
+    body{
+      background-color: rgba(117, 182, 161, 0.11);
+    }
+    .bottom{
+      width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .left,.right{
+      display: inline-block;
+    }
+    .left{
+      background-color: rgba(99, 117, 99, 0.103);
+      width: 900px;
+      padding: 20px 20px;
+    }
+    .pic{
+      display: inline-block;
+      width: 400px;
+      height: 250px;
+      overflow: hidden;
+      margin-right: 40px;
+      display: inline-block;
+    }
+    .pic img{
+      width: 100%;
+    }
+    .word{
+      position: relative;
+      top: -135px;
+      display: inline-block;
+      width: 400px;
+      text-align: left;
+    }
+    .title{
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .message{
+      height: 60px;
+      line-height: 60px;
+      font-size: 17px;
+    }
+    .left .iconfont{
+      margin-right: 10px;
+      display: inline-block;
+      font-size: 25px;
+      position: relative;
+      left: 270px;
+      top: 120px;
+    }
+    .icon-chakan:hover{
+      cursor: pointer;
+      color: #7e817f;
+    }
+    .iconfont span{
+      font-size: 15px;
+    }
+    .part{
+      margin-bottom: 20px;
+    }
+    .end{
+      width: 100%;
+      height: 50px;
+      text-align: center;
+      font-size: 17px;
+      line-height: 50px;
+      color: #7e817f;
+    }
+    .right{
+      width: 290px;
+      height: 300px;
+      padding: 0 20px;
+      margin-left: 30px;
+      position: relative;
+      transition-property: all;
+      transition-duration: 0.2s;
+    }
+    ul{
+      list-style: none;
+    }
+    .user{
+      font-size: 20px;
+      margin-bottom: 30px;
+      color: rgb(14, 126, 70);
+    }
+    .user~ul{
+      font-size: 17px;
+      padding: 0;
+    }
+    .user~ul li{
+      margin-top: 15px;
+    }
+    .hot{
+      font-size: 19px;
+      font-weight: bold;
+    }
+    .left-box{
+      display: inline-block;
+      width: 900px;
+    }
+    .change{
+      width: 200px;
+      height:65px;
+      padding: 15px 0;
+      font-size: 20px;
+      line-height: 35px;
+      position: relative;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .change div{
+      display: inline-block;
+      font-size: 30px;
+      background-color: rgba(159, 160, 160, 0.493);
+      border-radius: 10px;
+      line-height: 35px;
+      text-align: center;
+      color: rgb(99, 99, 99);
+      width: 35px;
+      height: 35px;
+    }
+    .change div:hover{
+      cursor: pointer;
+      background-color: rgba(159, 160, 160, 0.918);
+    }
+    .change-word{
+      width: 80px;
+      font-size: 18px;
+      height: 35px;
+      line-height: 35px;
+      text-align: center;
+      background-color: rgba(104, 158, 141, 0.5);
+      border-radius: 10px;
+      display: inline-block;
+      position: absolute;
+      top: 270px;
+      user-select: none;
+    }
+    .change-word:hover{
+      cursor: pointer;
+      background-color: rgba(104, 158, 141, 0.753)
+    }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <img src="../../pics/pic4.png" alt="">
+    <div>
+      <div class="iconfont icon-hanbaocaidan"></div>
+      <ul class="ham">
+        <li class="log-in">登录</li>
+        <li class="register">注册</li>
+        <li class="personal">个人页面</li>
+        <li class="log-out">退出</li>
+      </ul>
+    </div>
+  </div>
+  <!-- 分类搜索页面 -->
+  <ul class="type">
+    <li class="all" data-value="c0">所有</li>
+    <li class="pink" data-value="c1">恋爱番</li>
+    <li class="red" data-value="c2">热血番</li>
+    <li class="green" data-value="c3">治愈番</li>
+    <li class="blue" data-value="c4">推理番</li>
+  </ul>
+  <div class="search">
+    <input type="text">
+    <button>搜索</button>
+  </div>
+  <div class="bottom">
+    <!-- 展示搜索结果页面 -->
+    <div class="left-box">
+      <div class="left">
+        <div class="part">
+          <div class="pic">
+            <img src="../../pics/pic4.png" alt="">
+          </div>
+          <div class="word">
+            <div class="title">登录查看更多</div>
+            <div class="detail iconfont icon-chakan"></div>
+            <div class="like iconfont icon-good"><span></span></div>
+            <div class="collect iconfont icon-shoucang"><span></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="change">
+        <div class="before"><</div>
+        <span class="page">1/1</span>
+        <div class="next">></div>
+      </div>
+    </div>
+    <!-- 热门搜索页面 -->
+  <div class="right">
+    <div class="user">用户名：游客</div>
+    <ul>
+      <li class="hot">热门搜索</li>
+      <li>葬送的芙莉莲</li>
+      <li>进击的巨人</li>
+      <li>间谍过家家</li>
+    </ul>
+  </div>
+  </div>
+
+  <script>
+    // 汉堡菜单
+    const hanbao=document.querySelector('.icon-hanbaocaidan')
+    const ham=document.querySelector('.ham')
+    const head_img=document.querySelector('.head img')
+    const log_out=document.querySelector('.log-out')
+    const person=document.querySelector(".personal")
+    const log_in=document.querySelector('.log-in')
+    const register=document.querySelector('.register')
+    const left=document.querySelector('.left')
+    const search=document.querySelector(".search")
+    const input=document.querySelector("input")
+    const users=JSON.parse(localStorage.getItem('infor'))
+    const before=document.querySelector(".before")
+    const next=document.querySelector(".next")
+    const page_num=document.querySelector(".page")
+    const user=document.querySelector(".user")
+    let cookies=document.cookie.split(';')
+    let page=0,nowPage=0
+    let p=function Type(){}
+
+    hanbao.addEventListener('click',()=>{
+      ham.style.display='block'
+      hanbao.style.display='none'
+    })
+    head_img.addEventListener('click',()=>{
+      ham.style.display='none'
+      hanbao.style.display='block'
+    })
+
+    function Type(e){
+        if(e.target.tagName!=='LI'){
+          return
+        }
+        const a=e.target.getAttribute('data-value')
+        for(let i=0;i<5;i++){
+          type.children[i].style.backgroundColor='rgba(117, 182, 161, 0.5)'
+        }
+        e.target.style.backgroundColor='rgba(117, 182, 161, 0.815)'
+
+        switch(a){
+          case 'c0':Addleft();break
+          case 'c1':AddClick('c1');break;
+          case 'c2':AddClick('c2');break;
+          case 'c3':AddClick('c3');break;
+          case 'c4':AddClick('c4');break;
+        }
+      }
+    // 未登录时点击类型提示登录
+    function log1(e){
+      if(e.target.tagName==='LI'){
+      alert('请先登录后查看')
+    }
+    }
+    const type=document.querySelector('.type')
+    type.addEventListener('click',log1)
+    // 点击按钮切换页面
+    log_in.addEventListener('click',()=>{
+      location.href='登录页面.html'
+    })
+    register.addEventListener('click',()=>{
+      location.href='注册页面.html'
+    })
+    person.addEventListener('click',()=>{
+      location.href='个人页面.html'
+    })
+    log_out.addEventListener("click",()=>{
+      // 恢复未登录界面的样子
+      log_out.style.display='none'
+      person.style.display='none'
+      log_in.style.display='block'
+      register.style.display='block'
+      for(let i=0;i<cookies.length;i++){
+        let p=cookies[i].split('=')
+        document.cookie=`${p[0]}=${p[1]};max-age=-1`
+      }
+      left.innerHTML=`
+      <div class="part">
+          <div class="pic">
+            <img src="../../pics/pic4.png" alt="">
+          </div>
+          <div class="word">
+            <div class="title">登录查看更多</div>
+            <div class="detail iconfont icon-chakan"></div>
+            <div class="like iconfont icon-good"><span></span></div>
+            <div class="collect iconfont icon-shoucang"><span></span></div>
+          </div>
+        </div>
+        `
+        user.innerHTML=`用户名: 游客`
+        type.removeEventListener('click',Type)
+        type.addEventListener('click',log1)
+    })
+
+    // 设置右侧热点fixed效果
+    const right=document.querySelector('.right')
+    window.addEventListener('scroll',e=>{
+      const n=document.documentElement.scrollTop
+      if(n>=window.innerHeight*1.65){
+        right.style.position='fixed'
+        right.style.top='50px'
+
+      }else{
+        right.style.position='absolute'
+        right.style.top='20px'
+      }
+    })
+
+    // 未登录时汉堡菜单效果
+    log_out.style.display='none'
+    person.style.display='none'
+    
+    let q='',o=0,flag0=0
+    // 七天自动登录
+    if(document.referrer==''){
+      for(let i=0;i<cookies.length;i++){
+        let p=cookies[i].split('=')
+        if(p[0]=='phone'||p[0]==' phone'){
+          q=p[1]
+        }
+      }
+      if(q!==''){
+        while(1){
+          if(q == users[o][0]){
+            document.cookie=`UserNum=${o};`
+            flag0=1
+            break
+          }
+          else{
+            o++
+          }
+        }
+      }
+    }
+    
+
+    // 从登录或注册页面跳转后加载信息
+    if(document.referrer=='http://127.0.0.1:5500/JavaScript/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2.html'||document.referrer=='http://127.0.0.1:5500/JavaScript/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/%E6%B3%A8%E5%86%8C%E9%A1%B5%E9%9D%A2.html'||document.referrer=='http://127.0.0.1:5500/JavaScript/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/%E5%8D%9A%E5%AE%A2%E7%BB%86%E8%8A%82.html'||document.referrer=='http://127.0.0.1:5500/JavaScript/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/%E4%B8%AA%E4%BA%BA%E9%A1%B5%E9%9D%A2.html'||flag0==1){
+      // 汉堡菜单修改
+      log_out.style.display='block'
+      person.style.display='block'
+      log_in.style.display='none'
+      register.style.display='none'
+
+      // 原有提示登录按钮修改
+      type.removeEventListener('click',log1)
+
+      // 更改用户名
+      const blogs=JSON.parse(localStorage.getItem('blog'))
+      let blogs_end=[]                    // 用于分页器的数组
+      cookies=document.cookie.split(';')
+      let m=-1
+      for(let i=0;i<cookies.length;i++){
+        let p=cookies[i].split('=')
+        if(p[0]=='UserNum'||p[0]==' UserNum'){
+          m=p[1]
+        }
+      }
+      user.innerHTML=`用户名: ${users[m][2]}`
+      
+      // 分页器函数
+      function Splice(blogs_end){
+        page=Math.ceil(blogs_end.length/5)
+        nowPage=1
+        page_num.innerHTML=`${nowPage}/${page}`
+        for(let i=0;i<5;i++){
+          if(i>blogs_end.length)
+           break
+          Add(blogs_end[i][0],blogs_end[i][1],blogs_end[i][2])
+        }
+      }
+      // 加载博客内容
+      function Add(infor,urand,brand){
+        let part=document.createElement('div')
+        let pic=infor['pic']
+        let title=infor['title']
+        let like=infor['like']
+        let collect=infor['collect']
+        part.innerHTML=`
+          <div class="part">
+            <div class="pic">
+              <img src="${pic}" alt="">
+            </div>
+            <div class="word">
+              <div class="title">${title}</div>
+              <div class="describe">
+              <div class="detail iconfont icon-chakan" data-userNum="${urand}" data-blogNum="${brand}"></div>
+              <div class="like iconfont icon-good"><span>${like}</span></div>
+              <div class="collect iconfont icon-shoucang"><span>${collect}</span></div>
+            </div>
+          </div>
+        `
+        document.querySelector('.left').appendChild(part)
+      }
+      // 加载左侧所有博客
+      function Check(){
+        let flag=0
+        for(let i=0;i<blogs.length;i++){
+          if(blogs[i].length>0){
+            flag=1
+            break
+          }
+        }
+        if(flag==1){
+          return 1
+        }else{
+          left.innerHTML=`
+          <div class="part">
+          <div class="pic">
+            <img src="../../pics/pic4.png" alt="">
+          </div>
+          <div class="word">
+            <div class="title">还没有博客哦~</div>
+          </div>
+          </div>
+          `
+          return 0
+        }
+      }
+      function Addleft(){
+        if(!Check()){
+          return
+        }
+        left.innerHTML=''
+        let i,j
+        blogs_end=[]
+        for(i=0;i<blogs.length;i++){
+          for(j=0;j<blogs[i].length;j++){
+            let a=[blogs[i][j],i,j]
+            blogs_end.push(a)
+          }
+        }
+        Splice(blogs_end)
+      }
+      Addleft()
+
+      // 点击按钮加载对应信息
+      function AddClick(c){
+        if(!Check()){
+          return
+        }
+        left.innerHTML=''
+        blogs_end=[]
+        for(let i=0;i<blogs.length;i++){
+          for(let j=0;j<blogs[i].length;j++){
+            if(blogs[i][j]['type']==c){
+              let a=[blogs[i][j],i,j]
+              blogs_end.push(a)
+            }
+          }
+        }
+        Splice(blogs_end)
+      }
+      type.addEventListener('click',Type)
+
+      // 搜索：不完全匹配
+      search.addEventListener('click',e=>{
+        if(e.target.tagName!=='BUTTON'){
+          return
+        }
+        else{
+          type.children[0].style.backgroundColor='rgba(117, 182, 161, 0.5)'
+          let word = new RegExp(input.value, 'ig')   // 正确输入正则表达式的规则
+          let search_end=[]
+          let flag=0
+          for(let i=0;i<blogs.length;i++){
+            for(let j=0;j<blogs[i].length;j++){
+              if(word.test(blogs[i][j]['title'])||word.test(blogs[i][j]['message'])){
+                let each=[blogs[i][j],i,j]
+                search_end.push(each)
+              }
+            }
+          }
+          if(search_end.length==0){
+            alert('啊哦 ~ 未找到符合要求的博客')
+          }
+          else{
+            blogs_end=[]
+            left.innerHTML=''
+            for(let i=0;i<search_end.length;i++){
+              let a=[search_end[i][0],search_end[i][1],search_end[i][2]]
+              blogs_end.push(a)
+            }
+            Splice(blogs_end)
+          }
+          input.value=''
+        }
+      })
+
+      // 点击后进入详情页
+      left.addEventListener('click',(e)=>{
+        if(e.target.className!=='detail iconfont icon-chakan'){
+          return
+        }
+        let Num=[]
+        Num[0]=e.target.getAttribute('data-userNum')
+        Num[1]=e.target.getAttribute('data-blogNum')
+        localStorage.setItem('detailNum',Num)
+        location.href='博客细节.html'
+      })
+
+      // 点击前后按钮切换博客
+      before.addEventListener('click',()=>{
+        if(nowPage==1){
+          return
+        }
+        else{
+          before.style.opacity='1'
+          next.style.opacity='1'
+        }
+        nowPage--
+        left.innerHTML=''
+        for(let i=(nowPage-1)*5;i<(nowPage-1)*5+5;i++){
+          if(i>blogs_end.length-1)
+           break
+          Add(blogs_end[i][0],blogs_end[i][1],blogs_end[i][2])
+        }
+        page_num.innerHTML=`${nowPage}/${page}`
+        if(nowPage==0){
+          before.style.opacity='0.5'
+        }
+      })
+      next.addEventListener("click",()=>{
+        console.log(blogs_end.length)
+        if(nowPage==page){
+          return
+        }
+        else{
+          next.style.opacity='1'
+          before.style.opacity='1'
+        }
+        nowPage++
+        page_num.innerHTML=`${nowPage}/${page}`
+        left.innerHTML=''
+        for(let i=(nowPage-1)*5;i<(nowPage-1)*5+5;i++){
+          if(i>blogs_end.length)
+           break
+          Add(blogs_end[i][0],blogs_end[i][1],blogs_end[i][2])
+        }
+        if(nowPage==blogs_end[m].length-1){
+          next.style.opacity='0.5'
+        }
+      })
+    }
+  </script>
+</body>
+</html>

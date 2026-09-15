@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../bootstrap.css">
+  <title>个人信息设置</title>
+    <style>
+      body {
+    background-color: #f0f2f5;
+    padding: 20px;
+    -moz-user-select: none;
+    /*火狐*/
+    -webkit-user-select: none;
+    /*webkit浏览器*/
+    -ms-user-select: none;
+    /*IE10*/
+    -khtml-user-select: none;
+    /*早期浏览器*/
+    user-select: none;
+    font-size: 14px;
+  }
+
+  .container {
+    background-color: #ffffff;
+    padding: 20px;
+    display: flex;
+    padding-left: 0;
+    margin: 0 auto;
+    min-width: 700px;
+    max-width: 1000px;
+    border-radius: 2px;
+  }
+
+  .my-nav {
+    width: 200px;
+    border-right: 1px solid #f0f0f0;
+    list-style: none;
+  }
+
+  .my-nav li {
+    cursor: pointer;
+    height: 40px;
+    line-height: 40px;
+    padding-left: 20px;
+    font-size: 14px;
+  }
+
+  .my-nav li.active {
+    background-color: #e9f7fe;
+    color: #448ef7;
+    border-right: 4px solid #448ef7;
+    font-weight: 600;
+  }
+
+  .content {
+    padding-top: 10px;
+    /* padding-left: 40px; */
+    flex: 1;
+    display: flex;
+    justify-content: space-evenly;
+  }
+
+  .content .title {
+    font-size: 20px;
+    margin-bottom: 30px;
+  }
+
+  .content .info-wrap {
+    margin-right: 20px;
+  }
+
+  .content .avatar-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    /* flex: 1; */
+    padding-top: 55px;
+    width: 200px;
+  }
+
+  .content .avatar-box .avatar-title {
+    font-size: 16px;
+    text-align: left;
+    align-self: flex-start;
+    margin: 0;
+  }
+
+  .content .avatar-box .prew {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+  }
+
+  .content .avatar-box label {
+    width: 100px;
+    height: 30px;
+    transition: all .3s;
+    box-shadow: 0 2px 0 rgb(0 0 0 / 2%);
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 2px;
+    color: rgba(0, 0, 0, .85);
+    border: 1px solid #d9d9d9;
+    text-align: center;
+    line-height: 30px;
+  }
+
+  .content .avatar-box label:hover {
+    color: #40a9ff;
+    border-color: #40a9ff;
+    background: #fff;
+  }
+
+  .content .avatar-box #upload {
+    display: none;
+  }
+
+
+
+  .content .user-form label:not(.male-label) {
+    display: block;
+    margin-bottom: 15px;
+    margin-top: 15px;
+  }
+
+  .content .user-form .form-item {
+    margin-bottom: 20px;
+  }
+
+  .content .user-form .form-item .male-label {
+    margin-right: 20px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .content .user-form input[type=radio] {
+    margin-right: 10px;
+    outline: none;
+    background-size: contain;
+    border: 1px solid rgba(0, 0, 0, .25);
+    border-radius: 50%;
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
+    appearance: none;
+
+  }
+  .content .user-form input[type=radio]:checked {
+    border-radius: 50%;
+    border-color: #0d6efd;
+    background-color: #0d6efd;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+  }
+  .content .user-form input:not([type=radio]) {
+    height: 30px;
+    appearance: none;
+  }
+
+
+  .form-item input:not([type=radio]),
+  textarea {
+    display: block;
+    width: 330px;
+    outline: none;
+    font-size: 14px;
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+    transition: all .3s;
+    padding-left: 5px;
+  }
+
+  .content .user-form textarea {
+    padding-top: 10px;
+    width: 350px;
+    resize: none;
+  }
+
+
+
+  .content .user-form input:focus,
+  textarea:focus {
+    border-color: #40a9ff;
+    border-right-width: 1px;
+    z-index: 1;
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
+    border-right-width: 1px;
+    outline: 0;
+  }
+
+  .content .user-form button.submit {
+    background: #4D8FF7;
+    width: 78px;
+    height: 32px;
+    color: white;
+    text-align: center;
+    line-height: 32px;
+    font-size: 14px;
+    color: #FFFFFF;
+    letter-spacing: 0;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+  }
+
+  .toast {
+    transition-property: all;
+    transition-duration: 1s;
+    opacity: 0;
+    text-align: center;
+    width: 200px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .toast .toast-body {
+    padding: 0 !important;
+  }
+
+  .toast .alert-success {
+    margin-bottom: 0 !important;
+  }
+  </style>
+</head>
+<body>
+  <!-- toast 提示框 -->
+  <div class="toast my-toast" data-bs-delay="1500">
+    <div class="toast-body">
+      <div class="alert alert-success info-box">
+        操作成功
+      </div>
+    </div>
+  </div>
+  <!-- 核心内容区域 -->
+  <div class="container">
+    <ul class="my-nav">
+      <li class="active">基本设置</li>
+      <li>安全设置</li>
+      <li>账号绑定</li>
+      <li>新消息通知</li>
+    </ul>
+    <div class="content">
+      <div class="info-wrap">
+        <h3 class="title">基本设置</h3>
+        <form class="user-form" action="javascript:;">
+          <div class="form-item">
+            <label for="email">邮箱</label>
+            <input id="email" name="email" class="email" type="text" placeholder="请输入邮箱" autocomplete="off">
+          </div>
+          <div class="form-item">
+            <label for="nickname">昵称</label>
+            <input id="nickname" name="nickname" class="nickname" type="text" placeholder="请输入昵称" autocomplete="off">
+          </div>
+          <div class="form-item">
+            <label>性别</label>
+            <label class="male-label"><input type="radio" name="gender" class="gender" value="0">男</label>
+            <label class="male-label"><input type="radio" name="gender" class="gender" value="1">女</label>
+          </div>
+          <div class="form-item">
+            <label for="desc">个人简介</label>
+            <textarea id="desc" name="desc" class="desc" placeholder="请输入个人简介" cols="20" rows="10" autocomplete="off"></textarea>
+          </div>
+          <button class="submit">提交</button>
+        </form>
+      </div>
+      <div class="avatar-box">
+        <h4 class="avatar-title">头像</h3>
+          <img class="prew" src="" alt="">
+          <label for="upload">更换头像</label>
+          <input id="upload" type="file" class="upload">
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入相关文件 -->
+  <script src="../jquery-1.12.4.min.js"></script>
+  <script src="../bootstrap.js"></script>
+  <script src="../form-serialize插件.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    document.querySelector('.user-form').addEventListener('submit',e=>{
+      const Obj=serialize(document.querySelector('.user-form'),{hash:true,empty:true})
+      Obj.gender=+Obj.gender
+      axios({
+        url:'http://hmajax.itheima.net/api/settings',
+        method:'put',
+        data:{
+          ...Obj,
+          creator:'wang'
+        }
+      })
+      document.querySelector('.toast').style.opacity=1
+      setTimeout(function(){
+        document.querySelector('.toast').style.opacity=0
+      },2000)
+    })
+    // 获取用户数据
+    axios({
+      url:'http://hmajax.itheima.net/api/settings',
+      params:{
+        creator:'wang'
+      }
+    }).then(result=>{
+      const UserObj=result.data.data
+      // 回显在页面上
+      Object.keys(UserObj).forEach(key=>{
+        if(key==='avatar'){
+          // 头像回显
+          document.querySelector('.prew').src=UserObj[key]
+        }
+        else if(key ==='gender'){
+          // 性别回显
+          const genders=document.querySelectorAll('.gender')
+          genders[UserObj[key]].checked='true'
+        }else{
+          document.querySelector(`.${key}`).value=UserObj[key]
+        }
+      })
+    })
+    document.querySelector('.upload').addEventListener('change',function(e){
+      const fd=new FormData()
+      fd.append('img',e.target.files[0])
+      fd.append('creator','wang')
+      axios({
+        url:'http://hmajax.itheima.net/api/avatar',
+        method:'put',
+        data:fd
+      }).then(result=>{
+        document.querySelector('.prew').src=result.data.data.avatar
+      })
+    })
+  </script>
+  
+</body>
+
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任务清单</title>
+  <style>
+    header{
+      width: 800px;
+      font-size: 30px;
+      font-weight: bold;
+      border: 1px so pink;
+      background-color: rgba(255, 192, 203, 0.836);
+      line-height: 60px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .send{
+      width: 800px;
+      height: 50px;
+      margin: 0 auto;
+      padding-top: 20px;
+      background-color: rgba(255, 192, 203, 0.553);
+    }
+    .in1{
+      width: 600px;
+      height: 30px;
+      margin-left: 40px;
+    }
+    button{
+      height: 30px;
+      margin-left: 20px;
+      background-color: rgba(128, 0, 128, 0.224);
+      border: 1px solid rgba(128, 0, 128, 0.553);
+    }
+    button:hover{
+      cursor: pointer;
+    }
+    table{
+      border-collapse: collapse;
+      margin: 0 auto;
+    }
+    tr{
+      width: 800px;
+      background-color: rgba(255, 192, 203, 0.219);
+      display: block;
+    }
+    td{
+      line-height: 50px;
+      font-size: 20px;
+    }
+    .delete,.change{
+      background-color: rgba(255, 192, 203, 0.037);
+      display: inline-block;
+      margin-left: 0;
+    }
+    .change{
+      height: 30px;
+      font-size: 13.3px;
+      border: 1px solid rgba(128, 0, 128, 0.553);
+      line-height: 30px;
+      padding: 0 6px;
+    }
+    .delete:hover,.change:hover{
+      color: rgba(255, 0, 0, 0.511);
+      cursor: pointer;
+      background-color: rgba(255, 192, 203, 0.183);
+    }
+    .check:checked+div{
+      text-decoration: line-through;
+    }
+    .check{
+      display: inline-block;
+      margin-left: 20px;
+    }
+    tbody div{
+      display: inline-block;
+      line-height: 50px;
+    }
+  </style>
+</head>
+<body>
+  <form autocapitalize="off" class="text">
+    <header>To Do List</header>
+    <div class="send">
+      <input type="text" class="in1">
+      <button>任务+1</button>
+    </div> 
+  </form>
+    <table>
+      <tbody>
+      </tbody>
+    </table>
+    <script>
+      const input=document.querySelector('.in1')
+      const check=document.querySelector('.check')
+      const checks=document.querySelectorAll('.check')
+      const text=document.querySelector('.text')
+      const tbody=document.querySelector('tbody')
+      const obj=[]
+      let i=0
+      // 全部重新渲染
+      function Allin(){
+        for(let j=0; j<obj.length;j++){
+          console.log(obj[j])
+          const tr=document.createElement('tr')
+          if(obj[j].check === false){
+            tr.innerHTML=`
+         <input type="checkbox" class='check' data-id='${j}'>
+            <div style="width: 650px;" data-id='${j}'>${obj[j].infor}</div>
+            <div><button class="delete" data-id='${j}'>删除</button></div>
+           <div class='change' data-id='${j}'>编辑</div>`
+          }
+          else{
+            tr.innerHTML=`
+            <input type="checkbox" class='check' checked data-id='${j}'>
+            <div style="width: 650px;" data-id='${j}'>${obj[j].infor}</div>
+            <div><button class="delete" data-id='${j}'>删除</button></div>
+           <div class='change' data-id='${j}'>编辑</div>`
+          } 
+          tbody.appendChild(tr)     //把内容渲染到页面上
+          }
+        } 
+      // 添加元素
+      text.addEventListener('submit',function(e){
+            e.preventDefault()   //阻止默认行为，防止自动刷新页面
+            const o={
+              infor:input.value,
+              check:false,
+            }
+            obj.push(o)
+            this.reset()
+            const tr=document.createElement('tr')
+            tr.innerHTML=`
+            <input type="checkbox" class='check' data-id='${i}'>
+            <div style="width: 650px;" data-id='${i}'>${obj[i].infor}</div>
+            <div><button class="delete" data-id='${i}'>删除</button></div>
+            <div class='change' data-id='${i}'>编辑</div>`
+            tbody.appendChild(tr)  //把内容渲染到页面上
+            i++
+        }  
+      )
+      // 删除元素
+      tbody.addEventListener('click',function(e){
+        if(e.target.tagName === 'BUTTON'){
+          i--
+          obj.splice(e.target.dataset.id,1)
+          tbody.innerHTML=null
+          Allin()
+        }
+        if(e.target.tagName === 'INPUT'){
+          if(obj[e.target.dataset.id].check===false)
+          obj[e.target.dataset.id].check=true
+          else{
+            obj[e.target.dataset.id].check=false
+          }
+          console.log(obj[e.target.dataset.id].check)
+        }
+      })
+    </script>
+</body>
+</html>

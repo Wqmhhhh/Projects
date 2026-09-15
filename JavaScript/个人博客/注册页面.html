@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../Normalize.css">
+  <title>用户注册</title>
+  <style>
+    *{
+      box-sizing: border-box;
+    }
+    body{
+      background-image: url('../../pics/pic4.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: 0 -20px;
+    }
+    .form{
+      margin: 0 auto;
+      margin-top:8%;
+      width: 500px;
+      height: 480px;
+      background-color: rgba(240, 248, 255, 0.39);
+      border-radius: 20px;
+      padding: 40px;
+    }
+    .in{
+      width: 350px;
+      margin: 20px auto;
+    }
+    input{
+      width: 200px;
+      height: 40px;
+      border-radius: 10px;
+      margin: 0 auto;
+      line-height: 40px;
+      position: relative;
+      padding: 0 10px;
+    }
+    button{
+      width: 350px;
+      height: 50px;
+      font-size: 20px;
+      border-radius: 10px;
+      border: 1.7px solid black;
+      margin: 10px 9%;
+      background-color: rgba(44, 145, 185, 0.034)
+    }
+    button:hover{
+      cursor: pointer;
+      background-color: rgba(82, 153, 82, 0.288);
+    }
+  </style>
+</head>
+<body>
+  <!-- 密保号码默认：123456 -->
+  <form class="form">
+    <div class="in">请输入用户名：<input type="text" style="margin-left: 37px;"></div>
+    <div class="in">请输入手机号码：<input type="text" style="margin-left: 22px;"></div>
+    <div class="in">请输入密码：<input type="password" style="margin-left: 54px;" placeholder="请设置6-10位密码"></div>
+    <div class="in">再次输入密码：<input type="password" style="margin-left: 38px;" placeholder="请设置6-10位密码"></div>
+    <div class="in">请输入密保号码：<input type="text" style="margin-left: 20px;"></div>
+    <button>注册</button>
+  </form>
+
+  <script>
+    const form=document.querySelector('.form')
+    const button=document.querySelector(".button")
+    const phone=document.querySelector('.form div:nth-child(2)')
+    const name=document.querySelector('.form div:nth-child(1)')
+    let namev=''
+    name.addEventListener('input',(e)=>{
+      namev=e.target.value
+    })
+    let phonev=''
+    phone.addEventListener('input',(e)=>{
+      phonev=e.target.value
+    })
+    const password=document.querySelector(".form div:nth-child(3)")
+    let passwordv1=''
+    password.addEventListener('input',(e)=>{
+      passwordv1=e.target.value
+    })
+    const password2=document.querySelector(".form div:nth-child(4)")
+    let passwordv2=''
+    password2.addEventListener('input',(e)=>{
+      passwordv2=e.target.value
+    })
+    const test=document.querySelector(".form div:nth-child(5)")
+    let testv=''
+    test.addEventListener('input',(e)=>{
+      testv=e.target.value
+    })
+    let flag=0
+    form.addEventListener('submit',(e)=>{
+      e.preventDefault()    //阻止表单默认提交
+      if(phonev==''){
+        alert('请填写用户名！')
+      }
+      if(testv!=='123456'){
+        alert("密保号码错误！注册失败")
+        form.reset()  //重置表单
+      }
+      else if(phonev.length!==11){
+        alert("手机号码输入有误！")
+        form.reset()  //重置表单
+      }
+      else if(passwordv1.length>10||passwordv1.length<6){
+        alert("密码长度错误！请重新输入")
+        form.reset()  //重置表单
+      }
+      else if(passwordv1!==passwordv2){
+        alert("两次密码输入不一致！请重新输入")
+        form.reset()  //重置表单
+      }
+      else{
+        // 检查是否存在手机号
+        const users=JSON.parse(localStorage.getItem('infor'))
+        for(let i=0;i<users.length;i++){
+          if(users[i][0]==phonev){
+            alert('该用户已注册！请登录')
+            flag=1
+            setTimeout(()=>{
+              form.reset()
+              location.href='登录页面.html'
+            },1000)
+            break
+          }
+        }
+      }
+      // 注册成功，将用户信息存储到本地
+      if(flag==0){
+        let arr=[]
+        arr[0]=phonev
+        arr[1]=passwordv1
+        arr[2]=namev
+        const infor=JSON.parse(localStorage.getItem('infor'))||[] 
+        infor.push(arr)
+        localStorage.setItem('infor',JSON.stringify(infor))
+
+        // 跳转至登录页面
+        setTimeout(()=>{
+          form.reset()
+          location.href='登录页面.html'
+          },1000)
+        }
+    })
+    
+  </script>
+</body>
+</html>

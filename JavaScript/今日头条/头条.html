@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../Normalize.css" />
+    <link rel="stylesheet" href="../../bootstrap.css" />
+    <link
+      rel="stylesheet"
+      href="//at.alicdn.com/t/c/font_4653058_6hwjx68xycn.css"
+    />
+    <link rel="stylesheet" href="./头条.css" />
+    <title>头条</title>
+  </head>
+  <body>
+    <div class="BigBox">
+      <div class="video">
+        <video
+          src="https://lf3-static.bytednsdoc.com/obj/eden-cn/uldnupqplm/fangchunzhijianshipin.mp4"
+          autoplay
+          muted
+          disablepictureinpicture
+        ></video>
+      </div>
+      <!-- 头部 -->
+      <div class="header">
+        <div class="top">
+          <div class="left_w">
+            <div>
+              <ul class="left download">
+                下载头条APP
+                <li class="code">
+                  <div class="angle"></div>
+                  <div>扫码下载今日头条</div>
+                  <img
+                    src="data:image/png;base64,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"
+                  />
+                </li>
+              </ul>
+            </div>
+            <ul class="left Add">
+              添加到桌面
+              <li class="add-to">
+                <div class="angle"></div>
+                <img
+                  src="https://lf3-static.bytednsdoc.com/obj/eden-cn/pipieh7nupabozups/toutiao_web_pc/tt-icon.png"
+                />
+                <div>添加头条到电脑桌面</div>
+                <div class="gray">安装后可以在桌面快捷访问</div>
+                <div class="add-btn">立即添加</div>
+              </li>
+            </ul>
+            <div class="left">关于头条</div>
+            <div class="left">反馈</div>
+            <div class="left">侵权投诉</div>
+            <div class="left">无障碍</div>
+          </div>
+          <div class="right_w">
+            <div class="right weather">
+              <span>西安</span>
+              <img
+                src="https://sf3-cdn-tos.douyinstatic.com/obj/eden-cn/pipieh7nupabozups/toutiao_web_pc/weather_white/30.png"
+              />
+              <span>晴</span>
+              <span>30℃</span>
+              <span class="good">优</span>
+            </div>
+            <div class="right message">
+              <img
+                src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/icon_white.e26fd22f.svg"
+                alt=""
+              />
+              <div style="display: inline-block">消息</div>
+            </div>
+            <div class="right publish">
+              <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAA2BAMAAAB+a3fuAAAAMFBMVEVHcEz////////////////////////////////////////////////wQULxTU73mpuw3LHGAAAADHRSTlMA799wQJ8agLpfoM+GoKk6AAABPklEQVQ4y5WUrU4DQRDHp1DaFNWEgKrgASpKgqxoUosADQIUtgrFA1Sc6ANg8Fgc5rZtOMIEnmDhBfh4AWjoHd3bmb2dIfzd5JfMzs7HH6DU8LiLZrwPVdWP8FfbgxCdd9DJTDha9yiEjQSpzClhe8i15VETQ41KdlJhc4c2sKrDFbuMsPtV/RhTr2BnUbZTsG6UZTlqIYpJ1wSWJ73y4fPHF6+UPPdtX32QLudG0rzbFxINYJNE1lrWmprI2nAgshn0RTaFRGRzhT2W31tYp0+3NeBaYr1ccxx7IuztHyyaU6vlTvxDBjcK03qm9VqbkTZbbSegI+yS4ZfCdvBBPAfEXfGMEAtDSKLI/Hlj2m1qN81aE3oBm1PgIar3aJ4FDe4HGfU6aFGY9riBEpheVDz5WvTk3MvHSy+/JV7+A8tEjs/vnGz4AAAAAElFTkSuQmCC"
+                class="publish-add"
+              />
+              <div style="display: inline-block">发布作品</div>
+            </div>
+            <div class="right login button">登录</div>
+          </div>
+        </div>
+        <div class="head_down">
+          <img
+            src="data:image/png;base64,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"
+          />
+          <div class="search">
+            <input type="text" />
+            <img
+              src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/search_icon_red.7fe98096.svg"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- 内容 -->
+      <div class="content-box">
+        <div class="content-left">
+          <!-- Tab 栏 -->
+          <div class="content-Tab">
+            <div class="Tab">关注</div>
+            <div class="Tab red">推荐</div>
+            <div class="Tab xian">
+              <div>西安</div>
+              <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqBAMAAAA37dRoAAAAG1BMVEVHcEwgICAiIiIiIiIgICAhISEhISEiIiIiIiI3zrLhAAAACHRSTlMAMO9/E9m1QKyOxBkAAABESURBVCjPY2CgEmApwSYq1CqARTSiQxGraBMWxRYd2BQzd4wqRlHcRqwo0AQVIm3DatkwVYoj9WVgTami2JTiyAEUAADwzjHkrymCMgAAAABJRU5ErkJggg=="
+              />
+            </div>
+            <div class="Tab">视频</div>
+            <div class="Tab">财经</div>
+            <div class="Tab">科技</div>
+            <div class="Tab">热点</div>
+            <div class="Tab">国际</div>
+            <ul class="more no">
+              <div>更多</div>
+              <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqBAMAAAA37dRoAAAAG1BMVEVHcEwgICAiIiIiIiIgICAhISEhISEiIiIiIiI3zrLhAAAACHRSTlMAMO9/E9m1QKyOxBkAAABESURBVCjPY2CgEmApwSYq1CqARTSiQxGraBMWxRYd2BQzd4wqRlHcRqwo0AQVIm3DatkwVYoj9WVgTami2JTiyAEUAADwzjHkrymCMgAAAABJRU5ErkJggg=="
+              />
+              <li class="more-down">
+                <div class="angle"></div>
+                <span>军事</span>
+                <span>体育</span>
+                <span>娱乐</span>
+                <span>历史</span>
+                <span>美食</span>
+                <span>直播</span>
+                <span>旅游</span>
+                <span>懂车帝</span>
+              </li>
+            </ul>
+            <!-- </div> -->
+          </div>
+          <!-- 今日要闻 -->
+          <div class="today">
+            <div style="display: block">
+              <img
+                src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/subtract_logo.a9550d1b.svg"
+              />
+              <div>要闻</div>
+              <div class="date">2024.08.13 星期二（活的）</div>
+            </div>
+            <ul>
+              <li><span>·</span>文脉华章丨千方百计呵护好文化瑰宝</li>
+              <li><span>·</span>共建网络空间命运共同体</li>
+              <li><span>·</span>为转型发展注入更多“绿”意</li>
+              <li><span>·</span>学习贯彻党的二十届三中全会精神</li>
+              <li><span>·</span>一汪清水，绘就水韵绿都生态底色</li>
+            </ul>
+          </div>
+          <!-- 一串新闻 -->
+          <ul class="news"></ul>
+        </div>
+        <div class="content-right">
+          <!-- 登录 -->
+          <div class="right-login">
+            <div>登录后，头条更懂你</div>
+            <div class="button">立即登录</div>
+          </div>
+          <!-- 侵权投诉 -->
+          <div class="tort">
+            <img
+              src="http://p3-static-img.toutiaoimg.com/tos-cn-i-hlmti52q0z/202404-qinquandetu.png~tplv-hlmti52q0z-9.png"
+            />
+          </div>
+          <!-- 安全课堂 -->
+          <div class="safety">
+            <div class="safety-head">
+              <img
+                src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/security_icon.6e66438b.svg"
+              />
+              <div>二次元小课堂</div>
+            </div>
+            <div class="safety-change">
+              <div class="see"><</div>
+              <div class="see">></div>
+            </div>
+            <div class="lun">
+              <img src="../../pics/pic1.png" />
+              <img src="../../pics/pic2.png" />
+              <img src="../../pics/pic3.png" />
+              <img src="../../pics/pic4.png" />
+              <img src="../../pics/pic5.png" />
+            </div>
+          </div>
+          <!-- 头条热榜 -->
+          <div class="hot">
+            <div class="hot-header">
+              <img
+                src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/hot_board.e124faac.svg"
+              />
+              <div>头条热榜</div>
+              <div class="change">
+                <img src="./换一换.png" />
+                <div>换一换</div>
+              </div>
+            </div>
+            <div class="hot-content">
+              <ul>
+                <li class="hot-content-top">
+                  <img
+                    src="https://lf9-static.bytednsdoc.com/obj/eden-cn/pipieh7nupabozups/toutiao_web_pc/icon_hot_board_stick.svg"
+                  />
+                  <div>学习新思想，争做新青年</div>
+                </li>
+                <li>
+                  <div style="color: orangered">1</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: orange">2</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: rgb(221, 171, 5)">3</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: rgb(158, 157, 157)">4</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: rgb(158, 157, 157)">5</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: rgb(158, 157, 157)">6</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: rgb(158, 157, 157)">7</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: rgb(158, 157, 157)">8</div>
+                  这是一条热搜
+                </li>
+                <li>
+                  <div style="color: rgb(158, 157, 157)">9</div>
+                  这是一条热搜
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- 扫码下载 -->
+          <div class="code-small">
+            <div class="code-small-right">
+              <div>扫码下载今日头条APP</div>
+              <div>看最新、最热咨询内容</div>
+            </div>
+            <div class="code-small-left">
+              <img
+                src="https://lf3-static.bytednsdoc.com/obj/eden-cn/beeh7nuvjvho/qrcode.png"
+              />
+            </div>
+          </div>
+          <!-- 热门视频 -->
+          <div class="videos">
+            <div class="hot-header">
+              <img
+                src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/hot_video.bb35a69f.svg"
+              />
+              <div>热门视频</div>
+              <div class="change">
+                <img src="./换一换.png" />
+                <div>换一换</div>
+              </div>
+            </div>
+            <ul class="video-down"></ul>
+          </div>
+          <div class="me">@乌漆抹黑嘿嘿嘿 出品</div>
+          <!-- 右侧固定热搜榜 -->
+          <div class="show">
+            <!-- 头条热榜 -->
+            <div class="hot">
+              <div class="hot-header">
+                <img
+                  src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/hot_board.e124faac.svg"
+                />
+                <div>头条热榜</div>
+                <div class="change">
+                  <img src="./换一换.png" />
+                  <div>换一换</div>
+                </div>
+              </div>
+              <div class="hot-content">
+                <ul>
+                  <li class="hot-content-top">
+                    <img
+                      src="https://lf9-static.bytednsdoc.com/obj/eden-cn/pipieh7nupabozups/toutiao_web_pc/icon_hot_board_stick.svg"
+                    />
+                    <div>学习新思想，争做新青年</div>
+                  </li>
+                  <li>
+                    <div style="color: orangered">1</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: orange">2</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: rgb(221, 171, 5)">3</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: rgb(158, 157, 157)">4</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: rgb(158, 157, 157)">5</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: rgb(158, 157, 157)">6</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: rgb(158, 157, 157)">7</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: rgb(158, 157, 157)">8</div>
+                    这是一条热搜
+                  </li>
+                  <li>
+                    <div style="color: rgb(158, 157, 157)">9</div>
+                    这是一条热搜
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- 扫码下载 -->
+            <div class="code-small">
+              <div class="code-small-right">
+                <div>扫码下载今日头条APP</div>
+                <div>看最新、最热咨询内容</div>
+              </div>
+              <div class="code-small-left">
+                <img
+                  src="https://lf3-static.bytednsdoc.com/obj/eden-cn/beeh7nuvjvho/qrcode.png"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 底部 -->
+      <div class="bottom">@乌漆抹黑嘿嘿嘿 出品</div>
+      <!-- 电梯导航 -->
+      <div class="lift">
+        <div class="up-lift">
+          <div class="always-show">
+            <img
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAABCBAMAAAAReh3bAAAALVBMVEVHcEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACttl6nAAAADnRSTlMAYBDfIEBv74agw68wUON3dVcAAAIbSURBVEjH1ZbNK4RBGMDfXbsbQr5Oil4JiYQ4qW2llIs2Sj5KEjccnNbBm4uPHCSR28ZBOTmQq+TgKC7cZC3WWp6/wcw778w8Mzu7e/acZmZ/87zP96xl/VPpqNquH83ze8slUOmvzfG7vw64nJiBLZDSbSLGAPIj7aDKgQ6Uhenx6mLE8o+79iYjGvFMT6+8zSTdrKmAj57ti+0w3VYqxAs5OUV+7ZL9CgYCDsAXitw51fGDiUFyMCvwHeZNDybiAAm+Dp4zIFWp2SlUjDBgtRqrKMJWLLsKNmzFkwaALsWtWFQLF4mnjGApJDfYqnEemZFG/JOnIBBO3Yhb8G5INrl4LK3fMxDFAG/S0KiBCAJ8estrSBqrzoGMcCVjJOL8pl9qU4XEzubf+zAS9wDM3XJpsyojvIqI369GooITxXmIdXcRKkgU/orPnBbL6gR4YM2kFa2QGZ6NwhEjUU8bCZmvOKSMhMzXcs7sJ6TN6waiRPpYqnexSAuvwjKHD4vgktqI4uKQ118TYXGLlDpklV6Qjrpf3IgJdRROOrQdZex2cSPS/jpiDS0yFNKmkM9hwHcU9bIS6SYGnEWwil6taImCOQtbkVLmZSsBvtDImFLcEtNSjuG27GnJJu6ht5k2TFwyLNyXZcG2Aneu48kbPU/D2uS/yE5ljQL0mUoKIzHbWHXoFbNzvHQD3ks4l+e1bH7crLr9r38F/gBmMqBtGNS1cgAAAABJRU5ErkJggg=="
+            />
+            <div>刷新</div>
+          </div>
+          <div class="always-show">
+            <img
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAABCBAMAAAAReh3bAAAAJ1BMVEVHcEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+jSoGAAAADHRSTlMAv0CAGVue2zCvcO9t51/ZAAABMklEQVRIx2NgGAWYgGlZmiA6mJalgKSg5gw2cDwArsLmDHZwGKaA+QwuYABV4YNTxSGoijlAKwUxAdBxByEKWIAKFLB4kAWoxAHikzNnjmINA50zZxrADNYzZ45gVQF0XwBMxQGsKnhgKpjxqFhAUIXB4FShNgMqBWVgqOA4cwYS+DAGhgrOM2cSGJAZGCoYz5wRYEBmDGEVbGfOTGBAZmCoYIIlOhgDM9Q7k6ChDmUM3vRBIxWE8wuBPNdDUEUOLBpgKliclFBAILBcYUBWwSqDWUqdQlbBgq3ELEBWEY2tQHVAUoG1xBRBFKcHWHIw5U+LIhW4B9yBIseCULzS4gD3NrAcOwRy5gKcFQMrxNBNuKsODhR3YwXgkJiCr/6JQa4osDukBnvBjgRc00JGRm0NACcMkNIj/Qm4AAAAAElFTkSuQmCC"
+            />
+            <div>反馈</div>
+          </div>
+          <ul class="always-show show-load">
+            <img
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAKlBMVEVHcEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHrpZrAAAADXRSTlMA32BAw3ggEO+SMFCvWu6yfgAAAPZJREFUOMtjYKA6YDeGggQ0idi7UHAVVZzrLhwYoEgwISQU0CQEIAzGUQm8EjYuLo4ICRcXF2/kIHeAcFiQgp4TxLyxACLB3AviTQCzWe9eVFJSh5mbpKQkezcAEt2yd92RHVJy9yI04hPhLBBgk73rBkshZ++KISQW3r1SAGNz3r0BTwJA2ycgJ56rWJhgh0EdgsSCAIu7NyGMuXebUcIK6JTjqE6FAYiT2XyR3QdxMlgoEcmpSE5egOpUJHfqoqd1mEPRnAoDO+7e7caaqdhkLy7Ant1Sw6mRaYuU4GAbioQsIg9eRAmQu0gAJVACBeFAlOqFCwDdRp6j2BqC5gAAAABJRU5ErkJggg=="
+            />
+            <div>下载</div>
+            <li class="show-code">
+              <div class="show-angle"></div>
+              <div>扫码下载今日头条</div>
+              <img
+                src="data:image/png;base64,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"
+              />
+            </li>
+          </ul>
+        </div>
+        <div class="hide1">
+          <div>◤</div>
+          <div>顶部</div>
+        </div>
+      </div>
+      <!-- 滑动搜索框 -->
+      <div class="move">
+        <div class="move-left">
+          <img
+            src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/logo_red.99c3cb73.svg"
+          />
+          <div class="move-Tab">
+            <div class="Tab">关注</div>
+            <div class="Tab red">推荐</div>
+            <div class="Tab xian">
+              <div>西安</div>
+              <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqBAMAAAA37dRoAAAAG1BMVEVHcEwgICAiIiIiIiIgICAhISEhISEiIiIiIiI3zrLhAAAACHRSTlMAMO9/E9m1QKyOxBkAAABESURBVCjPY2CgEmApwSYq1CqARTSiQxGraBMWxRYd2BQzd4wqRlHcRqwo0AQVIm3DatkwVYoj9WVgTami2JTiyAEUAADwzjHkrymCMgAAAABJRU5ErkJggg=="
+              />
+            </div>
+            <div class="Tab">视频</div>
+            <div class="Tab">财经</div>
+            <div class="Tab">科技</div>
+            <div class="Tab">热点</div>
+            <div class="Tab">国际</div>
+            <ul class="more no">
+              更多
+              <li class="more-down">
+                <div class="angle"></div>
+                <span>军事</span>
+                <span>体育</span>
+                <span>娱乐</span>
+                <span>历史</span>
+                <span>美食</span>
+                <span>直播</span>
+                <span>旅游</span>
+                <span>懂车帝</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="move-right">
+          <div class="search">
+            <input type="text" />
+            <img
+              src="https://lf-dw.toutiaostatic.com/obj/toutiao-duanwai/toutiao/toutiao_web_pc/svgs/search_icon_red.7fe98096.svg"
+            />
+          </div>
+          <div class="right message">
+            <img
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoBAMAAAB+0KVeAAAAMFBMVEVHcEwiIiIhISEgICAiIiIgICAiIiIhISEiIiIhISEiIiIhISEhISEiIiIiIiIiIiK1TMnAAAAAD3RSTlMAgL8YnzzvYHBP39+wz5A9IKz8AAABDElEQVQoz2NgoApgLrm1yN0ATezZfyD4gira9h8MMpDFGP//T2mvOPb/vwCSoPz/RKBOZvn/HxFinP9/gU1j3v8/AC7I/X8xhGENYwBBPUwB6/8fcMH7X2As/U9wR/7/CmPG/zeA25MAE2T7PwHK4vivABPk/d8Ad/oBmCDL/wcYLCDTAcpiQvgOoYnpfwFMkP3/BbiHJiAEF0BZ/Agfs/7/gOFioD8+Q1nzvyECLP87lOH/ByF4HhYM+78jBPu/GUBt/IwQtIc6jxvuC7CbF6BbDnLTV6jlgkgg/yfUGBTwGRqcKAAaODVKSMCVUKrjcAECATRBJpBxDujp0////08G6PpZRfwCqJP+GQD33Yh140n1EwAAAABJRU5ErkJggg=="
+            />
+            <div style="display: inline-block">消息</div>
+          </div>
+          <div class="right publish">
+            <img
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAANlBMVEVHcEwhISEiIiIhISEgICAhISEgICAhISEiIiIgICAhISEiIiIhISEiIiIkJCQhISEhISEiIiJ0E+ANAAAAEXRSTlMAW2+gI4BA358QaI/P70C/r5HADWIAAAExSURBVDjLtVXLtsMgCIxvPUET//9nr9iomGLauyibKg4yIJlu249NS+9izhFOqR9g4sjEQCxgyeWbOQ4a9noWvRTWWqleUXt4IwfoP+zwWFUvvVHVeIGznHNCBnSpwNIB6kaH4Qo0yJO0Zd5SQ6KDUUnsAg9EUo5eSCgHY0iULYetnaUzfuZF+ZbXOq4uTDQqLRpnez5JWDDArQyJrIvzdqBWe2gRC2DPGDvFYHwxbAj+ttpLU2JdjFrMPGVX7aks/weMvaN86tRSu8/FwHM7xv5sEfEJ2DN+eMI0RmY8OzcUqlF8jZldjZkmY/b14NZJ8jxwpxd+/3FtAVhVCD7fSTHf+iVGrFRknwisShvohUg5L1NKQvq4ECls57vs2ZWQAoUd4lGaT0BpLgz0r/8G/gDs+BoJAekznQAAAABJRU5ErkJggg=="
+            />
+            <div style="display: inline-block">发布作品</div>
+          </div>
+          <div class="right login button">登录</div>
+        </div>
+      </div>
+      <!-- 登录弹框 -->
+      <div class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <h4 class="modal-title">登录后内容更精彩</h4>
+            </div>
+            <div class="modal-body">
+              <div class="left">
+                <div>人类登录</div>
+                <div class="log">
+                  <select class="phone">
+                    <option value="选择">登录方式</option>
+                    <option value="天堂有限公司">天堂有限公司</option>
+                    <option value="地狱办事处">地狱办事处</option>
+                    <option value="人间百货大楼">人间百货大楼</option>
+                  </select>
+                  <input type="text" placeholder="请输入您的手机号" />
+                </div>
+                <div class="log haha">
+                  <input type="text" placeholder="验证码为123456" />
+                  <div class="test">获取验证码</div>
+                </div>
+                <div class="check">
+                  <input type="checkbox" checked />
+                  <div>登录即同意本司的霸王条款</div>
+                </div>
+                <div class="red-button">登录</div>
+              </div>
+              <div class="right">
+                支付宝扫码查看
+                <img src="./二维码.jpg" />
+              </div>
+            </div>
+            <div class="other">
+              其他登录
+              <span class="iconfont icon-zhiwu"></span>
+              <span class="iconfont icon-birdxiaoniao"></span>
+              <span class="iconfont icon-yu"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--  引入代码库 -->
+    <script src="../../jquery-1.12.4.min.js"></script>
+    <script src="../../bootstrap.js"></script>
+    <script src="./头条.js"></script>
+  </body>
+</html>

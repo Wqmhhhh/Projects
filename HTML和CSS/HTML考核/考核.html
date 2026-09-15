@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .head{
+            position: relative;
+            background-color: grey;
+            margin:0;
+            border: 0;
+            height: 200px;
+        }
+        .outer{
+            position: relative;
+        }
+        .logo{
+            width:200px;
+            position: absolute;
+            top:70px;
+            left:23px;
+        }
+        p{
+            margin:0;
+            border: 0;
+            left: 10px;
+            top:100px;
+            font-size: 80px;
+            line-height: 280px;
+            padding-left: 30px;
+            color: white;
+            user-select: none;
+        }
+        .head div{
+            width: 100px;
+            height: 100px;
+            border-radius: 100px;
+            overflow: hidden;
+            position: absolute;
+            top: 150px;
+            left: 50%;
+        }
+        .moon,.mountain{
+            width: 100%;
+            height: 100%;
+        }
+        .moon:hover{
+            cursor: pointer;
+        }
+        .moon:active{
+            display: none;
+        }
+        .logo:hover{
+            display: none;
+        }
+        li{
+            list-style: none;
+            text-align: center;
+            font-size: 30px;
+            line-height:60px;
+            font-weight: bold;
+        }
+        ul li:not(:first-child)::selection{
+            color: blue;
+        }
+        .outer{
+            display: block;
+            width: 200px;
+            height: 300px;
+        }
+        .tree{
+            text-align: left;
+            width: 200px;
+            height: 150px;
+
+        }
+        .word{
+            display: block;
+            background-color:aquamarine;
+            width: 200px;
+            text-align: center;
+            position: absolute;
+            top: 150px;
+            user-select: none;
+        }
+        .first{
+            font-size: 30px;
+        }
+        a{
+            display: block;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="head">
+        <p>XULL</p>
+        <div>
+            <img src="./111.jpeg" alt="moon" class="moon">
+            <img src="./222.jpg" alt="mountain" class="mountain">
+        </div>
+        <img src="./logo.jpg" alt="logo" class="logo">
+    </div>
+    <br><br><br><br>
+    <ul class="list" id="list">
+        <li>这是列表的位置</li>
+        <br><br><br><br>
+        <li class="f1">我是列表的第一个元素</li>
+        <li class="f2">我是列表的第二个元素</li>
+        <li class="f3">我是列表的第三个元素</li>
+    </ul>
+    <br><br>
+    <div class="outer">
+        <img src="./index.webp" alt="tree" class="tree">
+        <span class="word"><span class="first">这</span>是一段废话，世界上本没有路，走的人多了，便也成了路，要想获得成功，除非一致努力，别无途径</span>
+    </div>
+    <a href="#list">回到列表位置</a>
+    <br>
+    <a href="#">回到顶部</a>
+</body>
+</html>

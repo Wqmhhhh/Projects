@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!-- 引入bootstrap.css -->
+   <link href="../bootstrap.css" rel="stylesheet">
+  <title>表单联动</title>
+  <style>
+    .outer{
+      width: 800px;
+      height: 150px;
+      background-color: aliceblue;
+      margin: 10% auto;
+      padding: 20px 0;
+    }
+    .box{
+      width: 600px;
+      display: flex;
+      justify-content: space-between;
+      margin: 20px auto;
+    }
+    select{
+      width: 170px;
+      height: 40px;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .all{
+      width: 600px;
+      height: 50px;
+      border: 1px solid #000;
+      border-radius: 10px;
+      margin: 0 auto;
+      text-align: center;
+      line-height: 50px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="outer">
+    <div class="box">
+      <select class="province">
+        <option value="">省份</option>
+      </select>
+      <select class="city">
+        <option value="">城市</option>
+      </select>
+      <select class="area">
+        <option value="">区域</option>
+      </select>
+    </div>
+    <div class="all"></div>
+  </div>
+  <!-- 引入代码库 -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.2.0/axios.min.js"></script>
+  <script src="../form-serialize插件.js"></script>
+
+  <!-- axios 实现 -->
+  <!-- <script>
+    const province=document.querySelector('.province')
+    const city=document.querySelector('.city')
+    const area=document.querySelector('.area')
+    const all=document.querySelector('.all')
+    axios({
+      url:'http://hmajax.itheima.net/api/province'
+    }).then(result=>{
+      const pro=result.data.list
+      const proStr=pro.map(pname=>`<option value="${pname}">${pname}</option>`).join('')
+      province.innerHTML='<option value="">省份</option>'+proStr
+    })
+    // 省份改变更换对应城市
+    province.addEventListener('change',()=>{
+      axios({
+        url:'http://hmajax.itheima.net/api/city',
+        params:{
+          pname:province.value
+        }
+      }).then(result=>{
+        const ci=result.data.list
+        const ciStr=ci.map(pname=>`<option value="${pname}">${pname}</option>`).join('')
+        city.innerHTML='<option value="">城市</option>'+ciStr
+        area.innerHTML='<option value="">区域</option>'
+        all.innerHTML=''
+      })
+    })
+    // 城市改变更改对应区域
+    city.addEventListener('change',()=>{
+      axios({
+        url:'http://hmajax.itheima.net/api/area',
+        params:{
+          pname:document.querySelector('.province').value,
+          cname:city.value
+        }
+      }).then(result=>{
+        const ar=result.data.list
+        const arStr=ar.map(pname=>`<option value="${pname}">${pname}</option>`).join('')
+        area.innerHTML='<option value="">区域</option>'+arStr
+        all.innerHTML=''
+      })
+    })
+    area.addEventListener('change',function(){
+      all.innerHTML=province.value+' --- '+city.value+' --- '+area.value
+    })
+  </script> -->
+  
+  <!-- fetch 实现 -->
+  <script>
+    const province = document.querySelector('.province')
+    const city = document.querySelector('.city')
+    const area = document.querySelector('.area')
+    const all = document.querySelector('.all')
+
+    // 获取省份数据
+    fetch('http://hmajax.itheima.net/api/province')
+      .then(response => response.json())
+      .then(result => {
+        const pro = result.list
+        const proStr = pro.map(pname => `<option value="${pname}">${pname}</option>`).join('')
+        province.innerHTML = '<option value="">省份</option>' + proStr
+      })
+      .catch(error => console.error('Error fetching provinces:', error))
+
+    // 省份改变更换对应城市
+    province.addEventListener('change', () => {
+      fetch(`http://hmajax.itheima.net/api/city?pname=${province.value}`)
+        .then(response => response.json())
+        .then(result => {
+          const ci = result.list
+          const ciStr = ci.map(pname => `<option value="${pname}">${pname}</option>`).join('')
+          city.innerHTML = '<option value="">城市</option>' + ciStr
+          area.innerHTML = '<option value="">区域</option>'
+          all.innerHTML = ''
+        })
+        .catch(error => console.error('Error fetching cities:', error))
+    })
+
+    // 城市改变更改对应区域
+    city.addEventListener('change', () => {
+      fetch(`http://hmajax.itheima.net/api/area?pname=${province.value}&cname=${city.value}`)
+        .then(response => response.json())
+        .then(result => {
+          const ar = result.list
+          const arStr = ar.map(pname => `<option value="${pname}">${pname}</option>`).join('')
+          area.innerHTML = '<option value="">区域</option>' + arStr
+          all.innerHTML = ''
+        })
+        .catch(error => console.error('Error fetching areas:', error))
+    })
+
+    area.addEventListener('change', function() {
+      all.innerHTML = province.value + ' --- ' + city.value + ' --- ' + area.value
+    })
+  </script>
+</body>
+</html>

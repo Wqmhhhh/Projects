@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>轮播图</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      .box {
+        width: 800px;
+        height: 500px;
+        margin: 0 auto;
+        background-image: url("../pics/pic2.png");
+        background-size: 800px;
+        background-repeat: no-repeat;
+      }
+      .change {
+        width: 800px;
+        height: 500px;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0) 70%,
+          rgb(0, 0, 0)
+        );
+        position: relative;
+        top: 0;
+      }
+      .title {
+        font-size: 25px;
+        font-weight: bold;
+        color: white;
+        position: relative;
+        top: 370px;
+        left: 50px;
+        display: inline-block;
+        user-select: none;
+      }
+      .button {
+        color: white;
+        font-size: 30px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: rgba(199, 197, 197, 0.635);
+        text-align: center;
+        line-height: 40px;
+        margin-left: 10px;
+        display: inline-block;
+        user-select: none;
+      }
+      .right {
+        display: inline-block;
+        position: absolute;
+        top: 370px;
+        left: 650px;
+      }
+      .button:hover {
+        cursor: pointer;
+        background-color: rgba(199, 197, 197, 0.863);
+      }
+      .outer {
+        display: inline-block;
+        width: 50px;
+        height: 30px;
+      }
+      .dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.626);
+        display: inline-block;
+        transition-property: all;
+        margin-left: 10px;
+      }
+      .down {
+        display: flex;
+        justify-content: space-around;
+        width: 150px;
+        position: relative;
+        top: 420px;
+        left: 40px;
+      }
+      .dot:hover {
+        cursor: pointer;
+      }
+      .active {
+        width: 20px;
+        height: 20px;
+        border-radius: 20px;
+        background-color: rgba(255, 255, 255, 0.836);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div class="change">
+        <div class="middle">
+          <div class="title">天上地下，唯我独尊！</div>
+          <div class="right">
+            <div class="button" data-id="before">＜</div>
+            <div class="button" data-id="next">＞</div>
+          </div>
+        </div>
+        <div class="down">
+          <div class="outer">
+            <div class="dot" data-id="0"></div>
+          </div>
+          <div class="outer">
+            <div class="dot" data-id="1"></div>
+          </div>
+          <div class="outer">
+            <div class="dot" data-id="2"></div>
+          </div>
+          <div class="outer">
+            <div class="dot" data-id="3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const pics = [
+        {
+          src: "../pics/pic2.png",
+          title: "天上地下，唯我独尊",
+          color: "black",
+        },
+        {
+          src: "../pics/pic1.png",
+          title: "感情迟钝的精灵，读到了爱她的人用一生写的情书",
+          color: "rgb(187, 81, 10)",
+        },
+        { src: "../pics/pic3.png", title: "鲑鱼", color: "rgb(179, 176, 175)" },
+        {
+          src: "../pics/pic4.png",
+          title: "Violet Evergarden",
+          color: "rgb(34, 133, 77)",
+        },
+      ];
+      const box = document.querySelector(".box");
+      const down = document.querySelector(".down");
+      const title = document.querySelector(".title");
+      const right = document.querySelector(".right");
+      const dots = document.querySelectorAll(".dot");
+      const change = document.querySelector(".change");
+      let i = 0,
+        n = 0;
+      dots[0].classList.add("active");
+      // 间隔时间更换图，顺序
+      function Time() {
+        n = setInterval(function () {
+          dots[i].classList.remove("active");
+          if (i < 3) {
+            i++;
+          } else {
+            i = 0;
+          }
+          box.style.backgroundImage = `url(${pics[i].src})`;
+          title.innerHTML = pics[i].title;
+          dots[i].classList.add("active");
+          change.style.background = `linear-gradient(to bottom,rgba(255, 255, 255, 0)60%,${pics[i].color}`;
+        }, 3000);
+      }
+      Time();
+      // 点击对应原点换图
+      down.addEventListener("click", function (e) {
+        if (e.target.tagName === "DIV") {
+          clearInterval(n);
+          dots[i].classList.remove("active");
+          i = e.target.dataset.id;
+          box.style.backgroundImage = `url(${pics[i].src})`;
+          title.innerHTML = pics[i].title;
+          dots[i].classList.add("active");
+          change.style.background = `linear-gradient(to bottom,rgba(255, 255, 255, 0),${pics[i].color}`;
+        }
+        Time();
+      });
+      // 点击前后按钮换图
+      right.addEventListener("click", function (e) {
+        if (e.target.tagName === "DIV") {
+          clearInterval(n);
+          dots[i].classList.remove("active");
+          if (e.target.dataset.id === "before") {
+            if (i === 0) i = 3;
+            else i--;
+          } else {
+            if (i === 3) i = 0;
+            else i++;
+          }
+          box.style.backgroundImage = `url(${pics[i].src})`;
+          title.innerHTML = pics[i].title;
+          dots[i].classList.add("active");
+          change.style.background = `linear-gradient(to bottom,rgba(255, 255, 255, 0),${pics[i].color}`;
+        }
+        Time();
+      });
+    </script>
+  </body>
+</html>

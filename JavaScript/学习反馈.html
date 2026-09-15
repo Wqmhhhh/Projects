@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 引入bootstrap.css -->
+  <link href="../bootstrap.css" rel="stylesheet">
+  <title>学习反馈</title>
+  <style>
+        .container {
+      width: 1000px;
+      padding-top: 20px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .container .stu-title {
+      font-weight: 900;
+      font-size: 36px;
+    }
+
+    .container .bg {
+      display: block;
+      width: 100%;
+    }
+
+    .item-wrap .hot-area {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    .item-wrap .hot-area .hot {
+      color: #c32f32;
+      font-weight: 600;
+      margin-right: 20px;
+    }
+
+
+    .item-wrap .nav {
+      display: flex;
+    }
+
+    .item-wrap .nav li {
+      margin-right: 10px;
+    }
+
+    .item-wrap .nav li a {
+      text-decoration: none;
+      color: black;
+    }
+
+
+    .item-wrap .title {
+      font-weight: 600;
+      white-space: nowrap;
+      margin-right: 20px;
+    }
+
+    .item-wrap select {
+      width: 150px;
+      height: 40px;
+      font-size: 14px;
+      color: black;
+      letter-spacing: 0;
+      font-weight: 400;
+      background: #FFFFFF;
+      border: 1px solid rgba(232, 232, 233, 1);
+      border-radius: 4px;
+      padding: 10px;
+      outline: none;
+      margin-right: 10px;
+
+    }
+
+    .item-wrap select option {
+      font-weight: normal;
+      display: block;
+      white-space: nowrap;
+      min-height: 1.2em;
+      padding: 0px 2px 1px;
+      font-size: 16px;
+
+    }
+
+    .item-wrap input {
+      font-weight: normal;
+      display: block;
+      white-space: nowrap;
+      min-height: 1.2em;
+      padding: 0px 2px 1px;
+      height: 40px;
+      font-size: 16px;
+      border: 1px solid rgba(232, 232, 233, 0.682);
+      color: black;
+    }
+
+    .item-wrap .feedback {
+      width: 400px;
+      height: 150px;
+      border: 1px solid rgba(232, 232, 233, 0.682);
+    }
+
+    .item-wrap .area-box {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .feedback::-webkit-input-placeholder {
+      /* WebKit browsers */
+      color: #BFBFBF;
+    }
+
+    .feedback:-moz-placeholder {
+      /* Mozilla Firefox 4 to 18 */
+      color: #BFBFBF;
+    }
+
+    .feedback::-moz-placeholder {
+      /* Mozilla Firefox 19+ */
+      color: #BFBFBF;
+    }
+
+    .feedback:-ms-input-placeholder {
+      /* Internet Explorer 10+ */
+      color: #BFBFBF;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h4 class="stu-title">学习反馈</h4>
+    <div class="item-wrap">
+      <form class="info-form">
+        <div class="area-box">
+          <span class="title">地区选择</span>
+          <select name="province" class="province">
+          </select>
+          <select name="city" class="city">
+            <option value="">城市</option>
+          </select>
+          <select name="area" class="area">
+            <option value="">地区</option>
+          </select>
+        </div>
+        <div class="area-box">
+          <span class="title">您的称呼</span>
+          <input type="text" name="nickname" class="nickname"  value="播仔">
+        </div>
+        <div class="area-box">
+          <span class="title">宝贵建议</span>
+          <textarea type="text" name="feedback" class="feedback" placeholder="您对AJAX阶段课程宝贵的建议"></textarea>
+        </div>
+        <div class="area-box">
+          <button type="button" class="btn btn-secondary submit">
+            确定提交
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.2.0/axios.min.js"></script>
+  <script src="../form-serialize插件.js"></script>
+  <script>
+    // 获取省份列表数据
+    axios({
+      url:'http://hmajax.itheima.net/api/province'
+    }).then(result=>{
+      const opStr = result.data.list.map(pname=>`<option value="${pname}">${pname}</option>`).join('')
+      document.querySelector('.province').innerHTML='<option value="">省份</option>'+opStr
+      
+    })
+    document.querySelector('.province').addEventListener('change',async e=>{
+      const result=await axios({
+        url:"http://hmajax.itheima.net/api/city",
+        params:{
+          pname:e.target.value
+        }
+      })
+      const opStr = result.data.list.map(cname=>`<option value="${cname}">${cname}</option>`).join('')
+      document.querySelector('.city').innerHTML='<option value="">城市</option>'+opStr
+      // 清空地区数据
+      document.querySelector('.area').innerHTML='<option value="">地区</option>'
+    })
+    document.querySelector('.city').addEventListener('change',async e=>{
+      const res=await axios({
+        url:'http://hmajax.itheima.net/api/area',
+        params:{
+          pname:document.querySelector('.province').value,
+          cname:e.target.value
+        }
+      })
+      const opStr = res.data.list.map(cname=>`<option value="${cname}">${cname}</option>`).join('')
+      document.querySelector('.area').innerHTML='<option value="">地区</option>'+opStr
+    })
+
+    // 数据提交
+    document.querySelector('.submit').addEventListener('click',async e=>{
+      const form=document.querySelector('.info-form')
+      const Obj=serialize(form,{hash:true,empty:true})
+      try{
+        const res=await axios({
+        url:'http://hmajax.itheima.net/api/feedback',
+        method:'post',
+        data:Obj
+        })
+        alert(res.data.message )
+      }catch(error){
+        console.log(error)
+        alert(error.response.data.message)
+      }
+    })
+  </script>
+</body>
+
+</html>

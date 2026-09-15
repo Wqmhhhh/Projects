@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../Normalize.css" />
+    <title>新增博客</title>
+    <style>
+      * {
+        box-sizing: content-box;
+      }
+      body {
+        background-image: url("../../pics/pic4.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        overflow: auto;
+      }
+      .box {
+        width: 1200px;
+        margin: 0 auto;
+        position: relative;
+      }
+      .left {
+        position: relative;
+        top: 30px;
+        width: 900px;
+        height: 550px;
+        background-color: rgba(240, 248, 255, 0.39);
+        border-radius: 20px;
+        padding: 30px 20px;
+        padding-left: 40px;
+      }
+      .pic {
+        width: 80px;
+        height: 80px;
+        border-radius: 80px;
+        background-image: url("../../pics/pic2.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin: 0 auto;
+        margin-bottom: 20px;
+      }
+      .under {
+        background-color: rgba(240, 248, 255, 0.63);
+        width: 150px;
+        height: 45px;
+        line-height: 45px;
+        border-radius: 20px;
+        margin: 0 auto;
+        font-size: 18px;
+        margin-top: 30px;
+        text-align: center;
+      }
+      .under:hover {
+        cursor: pointer;
+        background-color: rgba(188, 189, 190, 0.74);
+      }
+      .right {
+        width: 180px;
+        height: 230px;
+        position: absolute;
+        top: 50px;
+        left: 1000px;
+        background-color: rgba(240, 248, 255, 0.39);
+        text-align: center;
+        border-radius: 20px;
+        padding: 20px;
+      }
+      .name {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 30px;
+      }
+      .message {
+        margin: 20px 0;
+      }
+      .message div {
+        display: inline-block;
+        position: relative;
+        top: -135px;
+      }
+      textarea {
+        margin-left: 20px;
+        width: 400px;
+        height: 150px;
+        resize: none;
+      }
+      .title input {
+        width: 300px;
+        height: 30px;
+        margin-left: 20px;
+      }
+      .type input {
+        margin-left: 40px;
+        margin-bottom: 30px;
+      }
+      .up {
+        display: inline-block;
+        position: relative;
+        top: -160px;
+      }
+      .put_pic {
+        width: 300px;
+        height: 200px;
+        background-size: cover;
+        border: 1px solid #3a3939;
+        display: inline-block;
+        margin-left: 20px;
+      }
+      .outer_pic input {
+        position: relative;
+        top: -100px;
+        left: -240px;
+      }
+      .pub {
+        width: 100px;
+        height: 30px;
+        border-radius: 10px;
+        position: relative;
+        left: 750px;
+        background-color: rgba(104, 158, 141, 0.288);
+      }
+      .pub:hover {
+        background-color: rgba(104, 158, 141, 0.74);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <form class="left">
+        <div class="title">
+          输入文章题目：
+          <input type="text" />
+        </div>
+        <div class="message">
+          <div>输入文章内容：</div>
+          <textarea></textarea>
+        </div>
+        <div class="type">
+          选择文章类型(单项选择):
+          <input type="radio" name="one" value="c1" class="type" />恋爱番
+          <input type="radio" name="one" value="c2" class="type" />热血番
+          <input type="radio" name="one" value="c3" class="type" />治愈番
+          <input type="radio" name="one" value="c4" class="type" />推理番
+        </div>
+        <div class="outer_pic">
+          <div class="up">上传封面图片：</div>
+          <label for="file">
+            <div class="put_pic"></div>
+          </label>
+          <input type="file" id="file" />
+        </div>
+        <button class="pub">发表</button>
+      </form>
+      <div class="right">
+        <div class="pic"></div>
+        <div class="name">游客</div>
+        <div class="under main">返回个人页面</div>
+      </div>
+    </div>
+    <script>
+      let tyv = "",
+        tiv = "",
+        mev = "",
+        piv = "";
+      let likev = 0,
+        collectv = 0;
+      const pub = document.querySelector(".pub");
+      const form = document.querySelector("form");
+      const title = document.querySelector(".title");
+      const message = document.querySelector(".message");
+      const type = document.querySelector(".type");
+      const users = JSON.parse(localStorage.getItem("infor")) || [];
+      let blogs = JSON.parse(localStorage.getItem("blog")) || [];
+
+      // 加载用户信息
+      const cookies = document.cookie.split(";");
+      let m = -1,
+        i = 0;
+      while (1) {
+        if (m !== -1) {
+          break;
+        }
+        let p = cookies[i].split("=");
+        if (p[0] == "UserNum" || p[0] == " UserNum") {
+          m = p[1];
+        }
+        i++;
+      }
+      const name = document.querySelector(".name");
+      name.innerHTML = `${users[m][2]}`;
+
+      // 点击返回个人页面
+      const main = document.querySelector(".main");
+      main.addEventListener("click", () => {
+        window.localStorage.removeItem("inforNum");
+        location.href = "个人页面.html";
+      });
+
+      // 更换图片(范围仅限图pic1——8)
+      const put_pic = document.querySelector(".put_pic");
+      const pic_file = document.querySelector(".outer_pic input");
+      let n = 0;
+      pic_file.addEventListener("change", () => {
+        let str = pic_file.value;
+        n = Number(str[15]);
+        put_pic.style.backgroundImage = `url('../../pics/pic${n}.png')`;
+        piv = `../../pics/pic${n}.png`;
+        pic_file.style.opacity = 0;
+      });
+
+      // 用于多次添加多个对象的函数
+      function AddBlog(infor) {
+        if (!blogs[m]) {
+          blogs[m] = [];
+        }
+        blogs[m].push(infor);
+        localStorage.setItem("blog", JSON.stringify(blogs));
+      }
+
+      // 点击发表按钮
+      type.addEventListener("click", (e) => {
+        tyv = e.target.value;
+      });
+      title.addEventListener("input", (e) => {
+        tiv = e.target.value;
+      });
+      message.addEventListener("input", (e) => {
+        mev = e.target.value;
+      });
+      pub.addEventListener("click", (e) => {
+        e.preventDefault(); // 清除表单默认事件
+        // 检测所有内容填充完成
+        if (tiv == "" || mev == "" || tyv == "" || piv == "") {
+          alert("请填充完毕后提交！");
+          return;
+        }
+
+        // 保存表单内容
+        const infor = {
+          title: tiv,
+          message: mev,
+          type: tyv,
+          pic: piv,
+          like: likev,
+          collect: collectv,
+          comment: [],
+        };
+        AddBlog(infor);
+        alert("发布成功！");
+        setTimeout(() => {
+          location.href = "个人页面.html";
+        }, 500);
+        form.reset();
+        put_pic.style.backgroundImage = "";
+        pic_file.style.opacity = 1;
+      });
+
+      // 修改博客
+      if (
+        localStorage.getItem("EditNum") !== null &&
+        document.referrer ==
+          "http://127.0.0.1:5500/JavaScript/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/%E4%B8%AA%E4%BA%BA%E9%A1%B5%E9%9D%A2.html"
+      ) {
+        let editnum = localStorage.getItem("EditNum");
+        title.innerHTML = `输入文章题目：<input type="text" value="${blogs[m][editnum]["title"]}">`;
+        tiv = blogs[m][editnum]["title"];
+        message.innerHTML = `
+        <div>输入文章内容：</div>
+        <textarea>${blogs[m][editnum]["message"]}</textarea>
+      `;
+        mev = blogs[m][editnum]["message"];
+        for (let i = 0; i < 4; i++) {
+          if (
+            type.children[i].getAttribute("value") == blogs[m][editnum]["type"]
+          ) {
+            type.children[i].checked = true;
+            break;
+          }
+        }
+        tyv = blogs[m][editnum]["type"];
+        put_pic.style.backgroundImage = `url('${blogs[m][editnum]["pic"]}')`;
+        piv = blogs[m][editnum]["pic"];
+        pic_file.style.opacity = 0;
+        likev = blogs[m][editnum]["like"];
+        collectv = blogs[m][editnum]["collect"];
+        blogs[m].splice(editnum, 1);
+        localStorage.removeItem("EditNum");
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学生信息录入</title>
+  <style>
+     .top,.bottom{
+      font-size: 25px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 70px;
+     }
+    form{
+      width: 1000px;
+      height: 130px;
+      margin: 0 auto;
+      display: block;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 50px;
+     }
+     button{
+      font-size: 20px;
+      line-height: 20px;
+      position: absolute;
+      left: 1150px;
+      top: 200px;
+     }
+    input{
+      font-size: 10px;
+      font-weight: normal;
+      line-height: 20px;
+     }
+     select{
+      font-size: 18px;
+      line-height: 20px;
+     }
+     table{
+      margin: 0 auto;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 50px;
+      border-collapse:collapse;
+      width: 1000px;
+      height: 50px;
+      background-color: white;
+     }
+     th{
+      border: 2px solid #000;
+      background-color: rgb(61, 187, 198);
+     }
+     td{
+      border: 1px solid #000;
+     }
+     .delete{
+      color: red;
+     }
+     .delete:hover{
+      cursor: pointer;
+     }
+  </style>
+</head>
+<body>
+   <!-- 学生信息表 -->
+   <div class="top">新增学员</div>
+  <form class="infor" autocomplete="off">
+    <br>
+    姓名：<input type="text" class="name">
+    年龄：<input type="text" class="age">
+    性别：<select class="gender">
+          <option value="男" class="one">男</option>
+          <option value="女" class="one">女</option>
+          </select>
+    薪资：<input type="text" class="mon">
+    城市：<input type="text" class="city">
+    <button>录入</button>
+  </form>
+  <div class="bottom">就业榜</div>
+  <table>
+    <thead>
+      <tr>
+        <th>序号</th>
+        <th>姓名</th>
+        <th>年龄</th>
+        <th>性别</th>
+        <th>薪资</th>
+        <th>城市</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <script>
+    const tbody=document.querySelector('tbody')
+    const name=document.querySelector('.name')
+    const age=document.querySelector('.age')
+    const gender=document.querySelector('.gender')
+    const mon=document.querySelector('.mon')
+    const city=document.querySelector('.city')
+    const infor=document.querySelector('.infor')
+    const dele = document.querySelector('.delete')
+    const arr=[]
+    let num=0
+    function render(){
+      for(let i=0;i<arr.length;i++)
+    {
+      const tr =document.createElement('tr')
+      tr.innerHTML=`
+      <td>${i+1}</td>
+        <td>${arr[i].name}</td>
+      <td>${arr[i].age}</td>
+      <td>${arr[i].gender}</td>
+      <td>${arr[i].mon}</td>
+      <td>${arr[i].city}</td>
+      <td class='delete' data-id=${i}>删除</td>
+      `
+      tbody.appendChild(tr)
+    }
+    } 
+    const names=document.querySelectorAll('.infor input')
+    infor.addEventListener('submit',function(e){
+      // 阻止默认行为，不跳转
+      e.preventDefault()
+      // 进行输入的非空判断
+    for(let i=0;i<names.length;i++)
+    { 
+      if(names[i].value === '')
+      {
+        return alert('请输入全部信息后再提交')
+      }
+    }
+    // 新数据的录入
+      const obj={
+        name:name.value,
+        age:age.value,
+        gender:gender.value,
+        mon:mon.value,
+        city:city.value,
+      }
+      // 追加到数组里
+      arr.push(obj)
+      // 清空表单
+      this.reset()
+      tbody.innerHTML=''
+      render()
+    })
+    // 点击删除删除对应行
+    tbody.addEventListener('click',function(e){
+      if(e.target.tagName === 'TD'){
+        arr.splice(e.target.dataset.id,1)
+      }
+      tbody.innerHTML=''
+      render()
+    })
+    
+
+    
+    
+  </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖拽</title>
+  <style>
+    body{
+      overflow: hidden;
+    }
+    .body{
+      width: 300px;
+      height: 200px;
+      background-image: url('../pics/pic2.png');
+      background-repeat: no-repeat;
+      background-size: contain;
+      display: inline-block;
+      position: absolute;
+      top: 0;
+    }
+    .body:hover{
+      cursor: move;
+    }
+  </style>
+</head>
+<body>
+  <div class="body">
+  </div>
+  <script>
+    const body=document.querySelector('.body')
+    let btop=0
+    let bleft=0
+    let bright=0
+    let bbottom=0
+    let strL=[]
+    let strT=[]
+    console.log(body.style.top)
+    function mouseMove(e){
+      if(e.clientX<bleft&&e.clientY<btop){
+        body.style.left=0
+        body.style.top=0
+        return
+      }
+      if(window.innerWidth-e.clientX<bright&&window.innerHeight-e.clientY<bbottom){
+        body.style.left=window.innerWidth-287+'px'
+        body.style.top=window.innerHeight-200+'px'
+        return
+      }
+      if(e.clientX<bleft&&window.innerHeight-e.clientY<bbottom){
+        body.style.left=0
+        body.style.top=window.innerHeight-200+'px'
+        return
+      }
+      if(window.innerWidth-e.clientX<bright&&e.clientY<btop){
+        body.style.left=window.innerWidth-287+'px'
+        body.style.top=0
+        return
+      }
+      if(e.clientY<btop){
+        body.style.top=0
+        body.style.left=e.clientX-bleft+'px'
+        return
+      }
+      if(window.innerHeight-e.clientY<bbottom){
+        body.style.top=window.innerHeight-187+'px'
+        body.style.left=e.clientX-bleft+'px'
+        return
+      }
+      if(window.innerWidth-e.clientX<bright){
+        body.style.left=window.innerWidth-287+'px'
+        body.style.top=e.clientY-btop+'px'
+        return
+      }
+      if(e.clientX<bleft){
+        body.style.left=0
+        body.style.top=e.clientY-btop+'px'
+        return
+      }
+      body.style.left=e.clientX-bleft+'px'
+      body.style.top=e.clientY-btop+'px'
+      
+    }
+    body.addEventListener('mousedown',function(e){
+      for(let i=0;i<body.style.top.length;i++){
+        strT[i]=body.style.top[i]
+      }
+      for(let i=0;i<body.style.left.length;i++){
+        strL[i]=body.style.left[i]
+      }
+      strL.splice(body.style.left.length-2)
+      strT.splice(body.style.top.length-2)
+      bleft=e.clientX-Number(strL.join(''))
+      btop=e.clientY-Number(strT.join(''))
+      bright=300-e.clientX+Number(strL.join(''))
+      bbottom=200-e.clientY+Number(strT.join(''))
+      document.addEventListener('mousemove',mouseMove)
+    })
+    body.addEventListener('mouseup',function(){
+      document.removeEventListener('mousemove',mouseMove)
+      strL=[]
+      strT=[]
+    })
+  </script>
+</body>
+</html>

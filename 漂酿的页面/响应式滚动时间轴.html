@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    .box {
+      width: 100%;
+      padding: 80px 0;
+      transition: 0.3s ease 0s;
+      /* 定义背景图像的固定行为,即使页面滚动，背景图像也不会移动 */
+      background-attachment: fixed;
+      background-size: cover;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .box::before {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(99, 99, 99, 0.8);
+      content: "";
+    }
+
+    .header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 20vh;
+      position: relative;
+    }
+
+    .title {
+      font-size: 15vh;
+      font-weight: normal;
+      color: #ffffffb6;
+      margin: 0;
+      user-select: none;
+    }
+
+    .timeline {
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: column;
+      max-width: 90vw;
+      position: relative;
+    }
+
+    .content-title {
+      font-size: 10vh;
+      font-weight: normal;
+      margin: 3vh 0 0;
+      margin-top: 10vh;
+      transition: 0.4s;
+      box-sizing: border-box;
+      color: #fff;
+    }
+
+    .content-text {
+      font-size: 4vh;
+      margin: 0;
+      box-sizing: border-box;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 10vh;
+    }
+
+    .timeline:before {
+      position: absolute;
+      left: 50%;
+      width: 2px;
+      height: 100%;
+      content: "";
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .item {
+      padding: 15vh 0;
+      opacity: 0.3;
+      filter: blur(2px);
+      transition: 0.5s;
+      box-sizing: border-box;
+      width: 35vw;
+      display: flex;
+      position: relative;
+      transform: translateY(-20vh);
+    }
+
+    .item::before {
+      content: attr(data-text);
+      letter-spacing: 5px;
+      width: 100%;
+      position: absolute;
+      color: rgba(255, 255, 255, 0.7);
+      top: 30%;
+      opacity: 0;
+      font-size: 5vh;
+    }
+
+    .item:nth-child(even) {
+      align-self: flex-end;
+    }
+
+    .item:nth-child(odd)::before {
+      left: auto;
+      text-align: left;
+      left: calc(-100%-56px);
+      padding-right: 0;
+      border-right: none;
+      width: 20vw;
+      border-left: 2px solid rgba(255, 255, 255, 0.5);
+      padding-left: 3vw;
+      left: 45vw;
+    }
+    .item:nth-child(even)::before {
+      right: auto;
+      text-align: right;
+      padding-left: 0;
+      width: 20vw;
+      border-right: none;
+      border-right: 2px solid rgba(255, 255, 255, 0.5);
+      padding-right: 3vw;
+      left: -33vw;
+    }
+
+    /* JS添加类后的效果 */
+    .item--active {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0px);
+    }
+
+    .item--active::before {
+      top: 50%;
+      transition: 0.3s all 0.2s;
+      opacity: 1;
+    }
+
+    .item--active .content-title {
+      margin: 3vh 0;
+    }
+
+    .img {
+      max-width: 35vw;
+      /* 盒子阴影可以移位啊竟然！ */
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 媒体查询：屏幕尺寸 */
+    @media only screen and (max-width:767px) {
+      .item {
+        align-self: baseline !important;
+        width: 70vw;
+        padding: 5vh 13vw 30vh 25vw;
+      }
+
+      .item::before {
+        box-sizing: border-box;
+        display: inline-block;
+        width: 20vw !important;
+        top: 30%;
+        text-align: right !important;
+        color: #fff;
+        letter-spacing: 0.5vh;
+        text-align: right;
+        padding-left: 0;
+        border-left: none !important;
+        border-right: 2px solid rgba(255, 255, 255, 0.5) !important;
+        padding-right: 2vw !important;
+        left: 0.5vh !important;
+      }
+    }
+
+    @media only screen and (max-width:767px) {
+      .timeline::before {
+        left: 20vw;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box" id="box">
+    <div class="header">
+      <h2 class="title">乌漆抹黑嘿嘿嘿</h2>
+    </div>
+    <div class="timeline">
+      <div class="item" data-text="葬送的芙莉莲">
+        <div class="content">
+          <img src="./pics/pic1.png" alt="" class="img">
+          <h2 class="content-title">葬送的芙莉莲</h2>
+          <p class="content-text">
+            ‌死亡不是终点，而是新的起点,我们将在彼岸重逢。
+          </p>
+        </div>
+      </div>
+      <div class="item" data-text="五条悟">
+        <div class="content">
+          <img src="./pics/pic2.png" alt="" class="img">
+          <h2 class="content-title">五条悟</h2>
+          <p class="content-text">
+            5t5好帅！哈斯哈斯
+          </p>
+        </div>
+      </div>
+      <div class="item" data-text="狗卷">
+        <div class="content">
+          <img src="./pics/pic3.png" alt="" class="img">
+          <h2 class="content-title">狗卷</h2>
+          <p class="content-text">
+            ‌他不说话！他喜欢我！
+          </p>
+        </div>
+      </div>
+      <div class="item" data-text="薇尔莉特">
+        <div class="content">
+          <img src="./pics/pic4.png" alt="" class="img">
+          <h2 class="content-title">薇尔莉特</h2>
+          <p class="content-text">
+            花无凋零之日，意无传递之时，爱情亘古不变，紫罗兰与世长存
+          </p>
+        </div>
+      </div>
+      <div class="item" data-text="堀与宫村">
+        <div class="content">
+          <img src="./pics/pic7.png" alt="" class="img">
+          <h2 class="content-title">堀与宫村</h2>
+          <p class="content-text">
+            谁不喜欢看甜甜的番呢！
+          </p>
+        </div>
+      </div>
+      <div class="item" data-text="柯南">
+        <div class="content">
+          <img src="./pics/pic8.png" alt="" class="img">
+          <h2 class="content-title">柯南</h2>
+          <p class="content-text">
+            ‌凶手就是泥！
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="./各种包//jquery-1.12.4.min.js"></script>
+    <script>
+
+      // 这一段看也看不懂
+      (function ($) {
+        $.fn.timeline = function () {
+          let selectors = {
+            id: $(this),
+            item: $(this).find(".item"),
+            activeClass: "item--active",
+            img: ".img"
+          }
+          // 激活第一个时间轴项目，并设置背景图片
+          selectors.item.eq(0).addClass(selectors.activeClass)
+          selectors.id.css(
+            "background-image",
+            "url(" + selectors.item.first().find(selectors.img).attr("src") + ")"
+          )
+          // 获取时间轴项目总数
+          const itemLength = selectors.item.length
+          $(window).scroll(function () {
+            let max, min
+            //获取页面滚动高度
+            let pos = $(this).scrollTop()
+            // 获取当前时间轴项目最小高度、最大高度
+            selectors.item.each(function (i) {
+              min = $(this).offset().top
+              max = $(this).height() + $(this).offset().top
+              let that = $(this)
+
+              // 若滚动到最后一个项目且超过当前项目高度的一半，将最后一个项目设为激活状态
+              if (i == itemLength - 2 && pos > min + $(that).height() / 2) {
+                selectors.item.removeClass(selectors.activeClass)
+                selectors.id.css(
+                  "background-image",
+                  "url(" + selectors.item.last().find(selectors.img).attr("src") + ")")
+                selectors.item.last().addClass(selectors.activeClass)
+              }
+              // 若当前滚动位置在当前项目的最大、最小高度间，将当前项目设置为激活
+              else if (pos <= max - 10 && pos >= min) {
+                selectors.id.css(
+                  "background-image",
+                  "url(" + $(that).find(selectors.img).attr("src") + ")"
+                )
+                selectors.item.removeClass(selectors.activeClass)
+                $(this).addClass(selectors.activeClass)
+              }
+            })
+          })
+        }
+      })(jQuery)
+      // 调用timeline插件，并传入时间轴ID作为参数
+      $("#box").timeline()
+    </script>
+</body>
+
+</html>

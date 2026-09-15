@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../Normalize.css">
+  <title>用户登录</title>
+  <style>
+    *{
+      box-sizing: border-box;
+    }
+    body{
+      background-image: url('../../pics/pic4.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: 0 -20px;
+    }
+    .form{
+      margin: 0 auto;
+      width: 500px;
+      height: 300px;
+      margin-top: 10%;
+      background-color: rgba(240, 248, 255, 0.445);
+      border-radius: 20px;
+      padding: 30px;
+    }
+    .in{
+      width: 350px;
+      margin: 20px auto;
+    }
+    input{
+      width: 200px;
+      height: 40px;
+      border-radius: 10px;
+      margin: 0 auto;
+      line-height: 40px;
+      position: relative;
+      padding: 0 10px;
+    }
+    button{
+      width: 350px;
+      height: 50px;
+      font-size: 20px;
+      border-radius: 10px;
+      border: 1.7px solid black;
+      margin: 10px 10%;
+      background-color: rgba(44, 145, 185, 0)
+    }
+    button:hover{
+      cursor: pointer;
+      background-color: rgba(82, 153, 82, 0.288);
+    }
+    .a{ 
+      width: 150px;
+      margin: 0 auto;
+    }
+    .box{
+      width: 15px;
+      display: inline-block;
+    }
+    .auto{
+      display: inline-block;
+      font-size: 16px;
+      position: relative;
+      top: -15px;
+      left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <form class="form">
+    <div class="in phone">请输入手机号码：<input type="text" style="margin-left: 22px;"></div>
+    <div class="in password1">请输入密码：<input type="password" style="margin-left: 54px;"></div>
+    <div class="a">
+      <input type="checkbox" class="box">
+      <div class="auto">七天内自动登录</div>
+    </div>
+    <button>登录</button>
+  </form>
+
+  <script>
+    const form=document.querySelector("form")
+    const phone=document.querySelector(".phone")
+    const password=document.querySelector(".password1")
+    const box=document.querySelector(".box")
+    let phonev='',passwordv=''
+    let flag=0
+    const users=JSON.parse(localStorage.getItem('infor')) ||[]
+    
+    phone.addEventListener('input',e=>{
+      phonev=e.target.value
+    })
+    password.addEventListener('input',e=>{
+      passwordv=e.target.value
+    })
+    box.addEventListener("click",()=>{     //监听自动登录是否被勾选
+      if(box.checked==true){
+        flag=1;
+      }
+    })
+    form.addEventListener('submit',e=>{
+      e.preventDefault()
+      let m=0
+      while(1){
+        if(phonev == users[m][0]){
+          if(passwordv == users[m][1]){
+            // 勾选了自动登录对当前登录设置cookie，下次自动登录
+            document.cookie=`UserNum=${m}`
+            if(flag==1){
+              document.cookie=`phone=${phonev};max-age=604800`
+            }
+            setTimeout(()=>{
+              form.reset()
+              location.href='主页.html'
+            },500)
+            break;
+          }
+          else{
+            alert("用户名或密码错误！")      //对比不符合报错
+            form.reset()  
+            break
+          }
+        }
+        else{
+          m++
+        }
+        if(users[m]==null){
+          alert('该用户不存在！请注册')
+          form.reset()
+          break
+        }
+      }
+    })
+  </script>
+</body>
+</html>

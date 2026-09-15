@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css">
+  <!-- <link rel="stylesheet"
+    href="https://。at.alicdn.com/t/c/font_4001111_4jrdiaeyvuy.css?spm=a313x.7781069.1998910419.52&file=font_4001111_4jrdiaeyvuy.css"> -->
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/wangeditor5/5.1.23/css/style.min.css">
+  <title>发布文章</title>
+  <style>
+        html, body{
+      height: 100%;
+    }
+
+    .wrap{
+      min-height: 100%;
+      display: flex;
+    }
+
+    /* 提示框 */
+    .alert{
+      width: 400px;
+      height: 50px;
+      text-align: center;
+      line-height: 20px;
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      z-index: 10000;
+    }
+    .show{
+      display: block;
+    }
+    .success{
+    background-color: rgba(14, 241, 165, 0.418);
+  }
+  .danger{
+    background-color: rgba(255, 11, 11, 0.233);
+  }
+
+    /* 侧边栏 */
+    .aside {
+      width: 200px;
+      background-color: #023;
+      padding-top: 40px;
+    }
+    .aside h2 {
+      text-align: center;
+      color: #fc6627;
+    }
+
+    /* 侧边栏导航 */
+    .nav{
+      padding-left: 20px;
+    }
+    .nav li {
+      width: 100%;
+      height: 60px;
+      line-height: 60px;
+      color: white;
+      cursor: pointer;
+      list-style: none;
+    }
+    .nav li a{
+      color: white;
+      text-decoration: none;
+    }
+    .nav li a.active{
+      color: #409eff !important;
+    }
+
+    /* 右侧区域 */
+    .main{
+      flex: 1;
+    }
+    .top-nav{
+      height: 60px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding-right: 40px;
+    }
+    .nav-item span{
+      cursor: pointer;
+    }
+    .nav-item span:last-of-type{
+      margin-left: 20px;
+    }
+
+    /* 卡片容器布局 */
+    .content{
+      padding: 30px;
+    }
+    .card{
+      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+      border: 1px solid #ebeef5;
+      padding: 20px;
+    }
+    .card .title{
+      height: 50px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ebeef5;
+    }
+
+    /* 表单 */
+    .body form>div{
+      margin-top: 20px;
+    }
+    .body form input, .body form select{
+      width: auto;
+      display: inline-block;
+    }
+
+    /* 封面 */
+    .cover .place{
+      width: 200px;
+      height: 200px;
+      text-align: center;
+      font-size: 40px;
+      line-height: 200px;
+      border: 1px solid #ddd;
+      color: #aaa;
+      cursor: pointer;
+      display: inline-block;
+      vertical-align: top;
+    }
+    .cover img{
+      width: 200px;
+      height: 200px;
+    }
+    .cover .rounded{
+      display: none;
+    }
+    .cover .show{
+      display: inline-block;
+    }
+    .cover .hide{
+      display: none;
+    }
+
+    /* 富文本编辑器 */
+    #editor—wrapper {
+      border: 1px solid #ccc;
+      z-index: 100; /* 按需定义 */
+    }
+    #toolbar-container { border-bottom: 1px solid #ccc; }
+    #editor-container { height: 500px; }
+  </style>
+</head>
+
+<body> 
+  <div class="alert info-box success">
+    操作结果
+  </div>
+  <div class="wrap">
+    <!-- 侧边栏 -->
+    <div class="aside">
+      <h2>黑马头条</h2>
+      <ul class="nav">
+        <li>
+          <a href="../content/index.html">
+            <span class="iconfont icon-16"></span>
+            <span>内容管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="./index.html" class="active">
+            <span class="iconfont icon-fabu"></span>
+            <span>发布文章</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!-- 右侧区域 -->
+    <div class="main">
+      <!-- 顶部导航 -->
+      <div class="top-nav">
+        <div class="nav-item">
+          <span class="nick-name">昵称</span>
+          <span class="quit">退出</span>
+        </div>
+      </div>
+      <!-- 内容区域 -->
+      <div class="content">
+        <!-- 发布文章 -->
+        <div class="card">
+          <div class="title">
+            <span>发布文章</span>
+          </div>
+          <div class="body">
+            <form class="art-form">
+              <input type="text" name="id" hidden>
+              <div>
+                <label for="title" class="form-label">标题：</label>
+                <input type="text" class="form-control" id="title" name="title">
+              </div>
+              <div>
+                <label for="channel_id" class="form-label">频道：</label>
+                <select class="form-select" id="channel_id" name="channel_id">
+       
+                </select>
+              </div>
+              <div class="cover">
+                <label for="img">封面：</label>
+                <label for="img" class="place">+</label>
+                <input class="img-file" type="file" name="img" id="img" hidden>
+                <img class="rounded">
+              </div>
+              <div>
+                <label for="">内容：</label>
+                <!-- 富文本编辑器位置 -->
+                <div id="editor—wrapper">
+                  <div id="toolbar-container"><!-- 工具栏 --></div>
+                  <div id="editor-container"><!-- 编辑器 --></div>
+                </div>
+                <!-- 记录富文本内容-用于表单收集 -->
+                <textarea name="content" class="publish-content" hidden></textarea>
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary send">发布</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+   <!-- 引入代码库 -->
+   <script src="../../../form-serialize插件.js"></script>
+   <script src="../../../jquery-1.12.4.min.js"></script>
+   <script src="../../../bootstrap.css"></script>
+   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+   <script src="https://cdn.bootcdn.net/ajax/libs/wangeditor5/5.1.23/index.min.js"></script>
+   <script src="../Utils/request.js"></script>
+  <script src="../Utils/editor.js"></script>
+  <script src="../Utils/auth.js"></script>
+  <script src="../Utils/alert.js"></script>
+  <script>
+    // 设置频道下拉菜单
+    async function setChannleList(){
+      const res=await axios({
+        url:'/v1_0/channels'
+      })
+      const inner=res.data.channels.map(item=>` <option value="${item.id}">${item.name}</option>`).join('')
+      document.querySelector('.form-select').innerHTML=' <option value="" selected>请选择文章频道</option>'+inner
+    }
+    setChannleList()
+    
+    // 发布文章-封面设置
+    document.querySelector('.img-file').addEventListener('change',async (e)=>{
+      const file=e.target.files[0]
+      const fd=new FormData()
+      fd.append('image',file)   // 单独上传图片并得到图片的 URL 地址
+      const res=await axios({
+        url:'/v1_0/upload',
+        method:'post',
+        data:fd
+      })
+      // 回显图片并切换 img 标签展示
+      document.querySelector('.rounded').src=res.data.url
+      document.querySelector('.rounded').classList.add('show')
+      document.querySelector('.place').classList.add('hide')
+    })
+    // 点击更换上的图片可以重新切换封面
+    document.querySelector('.rounded').addEventListener('click',()=>{
+      document.querySelector('.img-file').click()
+    })
+
+    // 发布文章-收集并保存
+    document.querySelector('.send').addEventListener('click',async (e)=>{
+      if(e.target.innerHTML!=='发布') return
+      const form=document.querySelector('.art-form')
+      const Fdata=serialize(form,{hash:true,empty:true})
+      Fdata.cover={
+        type:1,
+        image:[document.querySelector('.rounded').src]   // 数组是后端要求的格式
+      }    
+      try{
+        const res=await axios({
+          url:'/v1_0/mp/articles',
+          method:'post',
+          data:Fdata
+        })
+          myAlert(true,'发布成功！')
+          // 把页面所有元素清空，图片、富文本框不属于表单，故手动清空
+          form.reset()
+          document.querySelector('.rounded').src=''
+          document.querySelector('.rounded').remove('show')
+          document.querySelector('.place').classList.remove('hide')
+          // 重置富文本编辑器内容
+          editor.setHtml('<p><br></p>')
+          setTimeout(()=>{
+            location.href='../content/index.html'
+          },1000)
+      }catch(error){
+        myAlert(false,error.response.data.message)
+      }
+    })
+
+    // 点击编辑按钮跳转页面
+    ;(function(){
+        const paramStr=location.search
+        const params=new URLSearchParams(paramStr)
+        params.forEach(async (value,key)=>{
+          if(key ==='id'){
+            document.querySelector('.send').innerHTML='修改'
+            document.querySelector('.title span').innerHTML='修改文章'
+            const res=await axios({
+              url:`/v1_0/mp/articles/${value}`,
+            })
+            // 组织仅需要的数据
+            const dataObj={
+              channel_id:res.data.channel_id,
+              title:res.data.title,
+              rounded:res.data.cover.images[0],
+              content:res.data.content,
+              id:res.data.id
+            }
+            Object.keys(dataObj).forEach(key=>{
+              if(key==='rounded'){
+                if(dataObj[key]){
+                  document.querySelector('.rounded').src=dataObj[key]
+                  document.querySelector('.rounded').classList.add('show')
+                  document.querySelector('.place').classList.add('hide')
+                }
+              }
+              else if(key==='content'){
+                    editor.setHtml(dataObj[key])
+              }else{
+                document.querySelector(`[name="${key}"]`).value = dataObj[key]
+              }
+            })
+          }
+        })
+    })();
+    // 提交修改数据
+    document.querySelector('.send').addEventListener('click',async e=>{
+      if(e.target.innerHTML!=='修改') return
+      const form=document.querySelector('.art-form')
+      const Fdata=serialize(form,{hash:true,empty:true})   
+      try{
+          const res=await axios({
+          url:`/v1_0/mp/articles/${Fdata.id}`,
+          method:'put',
+          data:{
+            ...Fdata,
+            cover:{
+              type:document.querySelector('.rounded').src?1:0,
+              images:[document.querySelector('.rounded').src]
+            }
+          }
+        })
+          myAlert(true,'修改成功！')
+          // 把页面所有元素清空，图片、富文本框不属于表单，故手动清空
+          form.reset()
+          document.querySelector('.rounded').src=''
+          document.querySelector('.rounded').remove('show')
+          document.querySelector('.place').classList.remove('hide')
+          // 重置富文本编辑器内容
+          editor.setHtml('<p><br></p>')
+          setTimeout(()=>{
+            location.href='../content/index.html'
+          },1000)
+      }catch(error){
+        console.log(error)
+        myAlert(false,error.response.data.message)
+      }
+
+    })
+  </script>
+</body>
+
+</html>

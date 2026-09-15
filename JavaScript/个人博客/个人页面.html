@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../Normalize.css" />
+    <title>个人博客</title>
+    <style>
+      * {
+        box-sizing: content-box;
+      }
+      body {
+        background-image: url("../../pics/pic4.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        overflow: hidden;
+      }
+      .box {
+        width: 1200px;
+        margin: 0 auto;
+      }
+      .left {
+        width: 240px;
+        height: 340px;
+        position: absolute;
+        top: 50px;
+        background-color: rgba(240, 248, 255, 0.39);
+        text-align: center;
+        border-radius: 20px;
+      }
+      .left .pic {
+        width: 80px;
+        height: 80px;
+        border-radius: 80px;
+        background-image: url("../../pics/pic2.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin: 20px auto;
+      }
+      .right {
+        position: relative;
+        left: 260px;
+        top: 50px;
+        width: 900px;
+        background-color: rgba(240, 248, 255, 0.39);
+        border-radius: 20px;
+        padding: 30px 20px;
+      }
+      .name {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 30px;
+      }
+      .under {
+        background-color: rgba(240, 248, 255, 0.63);
+        width: 150px;
+        height: 45px;
+        line-height: 45px;
+        border-radius: 20px;
+        margin: 0 auto;
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+      .under:hover {
+        cursor: pointer;
+        background-color: rgba(188, 189, 190, 0.74);
+      }
+      .top {
+        padding: 0px 50px;
+        height: 100px;
+      }
+      input {
+        padding-left: 20px;
+        width: 680px;
+        height: 40px;
+        border-radius: 15px;
+      }
+      .top button {
+        height: 30px;
+        width: 60px;
+        border-radius: 10px;
+        margin-left: 10px;
+        font-size: 17px;
+        background-color: rgba(104, 158, 141, 0.5);
+      }
+      .top button:hover {
+        cursor: pointer;
+        background-color: rgba(117, 182, 161, 0.945);
+      }
+      .bottom {
+        width: 850px;
+        height: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: rgba(240, 248, 255, 0.514);
+      }
+      .part {
+        height: 400px;
+      }
+      .part .pic {
+        display: inline-block;
+        width: 500px;
+        height: 330px;
+        overflow: hidden;
+        margin-right: 40px;
+        display: inline-block;
+      }
+      .part .pic img {
+        width: 100%;
+      }
+      .word {
+        position: relative;
+        top: -330px;
+        left: 530px;
+        display: inline-block;
+        width: 400px;
+        text-align: left;
+      }
+      .title {
+        margin-top: 30px;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .message {
+        height: 60px;
+        line-height: 60px;
+        font-size: 17px;
+      }
+      .same {
+        margin-top: 30px;
+        font-size: 17px;
+      }
+      .change {
+        position: relative;
+        top: -50px;
+        margin: 0 auto;
+        width: 200px;
+        display: flex;
+        justify-content: space-between;
+        user-select: none;
+      }
+      hr {
+        position: relative;
+        top: -60px;
+        background-color: rgb(168, 167, 167);
+        height: 1px;
+      }
+      .change div {
+        display: inline-block;
+        font-size: 30px;
+        background-color: rgba(159, 160, 160, 0.664);
+        border-radius: 10px;
+        line-height: 35px;
+        text-align: center;
+        color: rgb(99, 99, 99);
+        width: 35px;
+        height: 35px;
+      }
+      .change div:hover {
+        cursor: pointer;
+        background-color: rgba(159, 160, 160, 0.918);
+      }
+      .change-word {
+        width: 80px;
+        font-size: 18px;
+        height: 35px;
+        line-height: 35px;
+        text-align: center;
+        background-color: rgba(104, 158, 141, 0.5);
+        border-radius: 10px;
+        display: inline-block;
+        position: absolute;
+        top: 270px;
+        user-select: none;
+      }
+      .delete {
+        left: 120px;
+      }
+      .change-word:hover {
+        cursor: pointer;
+        background-color: rgba(104, 158, 141, 0.753);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div class="left">
+        <div class="pic"></div>
+        <div class="name">游客</div>
+        <div class="under main">返回主界面</div>
+        <div class="under add">新增博客</div>
+      </div>
+      <div class="right">
+        <div class="top">
+          <input type="text" class="search" />
+          <button>搜索</button>
+        </div>
+        <div class="bottom">
+          <div class="part">
+            <div class="pic">
+              <img src="./../../pics/pic4.png" alt="" />
+            </div>
+            <div class="word">
+              <div class="title">添加自己的博客吧</div>
+              <div class="same">点赞量：0</div>
+              <div class="same">收藏量：0</div>
+              <div class="change-word edit">编辑</div>
+              <div class="change-word delete">删除</div>
+            </div>
+          </div>
+          <hr />
+          <div class="change">
+            <div class="before"><</div>
+            <div class="next">></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const delet = document.querySelector(".delete");
+      const button_right = document.querySelector(".button-right");
+      const main = document.querySelector(".main");
+      const cookies = document.cookie.split(";");
+      const name = document.querySelector(".name");
+      const part = document.querySelector(".part");
+      const edit = document.querySelector(".edit");
+      const before = document.querySelector(".before");
+      const next = document.querySelector(".next");
+      let users = JSON.parse(localStorage.getItem("infor")) || [];
+      const blogs = JSON.parse(localStorage.getItem("blog")) || [[]];
+      const search = document.querySelector(".top");
+      const search_word = document.querySelector("input");
+      let m = -1,
+        newinfor = 0,
+        i = 0;
+
+      // 返回主页面
+      main.addEventListener("click", () => {
+        location.href = "主页.html";
+      });
+
+      // 新增博客
+      const add = document.querySelector(".add");
+      add.addEventListener("click", () => {
+        location.href = "新增博客.html";
+      });
+
+      // 加载用户信息、一篇博客
+      while (1) {
+        if (m !== -1) {
+          break;
+        }
+        let p = cookies[i].split("=");
+        if (p[0] == "UserNum" || p[0] == " UserNum") {
+          m = p[1];
+        }
+        i++;
+      }
+      if (m === -1) {
+        throw new Error("UserNum = -1");
+      }
+      name.innerHTML = `${users[m][2]}`;
+      if (blogs[m].length > 0) {
+        part.innerHTML = "";
+        Add(blogs[m][0], 0);
+      }
+
+      // 加载个人博客内容的函数
+      function Add(infor, rand) {
+        let pic = infor["pic"];
+        let title = infor["title"];
+        let like = infor["like"];
+        let collect = infor["collect"];
+        part.innerHTML = `
+        <div class="pic">
+         <img src="${pic}" alt="">
+        </div>
+        <div class="word">
+          <div class="title">${title}</div>
+          <div class="same">点赞量：${like}</div>
+          <div class="same">收藏量：${collect}</div>
+          <div class="change-word edit" data-num=${rand}>编辑</div>
+          <div class="change-word delete" data-num=${rand}>删除</div>
+        </div>`;
+      }
+
+      // 点击前后按钮切换
+      before.addEventListener("click", () => {
+        if (newinfor == 0) {
+          return;
+        } else {
+          before.style.opacity = "1";
+          next.style.opacity = "1";
+        }
+        newinfor--;
+        Add(blogs[m][newinfor], newinfor);
+        if (newinfor == 0) {
+          before.style.opacity = "0.5";
+        }
+      });
+      next.addEventListener("click", () => {
+        if (newinfor == blogs[m].length - 1) {
+          return;
+        } else {
+          next.style.opacity = "1";
+          before.style.opacity = "1";
+        }
+        newinfor++;
+        Add(blogs[m][newinfor], newinfor);
+        if (newinfor == blogs[m].length - 1) {
+          next.style.opacity = "0.5";
+        }
+      });
+
+      // 搜索：完全匹配
+      top.addEventListener("click", (e) => {
+        if (e.target.tagName !== "BUTTON") {
+          return;
+        } else {
+          let word = search_word.value;
+          let flag = 0;
+          for (let i = 0; i < blogs[m].length; i++) {
+            if (word == blogs[m][i]["title"]) {
+              flag = 1;
+              Add(blogs[m][i], i);
+              newinfor = i;
+              break;
+            }
+          }
+          if (flag == 0) {
+            alert("啊哦 ~ 未找到符合要求的博客");
+          }
+        }
+      });
+
+      // 点击编辑、删除对应效果
+      part.addEventListener("click", (e) => {
+        if (blogs[m].length == 0) {
+          return;
+        }
+        if (
+          e.target.className !== "change-word edit" &&
+          e.target.className !== "change-word delete"
+        ) {
+          return;
+        } else if (e.target.className == "change-word edit") {
+          localStorage.setItem("EditNum", e.target.getAttribute("data-num"));
+          location.href = "新增博客.html";
+        } else if (e.target.className == "change-word delete") {
+          const delete_Num = e.target.getAttribute("data-num");
+          blogs[m].splice(delete_Num, 1);
+          localStorage.setItem("blog", JSON.stringify(blogs));
+          if (blogs[m].length > 0) {
+            Add(blogs[m][0], 0);
+            newinfor = 0;
+          } else {
+            part.innerHTML = `
+            <div class="pic">
+            <img src="./../../pics/pic4.png" alt="">
+           </div>
+           <div class="word">
+            <div class="title">添加自己的博客吧</div>
+            <div class="same">点赞量：0</div>
+            <div class="same">收藏量：0</div>
+            <div class="change-word edit">编辑</div>
+            <div class="change-word delete">删除</div>
+           </div>
+          `;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

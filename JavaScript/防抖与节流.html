@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+  <title>Document</title>
+</head>
+<body>
+   <!-- 防抖 --> 
+   <div class="box" style="width: 200px;height: 200px;background-color: rgb(158, 225, 225);">0</div>
+   
+   <!-- <script>
+    const box=document.querySelector('.box')
+    let i=1
+    function mouseMove(){box.innerHTML=i++}
+    //调用Lodash库中的函数 
+    box.addEventListener('mousemove',_.debounce(mouseMove,50))
+
+    // 手搓防抖函数：核心：使用setTimeout定时器实现
+    // 1.声明定时器变量
+    // 2.每次触发事件时先检查是否有定时器，若有则清除，随后设置定时器
+    function debounce(fn,t){
+      let timer
+      return function(){
+        if(timer) clearTimeout(timer)
+        timer = setTimeout(function(){
+        fn()
+      },t)
+      }
+    }
+    box.addEventListener('mousemove',debounce(mouseMove,50))
+    </script> -->
+
+    <!-- 节流 -->
+     <!-- <script>
+      const box=document.querySelector('.box')
+      let i=1
+      function mouseMove(){
+        box.innerHTML=i++}
+        // 使用Lodash库中的函数
+      box.addEventListener('mousemove',_.throttle(mouseMove, 3000))
+      
+      // 手搓节流函数
+      function debounce(fn,t){
+        let timer
+        return function(){
+          if(!timer) {
+            timer=setTimeout(function(){
+              fn()
+              // 清空定时器：注意不能使用cleaTimeout，因为定时器在使用过程中
+              timer=null
+            },t)
+          }
+        }
+      }
+      box.addEventListener('mousemove',debounce(mouseMove,3000))
+     </script> -->
+
+     
+
+</Body>

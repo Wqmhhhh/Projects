@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <ul class="book" :key="item.id">
+    <li v-for="(item,index) in list">
+      {{item.name}} {{item.author}} 
+      <button @click="del(item.id)">删除</button>
+    </li>
+  </ul>
+  <script src=" https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script>
+    const book=new Vue({
+      el:'.book',
+      data:{
+        list:[
+          {id:1,name:'一',author:'one'},
+          {id:2,name:'二',author:'two'},
+          {id:3,name:'三',author:'three'}
+        ]
+      },
+      // filter:不会改变原数组，根据条件，保留满足条件的对应项，得到一个新数组
+      methods:{
+        del(id){
+          this.list=this.list.filter(item=>item.id!==id)
+        }
+      }
+    })
+  </script>
+</body>
+</html>

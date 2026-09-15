@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <!-- v-html -->
+  <div class="one">
+    <div v-html="msg"></div>
+  </div>
+
+  <!-- v-else v-else-if -->
+  <div id="app">
+    <p v-if="score>=90">成绩评定A：奖励电脑一台</p>
+    <p v-else-if="score>=70">成绩评定B：奖励周末郊游</p>
+    <p v-else-if="script>=60">成绩评定C：奖励零食礼包</p>
+    <p v-else>成绩评定D：惩罚一周不能玩手机</p>
+  </div>
+
+  <!-- v-on -->
+  <div id="two">
+    <!-- v-on：事件名="内联语句" -->
+    <button v-on:click="count--">-</button>
+    <span>{{count}}</span>
+    <button v-on:click="count++">+</button>
+
+    <!-- v-on：事件名 = "methods 中的函数名" -->
+    <button @click="fn">切换显示隐藏</button>
+    <h1 v-show="isShow">黑马程序员</h1>
+
+    <div class="box">
+      <h3>小黑自动售货机</h3>
+      <button @click="buy(5)">可乐5元</button>
+      <button @click="buy(10)">咖啡10元</button>
+    </div>
+    <div>银行卡余额：{{money}}元</div>
+  </div>
+
+  <!-- v-bind -->
+   <div class="three">
+      <img v-bind:src="imgUrl">
+      <img :src="imgUrl" alt="">
+   </div>
+
+   <!-- v-for -->
+    <ul class="four">
+      <li v-for="(item,index) in list">{{item}}</li>
+    </ul>
+
+    <!-- v-model -->
+     <div class="five">
+        账户：<input type="text" v-model="name">
+        <br><br>
+        密码：<input type="password" v-model="password">
+        <button @click="login">登录</button>
+        <button @click="reset">重置</button>
+     </div>
+
+  <!-- 引入开发版本的包 -->
+  <script src=" https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script>
+    // 一旦引入VueJS核心包，就有了Vue构造函数
+
+    const one = new Vue({
+      el: '.one',
+      data: {
+        msg: `
+        <a href="https://www.zhihu.com/signin?next=%2F">知乎</a>
+        `
+      }
+    })
+
+    const app = new Vue({
+      // 通过el配置选择器，指定Vue构造函数
+      el: '#app',
+      data: {
+        score: 100
+      }
+    })
+
+    const two = new Vue({
+      el: '#two',
+      data: {
+        count: 100,
+        isShow: true,
+        money:100
+      },
+      methods: {
+        fn() {
+          console.log('执行了fn', two.isShow)
+          two.isShow = !two.isShow
+        },
+        buy(n){
+          this.money-=n
+        }
+      }
+    })
+
+    const three=new Vue({
+      el:'.three',
+      data:{
+        imgUrl:'../pic1.png'
+      }
+    })
+  
+    const four=new Vue({
+      el:'.four',
+      data:{
+        list:['苹果','香蕉','橘子']
+      }
+    })
+  
+    const five=new Vue({
+      el:'.five',
+      data:{
+        name:'',
+        password:'',
+      },
+      methods:{
+        login(){
+          console.log(this.name,this.password)
+        },
+        reset(){
+          this.name=''
+          this.password=''
+        }
+      }
+    })
+    
+  </script>
+</body>
+
+</html>
